@@ -34,7 +34,7 @@ function stanford_sws_help($path, $arg) {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_perm().
  */
 function stanford_sws_perm() {
   return array(
@@ -42,13 +42,51 @@ function stanford_sws_perm() {
     );
 }
 
-
-
 /**
  * Implements hook_preprocess().
  */
 function stanford_sws_preprocess_page(&$variables, $hook) {
 
+  /*
+    Check to see if this page is a node. If so apply subtheme by node reference
+   */
+  if(isset($variables["#node"])) {
+    $node = $variables['#node'];
 
+    if(_lookup_subsite_reference_by_node($node)) {
+        stanford_sws_apply_subsite($node);
+    }
 
+    return;
+  } // end if node//
+
+  /*
+    If the page being viewed is not a node then check the path
+  */
+
+  $request_path = request_path();
+  $parent_site = _lookup_subsite_reference_by_path($path);
+
+}
+
+/**
+ * _lookup_subsite_reference_by_node()
+ * @param $node - The currently being viewed node object
+ * @return  boolen - True if this node has a subsite / False if none
+ */
+
+function _lookup_subsite_reference_by_node($node) {
+
+  return false;
+}
+
+/**
+ * _lookup_subsite_reference_by_path
+ * @param  $path - String - The currently viewed url path
+ * @return Mixed - A node object of the subsite node or false if none
+ */
+
+function _lookup_subsite_reference_by_path($path) {
+
+  return false;
 }
