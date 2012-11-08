@@ -18,6 +18,19 @@
  *
  */
 
+
+// The content type that defines a subsite
+DEFINE('SUBSITE_CONTENT_TYPE', "sub_site");
+// The reference field that connects a child node to a subsite
+DEFINE('SUBSITE_REF_FIELD', 'field_sws_sub_site');
+// The field that changes the site title
+DEFINE("SUBSITE_NAME_FIELD", "field_sws_site_name");
+// The field that changes the site logo
+DEFINE("SUBSITE_LOGO_FIELD", "field_sws_site_logo");
+// The field that changes $front_page
+DEFINE("SUBSITE_FRONT_PAGE_FIELD", "field_sws_front_page");
+
+
 /**
  * Implements hook_help().
  */
@@ -31,6 +44,7 @@ function stanford_sws_help($path, $arg) {
     case 'admin/help#sws':
       return '<p>' . t('For more help please contact stanford web services: %email', array('%email' => 'admin@stanford.edu')) . '</p>';
   }
+  return;
 }
 
 /**
@@ -50,11 +64,11 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
   /*
     Check to see if this page is a node. If so apply subtheme by node reference
    */
-  if(isset($variables["#node"])) {
-    $node = $variables['#node'];
+  if(isset($variables['node'])) {
+    $node = $variables['node'];
 
-    if(_lookup_subsite_reference_by_node($node)) {
-        stanford_sws_apply_subsite($node);
+    if($subsite_node = _lookup_subsite_reference_by_node($node)) {
+        stanford_sws_apply_subsite($subsite_node, $variables);
     }
 
     return;
@@ -65,7 +79,7 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
   */
 
   $request_path = request_path();
-  $parent_site = _lookup_subsite_reference_by_path($path);
+  $parent_site = _lookup_subsite_reference_by_path($request_path);
 
 }
 
@@ -77,7 +91,25 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
 
 function _lookup_subsite_reference_by_node($node) {
 
-  return false;
+  // If the node that is being viewed is the subsite node then just return it!
+  if($node->type == SUBSITE_CONTENT_TYPE) { return $node; }
+
+  // Node is of another type... Get parent
+  if(!isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['entity']) ||
+  !is_object($node->{SUBSITE_REF_FIELD}[$node->language][0]['entity']))
+  {
+    return false;
+  } // no reference
+
+  // This should always be a subsite content type based on field settings
+  $subsite_node = $node->{SUBSITE_REF_FIELD}[$node->language][0]['entity'];
+
+  // But just in case someone mucked with them
+  if($subsite_node->type !== SUBSITE_CONTENT_TYPE) {
+    return false;
+  }
+
+  return $subsite_node;
 }
 
 /**
@@ -89,4 +121,42 @@ function _lookup_subsite_reference_by_node($node) {
 function _lookup_subsite_reference_by_path($path) {
 
   return false;
+}
+
+/**
+ * stanford_sws_apply_subsite
+ * @param $node - the subsite node object
+ * @param $variables - The variables array from hook_preprocess_page
+ * Function tasks:
+ *   1. Change $title [if set]
+ *   2. Change $logo [if set]
+ *   3. Change the $front_page url [if set]
+ */
+
+function stanford_sws_apply_subsite($node, &$vars) {
+
+  // Change the site Title
+  if(isset($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])
+    && !empty($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"]))
+  {
+    $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"];
+  }
+
+  // Change the site logo
+  if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"])
+    && !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]))
+  {
+    $vars['logo'] = file_create_url($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]);
+  }
+
+  // Change $front_page url
+  if(isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])
+    && $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])
+  {
+    $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
+  }
+
+
+
+
 }
