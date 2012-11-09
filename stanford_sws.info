@@ -4,7 +4,6 @@ package = Stanford
 version = 1.0
 core = 7.x
 
-dependencies[] = "themekey"
 dependencies[] = "context"
 dependencies[] = "stanford_sws_content_types"
 dependencies[] = "blockreference"

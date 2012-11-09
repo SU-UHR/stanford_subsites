@@ -29,7 +29,8 @@ DEFINE("SUBSITE_NAME_FIELD", "field_sws_site_name");
 DEFINE("SUBSITE_LOGO_FIELD", "field_sws_site_logo");
 // The field that changes $front_page
 DEFINE("SUBSITE_FRONT_PAGE_FIELD", "field_sws_front_page");
-
+// The field that changes the theme and sets the themekey settings
+DEFINE("SUBSITE_THEME_FIELD", "field_sws_site_theme");
 
 /**
  * Implements hook_help().
@@ -42,7 +43,8 @@ function stanford_sws_help($path, $arg) {
      *  return '<p>' . t('Blocks are boxes of content rendered into an area, or region, of a web page. The default theme Bartik, for example, implements the regions "Sidebar first", "Sidebar second", "Featured", "Content", "Header", "Footer", etc., and a block may appear in any one of these areas. The <a href="@blocks">blocks administration page</a> provides a drag-and-drop interface for assigning a block to a region, and for controlling the order of blocks within regions.', array('@blocks' => url('admin/structure/block'))) . '</p>';
      */
     case 'admin/help#sws':
-      return '<p>' . t('For more help please contact stanford web services: %email', array('%email' => 'admin@stanford.edu')) . '</p>';
+      return '<p>' . t('For more help please contact stanford web services: %email',
+       array('%email' => 'help@stanford.edu')) . '</p>';
   }
   return;
 }
@@ -55,6 +57,42 @@ function stanford_sws_perm() {
     'administer site within a site',
     );
 }
+
+/**
+ * Implements hook_init().
+ */
+function stanford_sws_custom_theme() {
+
+  /*
+    Check to see if this page is a node. If so apply subtheme by node reference
+   */
+  $a0 = arg(0);
+  $a1 = arg(1);
+  $subsite_node = FALSE;
+
+  if($a0 == "node" && is_numeric($a1)) {
+    $node = node_load($a1);
+    $subsite_node = _lookup_subsite_reference_by_node($node);
+  }
+
+ /*
+    If the page being viewed is not a node then check the path
+  */
+
+  if(!$subsite_node) {
+    $request_path = request_path();
+    $subsite_node = _lookup_subsite_reference_by_path($request_path);
+  }
+
+  // Apply the field values
+
+  if(isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
+    && $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'] !== "default") {
+    return $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'];
+  }
+
+}
+
 
 /**
  * Implements hook_preprocess().
@@ -81,46 +119,6 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
   $request_path = request_path();
   $parent_site = _lookup_subsite_reference_by_path($request_path);
 
-}
-
-/**
- * _lookup_subsite_reference_by_node()
- * @param $node - The currently being viewed node object
- * @return  boolen - True if this node has a subsite / False if none
- */
-
-function _lookup_subsite_reference_by_node($node) {
-
-  // If the node that is being viewed is the subsite node then just return it!
-  if($node->type == SUBSITE_CONTENT_TYPE) { return $node; }
-
-  // Node is of another type... Get parent
-  if(!isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['entity']) ||
-  !is_object($node->{SUBSITE_REF_FIELD}[$node->language][0]['entity']))
-  {
-    return false;
-  } // no reference
-
-  // This should always be a subsite content type based on field settings
-  $subsite_node = $node->{SUBSITE_REF_FIELD}[$node->language][0]['entity'];
-
-  // But just in case someone mucked with them
-  if($subsite_node->type !== SUBSITE_CONTENT_TYPE) {
-    return false;
-  }
-
-  return $subsite_node;
-}
-
-/**
- * _lookup_subsite_reference_by_path
- * @param  $path - String - The currently viewed url path
- * @return Mixed - A node object of the subsite node or false if none
- */
-
-function _lookup_subsite_reference_by_path($path) {
-
-  return false;
 }
 
 /**
@@ -156,7 +154,163 @@ function stanford_sws_apply_subsite($node, &$vars) {
     $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
   }
 
+}
 
+/**
+ * Implements hook_node_submit().
+ * @param $node: The node object being updated in response to a form submission.
+ * @param $form: The form being used to edit the node.
+ * @param $form_state: The form state array.
+ *
+ * Utiltity tasks for saving nodes of various types
+ * 1. Clear path caches for sub_sites
+ */
+function stanford_sws_node_submit($node, $form, &$form_state) {
 
+  // If we are saveing a sub_site content type clear path cache
+  if($node->type == SUBSITE_CONTENT_TYPE) {
+    // Clear all path caches
+    cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
+  }
 
 }
+
+
+/**
+ * Implements hook_node_update().
+ */
+function stanford_sws_node_update($node) {
+  // Clear out all of the subsite paths
+  cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
+
+}
+
+
+/**
+ * Implements pathauto_alias_alter()
+ *  Prepends the pathalias of the subsite to a node being referenced to one
+ */
+
+function stanford_sws_pathauto_alias_alter(&$alias, $context) {
+  $node = $context['data']['node'];
+
+  // If there is a reference to a sub site then alter the pathauto_alias
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
+  is_object($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']))
+  {
+    $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+    $alias = drupal_get_path_alias("node/" . $subsite_node->nid) . "/" . $alias;
+  }
+
+}
+
+/**
+ * Implements hook_form_alter().
+ * Add the active theme options to the theme field
+ */
+function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
+
+  if($form_id !== SUBSITE_CONTENT_TYPE . "_node_form") { return; }
+
+  $node = $form['#node'];
+
+  $themes = list_themes();
+  foreach($themes as $k => $theme) {
+    $form[SUBSITE_THEME_FIELD][$node->language]['#options'][$k] = $k;
+  }
+
+  $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
+    (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
+    ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] : "default";
+
+}
+
+
+
+
+
+//  ////////////////////////////////////////////////////////////////////////////
+//  HELPERS //
+//  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * _lookup_subsite_reference_by_node()
+ * @param $node - The currently being viewed node object
+ * @return  boolen - True if this node has a subsite / False if none
+ */
+
+function _lookup_subsite_reference_by_node($node) {
+
+  // If the node that is being viewed is the subsite node then just return it!
+  if($node->type == SUBSITE_CONTENT_TYPE) { return $node; }
+
+  // Node is of another type... Get parent
+  if(!isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
+  !is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']))
+  {
+    return false;
+  } // no reference
+
+  // This should always be a subsite content type based on field settings
+  $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+
+  // But just in case someone mucked with them
+  if($subsite_node->type !== SUBSITE_CONTENT_TYPE) {
+    return false;
+  }
+
+  return $subsite_node;
+}
+
+/**
+ * _lookup_subsite_reference_by_path
+ * @param  $path - String - The currently viewed url path
+ * @return Mixed - A node object of the subsite node or false if none
+ */
+
+function _lookup_subsite_reference_by_path($path) {
+
+  // First get all of the sub site paths
+  $subsite_paths = _get_subsite_paths();
+
+  // Check raw string for path... :( needs optimization
+  foreach($subsite_paths as $nid => $site_path) {
+    if(stripos($path, $site_path) !== FALSE) {
+      return node_load($nid);
+    }
+  }
+
+  return false;
+}
+
+/**
+ *_get_subsite_paths
+ * @return  Array | an array of subsite paths
+ */
+
+function _get_subsite_paths() {
+
+ // $paths = cache_get('stanford_sws_subsite_paths');
+
+  // If cache isnt set then we need to generate it
+  if(!$paths) {
+    $paths = array();
+    $query = db_select('node','n')
+              ->fields('n', array('nid'))
+              ->condition('type', SUBSITE_CONTENT_TYPE)
+              ->execute();
+
+    while($path_string = $query->fetchAssoc()) {
+      $paths[$path_string['nid']] = drupal_get_path_alias("node/" . $path_string['nid']);
+    }
+    cache_set('stanford_sws_subsite_paths', $paths);
+    return $paths;
+  }
+
+  // Cached version
+  return $paths->data;
+}
+
+
+
+
