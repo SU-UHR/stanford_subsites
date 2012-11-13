@@ -12,7 +12,6 @@
  *
  * @todo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  *
- *  1. Implement $logo theme hook change
  *
  * :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  *
@@ -59,7 +58,7 @@ function stanford_sws_perm() {
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_custom_theme().
  */
 function stanford_sws_custom_theme() {
 
@@ -213,8 +212,46 @@ function stanford_sws_pathauto_alias_alter(&$alias, $context) {
  */
 function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
 
-  if($form_id !== SUBSITE_CONTENT_TYPE . "_node_form") { return; }
+  if($form_id == SUBSITE_CONTENT_TYPE . "_node_form") {
+    stanford_sws_form_node_form_alter_subsite_node($form, $form_state, $form_id);
+    return;
+  }
 
+  // The node form..
+  $language = $form['language']['#value'];
+  // global user object
+  global $user;
+  $account = user_load($user->uid);
+
+  // Check for site theme field
+  if(isset($form[SUBSITE_REF_FIELD])) {
+
+    // If default subsite is not selected then set to users account setting
+    if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
+      !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]))
+    {
+      // Check to see if the user has a subsite account setting
+      if(isset($account->{SUBSITE_REF_FIELD}[$language][0]['target_id']) &&
+        is_numeric($account->{SUBSITE_REF_FIELD}[$language][0]['target_id']))
+      {
+        $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_REF_FIELD}[$language][0]['target_id'];
+      }
+
+    }
+
+  }
+
+}
+
+/**
+ * stanford_sws_form_node_form_alter_subsite_node()
+ * @param   $form the form array
+ * @param   $form_state the submitted form state
+ * @param   $form_id the form id
+ *
+ */
+
+function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
 
   $themes = list_themes();
@@ -225,10 +262,7 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
   $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
     (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
     ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] : "default";
-
 }
-
-
 
 
 
