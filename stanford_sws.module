@@ -117,8 +117,11 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
   */
 
   $request_path = request_path();
-  $parent_site = _lookup_subsite_reference_by_path($request_path);
+  $subsite_node = _lookup_subsite_reference_by_path($request_path);
 
+  if($subsite_node) {
+    stanford_sws_apply_subsite($subsite_node, $variables);
+  }
 }
 
 /**
@@ -287,10 +290,9 @@ function _lookup_subsite_reference_by_path($path) {
  *_get_subsite_paths
  * @return  Array | an array of subsite paths
  */
-
 function _get_subsite_paths() {
 
- // $paths = cache_get('stanford_sws_subsite_paths');
+  $paths = cache_get('stanford_sws_subsite_paths');
 
   // If cache isnt set then we need to generate it
   if(!$paths) {
