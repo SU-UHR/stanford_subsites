@@ -305,8 +305,9 @@ function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $f
  */
 function stanford_sws_field_access($op, $field, $entity_type, $entity, $account) {
 
+  // check to see if user can edit the subsite selection field
    if ($field['field_name'] == SUBSITE_REF_FIELD && $op == 'edit') {
-     return user_access('access subsite selector on content', $account);
+     return user_access('administer subsite selection', $account);
    }
 
   return TRUE;
