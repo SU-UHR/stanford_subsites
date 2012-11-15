@@ -51,10 +51,17 @@ function stanford_sws_help($path, $arg) {
 /**
  * Implements hook_perm().
  */
-function stanford_sws_perm() {
+function stanford_sws_permission() {
   return array(
-    'administer site within a site',
-    );
+    'administer sws' => array(
+      'title' => t('Administer SWS'),
+      'description' => t('Perform administration tasks for site within a site.'),
+    ),
+    'administer subsite selection' => array(
+      'title' => t('Administer Subsite Selection'),
+      'description' => t('Access and change the subsite selection field'),
+    ),
+  );
 }
 
 /**
@@ -121,6 +128,7 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
   if($subsite_node) {
     stanford_sws_apply_subsite($subsite_node, $variables);
   }
+
 }
 
 /**
@@ -166,6 +174,7 @@ function stanford_sws_apply_subsite($node, &$vars) {
  *
  * Utiltity tasks for saving nodes of various types
  * 1. Clear path caches for sub_sites
+ * 2. Check for missing subsite field
  */
 function stanford_sws_node_submit($node, $form, &$form_state) {
 
@@ -174,6 +183,30 @@ function stanford_sws_node_submit($node, $form, &$form_state) {
     // Clear all path caches
     cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
   }
+
+  // If the user did not have access to the subsite selector then we need to add
+  // the users subsite setting to the node
+  global $user;
+  $account = user_load($user->uid);
+  $values = &$form_state['values'];
+  $language = $form['language']['#value'];
+
+  // Check to see if the reference field is in the form and if it was submitted
+  if(isset($form[SUBSITE_REF_FIELD]) && !isset($values[SUBSITE_REF_FIELD])) {
+    // Field exists on this form but was not submitted. User did not have access
+
+    if(isset($account->{SUBSITE_REF_FIELD}[$language][0]['target_id']) &&
+      is_numeric($account->{SUBSITE_REF_FIELD}[$language][0]['target_id']))
+    {
+      // User has a subsite setting
+      $ref_id = $account->{SUBSITE_REF_FIELD}[$language][0]['target_id'];
+      form_set_value($form[SUBSITE_REF_FIELD], $ref_id, $form_state);
+      $node->{SUBSITE_REF_FIELD}[$language][0]['target_id'] = $ref_id;
+    }
+
+  }
+
+  $drop = "";
 
 }
 
@@ -223,6 +256,7 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
   global $user;
   $account = user_load($user->uid);
 
+
   // Check for site theme field
   if(isset($form[SUBSITE_REF_FIELD])) {
 
@@ -240,6 +274,7 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
     }
 
   }
+
 
 }
 
@@ -262,6 +297,19 @@ function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $f
   $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
     (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
     ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] : "default";
+}
+
+
+/**
+ * Implements hook_field_access().
+ */
+function stanford_sws_field_access($op, $field, $entity_type, $entity, $account) {
+
+   if ($field['field_name'] == SUBSITE_REF_FIELD && $op == 'edit') {
+     return user_access('access subsite selector on content', $account);
+   }
+
+  return TRUE;
 }
 
 
