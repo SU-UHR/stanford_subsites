@@ -30,6 +30,11 @@ DEFINE("SUBSITE_LOGO_FIELD", "field_sws_site_logo");
 DEFINE("SUBSITE_FRONT_PAGE_FIELD", "field_sws_front_page");
 // The field that changes the theme and sets the themekey settings
 DEFINE("SUBSITE_THEME_FIELD", "field_sws_site_theme");
+// The subsite vocabulary machine name
+DEFINE("SUBSITE_VOCAB", "sws_sub_sites");
+// The subsite tags field
+DEFINE("SUBSITE_TAGS_FIELD", "field_sws_subsite_tags");
+
 
 /**
  * Implements hook_help().
@@ -49,7 +54,7 @@ function stanford_sws_help($path, $arg) {
 }
 
 /**
- * Implements hook_perm().
+ * Implements hook_permission().
  */
 function stanford_sws_permission() {
   return array(
@@ -174,15 +179,17 @@ function stanford_sws_apply_subsite($node, &$vars) {
  *
  * Utiltity tasks for saving nodes of various types
  * 1. Clear path caches for sub_sites
- * 2. Check for missing subsite field
+ * 2. Check for missing subsite field on non sub_site nodes
  */
 function stanford_sws_node_submit($node, $form, &$form_state) {
 
   // If we are saveing a sub_site content type clear path cache
+  // and perform sub_site specific handling
   if($node->type == SUBSITE_CONTENT_TYPE) {
     // Clear all path caches
     cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
   }
+
 
   // If the user did not have access to the subsite selector then we need to add
   // the users subsite setting to the node
@@ -206,7 +213,57 @@ function stanford_sws_node_submit($node, $form, &$form_state) {
 
   }
 
-  $drop = "";
+  // Check to see if the submitted node has a subsite_tags field and a reference
+  // the the subsite that is selected in the ref field
+  if(isset($form[SUBSITE_TAGS_FIELD])) {
+
+    // Check to see that there is a subsite NID available
+    if(isset($values[SUBSITE_REF_FIELD][$language][0]['target_id'])
+      && is_numeric($values[SUBSITE_REF_FIELD][$language][0]['target_id']))
+    {
+
+      $subsite_node = node_load($values[SUBSITE_REF_FIELD][$language][0]['target_id']);
+      $subsite_term = _get_subsite_term($subsite_node);
+      $found_term = FALSE; // boolean switch for finding the term
+
+      // check to see that tags field has reference
+      foreach($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
+        if($term['tid'] == $subsite_term->tid) {
+          $found_term = TRUE;
+          break;
+        }
+      }
+
+      // Did not find the subsite term in the subsite tags field. Add it!
+      if(!$found_term) {
+        $tags = $values[SUBSITE_TAGS_FIELD][$language];
+        $tags[] = (array)$subsite_term;
+        form_set_value($form[SUBSITE_TAGS_FIELD], $tags, $form_state);
+        $node->{SUBSITE_TAGS_FIELD}[$language] = $tags;
+      }
+
+    }
+
+  }
+
+}
+
+/**
+ * Handles the insert of a new sub_site content type
+ * @param  object $node       the node object
+ *
+ * Tasks:
+ * 1. Create subsite term
+ */
+function stanford_sws_node_insert($node) {
+
+  // We have a new sub_site content type. Lets add it to the sub_site vocabulary
+  if($node->type == SUBSITE_CONTENT_TYPE) {
+    _insert_subsite_term($node);
+  }
+
+  // automatically tag content with subsite term on creation
+
 
 }
 
@@ -216,16 +273,19 @@ function stanford_sws_node_submit($node, $form, &$form_state) {
  */
 function stanford_sws_node_update($node) {
   // Clear out all of the subsite paths
-  cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
+  if($node->type == SUBSITE_CONTENT_TYPE) {
+    // Clear all path caches
+    cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
+    _update_subsite_node_term_name($node);
+  }
 
 }
 
 
 /**
  * Implements pathauto_alias_alter()
- *  Prepends the pathalias of the subsite to a node being referenced to one
+ * Prepends the pathalias of the subsite to a node being referenced to one
  */
-
 function stanford_sws_pathauto_alias_alter(&$alias, $context) {
   $node = $context['data']['node'];
 
@@ -285,7 +345,6 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
  * @param   $form_id the form id
  *
  */
-
 function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
 
@@ -296,7 +355,8 @@ function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $f
 
   $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
     (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
-    ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] : "default";
+    ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']
+    : "default";
 }
 
 
@@ -366,7 +426,7 @@ function _lookup_subsite_reference_by_path($path) {
     }
   }
 
-  return false;
+  return FALSE;
 }
 
 /**
@@ -396,6 +456,81 @@ function _get_subsite_paths() {
   return $paths->data;
 }
 
+/**
+ * Generate a term for the subsite vocabulary
+ * @param  object $node the subsite node
+ * @return Object   the new term object or false if failed
+ */
+function _insert_subsite_term($node) {
+  $term = new stdClass();
+  $term->name = $node->title;
+  $term->description = "Vocabulary term for " . $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] .  " subsite";
+  $term->vocabulary_machine_name = SUBSITE_VOCAB;
+  $term->format = "filtered_html";
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load(SUBSITE_VOCAB);
+  $term->vid = $vocabulary->vid;
 
 
+  $status = taxonomy_term_save($term, SUBSITE_VOCAB);
+  if($status) {
+    return $term;
+  }
+  else {
+    drupal_set_message("FAILED TO INSERT NEW SUBSITE TERM", 'error');
+  }
+
+}
+
+/**
+ * Looks to update the term name in the subsite vocabulary if the node title
+ * Changes on update
+ * @param  object $node The original Node Object
+ */
+function _update_subsite_node_term_name($node) {
+
+  // New node has been saved but we can still get the old node from cache
+  $old_node = node_load($node->nid);
+
+  // Check if the title of the node changed
+  if($old_node->title == $node->title) {
+    return; // they are the same. Nothing to do here.
+  }
+
+  // The title is different. Load up term by term name
+  $terms = taxonomy_get_term_by_name($old_node->title, SUBSITE_VOCAB);
+
+  // Failed to get a term. Lets insert a new one
+  if(!$terms) {
+    $term = _insert_subsite_term($node);
+    return;
+  }
+
+  // Change the name and save it
+  $old_term = array_pop($terms);
+  $term = clone($old_term);
+  $term->name = $node->title;
+  $term->original = $old_term;
+
+  $term = taxonomy_term_save($term, SUBSITE_VOCAB);
+  return $term;
+}
+
+/**
+ * Returns the term object associated with a subsite node
+ * @param  $node  The subsite node object
+ * @return  object | The term object or false
+ */
+function _get_subsite_term($node) {
+
+  // The title is different. Load up term by term name
+  $terms = taxonomy_get_term_by_name($node->title, SUBSITE_VOCAB);
+
+  // Failed to get a term. Lets insert a new one
+  if(!$terms) {
+    return FALSE;
+  }
+
+  return array_pop($terms);
+}
 
