@@ -242,9 +242,6 @@ function stanford_sws_node_insert($node) {
     _insert_subsite_term($node);
   }
 
-  // automatically tag content with subsite term on creation
-
-
 }
 
 
@@ -353,6 +350,58 @@ function stanford_sws_field_access($op, $field, $entity_type, $entity, $account)
   return TRUE;
 }
 
+//  ////////////////////////////////////////////////////////////////////////////
+//  CONTEXT PLUGINS //
+//  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implement `hook_context_plugins()` to define your plugins, classes, and class
+ * hierarchy.
+ * @return $plugins
+ */
+function stanford_sws_context_plugins() {
+  $plugins = array();
+  $plugins['context_condition_active_subsite'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'stanford_sws') .'/plugins',
+      'file' => 'context_condition_active_subsite.inc',
+      'class' => 'context_condition_active_subsite',
+      'parent' => 'context_condition',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implement `hook_context_registry()` to define your conditions and/or
+ * reactions and map them to plugins.
+ * @return array
+ */
+function stanford_sws_context_registry() {
+  return array(
+    'conditions' => array(
+      'active_subsite' => array(
+        'title' => t('Active Subsite'),
+        'plugin' => 'context_condition_active_subsite',
+      ),
+    ),
+  );
+}
+
+/**
+ * Execute Context active subsite conditions
+ *
+ * Allows modules to hook into Context's hook_page_build to execute their
+ * conditions at an appropriate time before the firing of reactions.
+ */
+function stanford_sws_context_page_condition() {
+
+  $plugin = context_get_plugin('condition', 'active_subsite');
+
+  if ($plugin) {
+    $plugin->execute();
+  }
+}
 
 
 //  ////////////////////////////////////////////////////////////////////////////
