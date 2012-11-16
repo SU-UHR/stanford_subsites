@@ -92,7 +92,7 @@ function stanford_sws_custom_theme() {
   $a0 = arg(0);
   $a1 = arg(1);
 
-  $subsite_node = _get_active_subsite_node();
+  $subsite_node = _get_active_subsite();
 
   // Apply the field values
   if(isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
