@@ -397,10 +397,10 @@ function stanford_sws_context_registry() {
 function stanford_sws_context_page_condition() {
 
   $plugin = context_get_plugin('condition', 'active_subsite');
-
   if ($plugin) {
     $plugin->execute();
   }
+
 }
 
 
