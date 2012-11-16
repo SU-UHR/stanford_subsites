@@ -35,6 +35,9 @@ DEFINE("SUBSITE_VOCAB", "sws_sub_sites");
 // The subsite tags field
 DEFINE("SUBSITE_TAGS_FIELD", "field_sws_subsite_tags");
 
+// Global variable for active subsite
+global $subsite;
+
 
 /**
  * Implements hook_help().
@@ -52,6 +55,15 @@ function stanford_sws_help($path, $arg) {
   }
   return;
 }
+
+/**
+ * Implements hook_init().
+ */
+function stanford_sws_init() {
+  _get_active_subsite(); // set the global $subsite var for use elsewhere
+}
+
+
 
 /**
  * Implements hook_permission().
@@ -79,24 +91,10 @@ function stanford_sws_custom_theme() {
    */
   $a0 = arg(0);
   $a1 = arg(1);
-  $subsite_node = FALSE;
 
-  if($a0 == "node" && is_numeric($a1)) {
-    $node = node_load($a1);
-    $subsite_node = _lookup_subsite_reference_by_node($node);
-  }
-
- /*
-    If the page being viewed is not a node then check the path
-  */
-
-  if(!$subsite_node) {
-    $request_path = request_path();
-    $subsite_node = _lookup_subsite_reference_by_path($request_path);
-  }
+  $subsite_node = _get_active_subsite_node();
 
   // Apply the field values
-
   if(isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
     && $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'] !== "default") {
     return $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'];
@@ -110,25 +108,7 @@ function stanford_sws_custom_theme() {
  */
 function stanford_sws_preprocess_page(&$variables, $hook) {
 
-  /*
-    Check to see if this page is a node. If so apply subtheme by node reference
-   */
-  if(isset($variables['node'])) {
-    $node = $variables['node'];
-
-    if($subsite_node = _lookup_subsite_reference_by_node($node)) {
-        stanford_sws_apply_subsite($subsite_node, $variables);
-    }
-
-    return;
-  } // end if node//
-
-  /*
-    If the page being viewed is not a node then check the path
-  */
-
-  $request_path = request_path();
-  $subsite_node = _lookup_subsite_reference_by_path($request_path);
+  $subsite_node = _get_active_subsite();
 
   if($subsite_node) {
     stanford_sws_apply_subsite($subsite_node, $variables);
@@ -378,6 +358,38 @@ function stanford_sws_field_access($op, $field, $entity_type, $entity, $account)
 //  ////////////////////////////////////////////////////////////////////////////
 //  HELPERS //
 //  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Gets the active subsite node based on node page and on path
+ * @return $node [subsite]  or   false
+ */
+function _get_active_subsite() {
+  global $subsite;
+
+  // Grab from global object first
+  if($subsite) {
+    return $subsite;
+  }
+
+  $subsite_node = FALSE;
+
+  if($a0 == "node" && is_numeric($a1)) {
+      $node = node_load($a1);
+      $subsite_node = _lookup_subsite_reference_by_node($node);
+    }
+
+  /*
+    If the page being viewed is not a node then check the path
+  */
+
+  if(!$subsite_node) {
+    $request_path = request_path();
+    $subsite_node = _lookup_subsite_reference_by_path($request_path);
+  }
+
+  $subsite = $subsite_node;
+  return $subsite_node;
+}
 
 /**
  * _lookup_subsite_reference_by_node()
