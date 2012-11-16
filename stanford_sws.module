@@ -89,9 +89,6 @@ function stanford_sws_custom_theme() {
   /*
     Check to see if this page is a node. If so apply subtheme by node reference
    */
-  $a0 = arg(0);
-  $a1 = arg(1);
-
   $subsite_node = _get_active_subsite();
 
   // Apply the field values
@@ -108,6 +105,9 @@ function stanford_sws_custom_theme() {
  */
 function stanford_sws_preprocess_page(&$variables, $hook) {
 
+  /**
+   * Apply the subsite
+   */
   $subsite_node = _get_active_subsite();
 
   if($subsite_node) {
@@ -371,7 +371,12 @@ function _get_active_subsite() {
     return $subsite;
   }
 
+  // Not found or set yet. Carry on.
   $subsite_node = FALSE;
+
+  // First try from node
+  $a0 = arg(0);
+  $a1 = arg(1);
 
   if($a0 == "node" && is_numeric($a1)) {
       $node = node_load($a1);
