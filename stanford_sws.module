@@ -198,11 +198,11 @@ function stanford_sws_node_submit($node, $form, &$form_state) {
   if(isset($form[SUBSITE_TAGS_FIELD])) {
 
     // Check to see that there is a subsite NID available
-    if(isset($values[SUBSITE_REF_FIELD][$language][0]['target_id'])
-      && is_numeric($values[SUBSITE_REF_FIELD][$language][0]['target_id']))
+    if(isset($values[SUBSITE_REF_FIELD])
+      && is_numeric($values[SUBSITE_REF_FIELD]))
     {
 
-      $subsite_node = node_load($values[SUBSITE_REF_FIELD][$language][0]['target_id']);
+      $subsite_node = node_load($values[SUBSITE_REF_FIELD]);
       $subsite_term = _get_subsite_term($subsite_node);
       $found_term = FALSE; // boolean switch for finding the term
 
