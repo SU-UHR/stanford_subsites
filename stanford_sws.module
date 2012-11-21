@@ -350,8 +350,10 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
 function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
 
+  // Add only enabled themes to the theme drop down options...
   $themes = list_themes();
   foreach($themes as $k => $theme) {
+    if(!$theme->status) { continue; }
     $form[SUBSITE_THEME_FIELD][$node->language]['#options'][$k] = $k;
   }
 
@@ -359,6 +361,9 @@ function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $f
     (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
     ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']
     : "default";
+
+  $form[SUBSITE_THEME_FIELD][$node->language]["#description"] = l('Enable more themes here', "admin/appearance");
+
 }
 
 //  ////////////////////////////////////////////////////////////////////////////
