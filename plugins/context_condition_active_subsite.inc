@@ -1,8 +1,5 @@
 <?php
 
-// The content type that defines a subsite
-DEFINE('SUBSITE_CONTENT_TYPE', "sub_site");
-
 /**
  * Expose active subsite properties as a context condition.
  */

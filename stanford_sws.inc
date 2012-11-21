@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * A collection of private helper functions for use with the stanford_sws.module
  */
 
 
@@ -25,19 +26,18 @@ function _get_active_subsite() {
   $a1 = arg(1);
 
   if($a0 == "node" && is_numeric($a1)) {
-      $node = node_load($a1);
-      $subsite_node = _lookup_subsite_reference_by_node($node);
-    }
+    $node = node_load($a1);
+    $subsite_node = _lookup_subsite_reference_by_node($node);
+  }
 
-  /*
-    If the page being viewed is not a node then check the path
-  */
 
+  // If the page being viewed is not a node then check the path
   if(!$subsite_node) {
     $request_path = request_path();
     $subsite_node = _lookup_subsite_reference_by_path($request_path);
   }
 
+  // Assign the global subsite variable and return the result
   $subsite = $subsite_node;
   return $subsite_node;
 }
@@ -195,4 +195,45 @@ function _get_subsite_term($node) {
   }
 
   return array_pop($terms);
+}
+
+/**
+ * @param  $bundle  The bundle this instance belongs to
+ * @return  Array - an array describing the instance of the reference field
+ */
+
+function _get_ref_field_instance($bundle) {
+
+  if(!$bundle) { return false; }
+
+  $ret = array();
+  $ret['entity_type'] = "node";
+  $ret['bundle'] = $bundle;
+
+  $ret['field_name'] = SUBSITE_REF_FIELD;
+  $ret['label'] = t('Sub Site');
+
+  return $ret;
+}
+
+
+/**
+ * @param  $bundle  The bundle this instance belongs to
+ * @return  Array - an array describing the instance of the reference field
+ */
+
+function _get_tax_field_instance($bundle) {
+  if(!$bundle) { return false; }
+
+  $ret = array();
+  $ret['entity_type'] = "node";
+  $ret['bundle'] = $bundle;
+
+  $ret['field_name'] = SUBSITE_TAGS_FIELD;
+  $ret['label'] = t('Sub Site Tags');
+  $ret['widget']['type'] = "taxonomy_autocomplete";
+  $ret['widget']['settings']['size'] = 60;
+  $ret['widget']['settings']['autocomplete_path'] = "taxonomy/autocomplete";
+
+  return $ret;
 }

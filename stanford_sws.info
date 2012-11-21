@@ -5,6 +5,8 @@ version = 1.0
 core = 7.x
 
 files[] = "stanford_sws.inc"
+files[] = "stanford_sws.admin.inc"
+files[] = "stanford_sws.install"
 dependencies[] = "stanford_sws_content_types"
 dependencies[] = "stanford_sws_user_settings"
 dependencies[] = "stanford_sws_vocabularies_and_terms"
