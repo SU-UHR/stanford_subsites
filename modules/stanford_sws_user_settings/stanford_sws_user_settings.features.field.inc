@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * sws_user_settings.features.field.inc
+ * stanford_sws_user_settings.features.field.inc
  */
 
 /**
@@ -10,14 +10,14 @@
 function stanford_sws_user_settings_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'user-user-field_sws_sub_site'.
-  $fields['user-user-field_sws_sub_site'] = array(
+  // Exported field: 'user-user-field_sws_user_sub_site'.
+  $fields['user-user-field_sws_user_sub_site'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_sws_sub_site',
+      'field_name' => 'field_sws_user_sub_site',
       'foreign keys' => array(
         'node' => array(
           'columns' => array(
@@ -65,17 +65,20 @@ function stanford_sws_user_settings_field_default_fields() {
       'display' => array(
         'default' => array(
           'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => '1',
+          'module' => 'entityreference',
+          'settings' => array(
+            'link' => FALSE,
+          ),
+          'type' => 'entityreference_label',
+          'weight' => 2,
         ),
       ),
       'entity_type' => 'user',
-      'field_name' => 'field_sws_sub_site',
-      'label' => 'Sub Site',
+      'field_name' => 'field_sws_user_sub_site',
+      'label' => 'Sub Sites',
       'required' => 0,
       'settings' => array(
-        'user_register_form' => 0,
+        'user_register_form' => 1,
       ),
       'widget' => array(
         'active' => 1,
@@ -83,17 +86,17 @@ function stanford_sws_user_settings_field_default_fields() {
         'settings' => array(
           'match_operator' => 'CONTAINS',
           'path' => '',
-          'size' => '60',
+          'size' => 60,
         ),
         'type' => 'entityreference_autocomplete',
-        'weight' => '8',
+        'weight' => '9',
       ),
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Sub Site');
+  t('Sub Sites');
 
   return $fields;
 }
