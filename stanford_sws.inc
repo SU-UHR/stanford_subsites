@@ -209,9 +209,9 @@ function _get_ref_field_instance($bundle) {
   $ret = array();
   $ret['entity_type'] = "node";
   $ret['bundle'] = $bundle;
-
   $ret['field_name'] = SUBSITE_REF_FIELD;
   $ret['label'] = t('Sub Site');
+  $ret['widget']['type'] = "options_select";
 
   return $ret;
 }
