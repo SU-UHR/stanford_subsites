@@ -43,6 +43,26 @@ function _get_active_subsite() {
 }
 
 /**
+ * Get all subsite nodes.
+ * @return  array() an array of subsite nodes
+ */
+
+function _get_subsite_nodes() {
+  $query = db_select("node", "n")
+            ->fields("n", array("nid"))
+            ->condition("type", SUBSITE_CONTENT_TYPE)
+            ->orderBy('title')
+            ->execute();
+
+  $nids = array();
+  while($result = $query->fetchAssoc()) {
+    $nids[] = $result['nid'];
+  }
+
+  return node_load_multiple($nids);
+}
+
+/**
  * _lookup_subsite_reference_by_node()
  * @param $node - The currently being viewed node object
  * @return  boolen - True if this node has a subsite / False if none
@@ -223,6 +243,7 @@ function _get_ref_field_instance($bundle) {
  */
 
 function _get_tax_field_instance($bundle) {
+
   if(!$bundle) { return false; }
 
   $ret = array();

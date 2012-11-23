@@ -307,34 +307,37 @@ function stanford_sws_pathauto_alias_alter(&$alias, $context) {
  */
 function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
 
+  // ONLY Subsite content types
   if($form_id == SUBSITE_CONTENT_TYPE . "_node_form") {
     stanford_sws_form_node_form_alter_subsite_node($form, $form_state, $form_id);
     return;
   }
 
-  // The node form..
-  $language = $form['language']['#value'];
-  // global user object
-  global $user;
-  $account = user_load($user->uid);
+    // The rest of the node forms..
+  if($form['#node_edit_form']) {
 
+    $language = $form['language']['#value'];
+    // global user object
+    global $user;
+    $account = user_load($user->uid);
 
-  // Check for site theme field
-  if(isset($form[SUBSITE_REF_FIELD])) {
+    // Check for site theme field
+    if(isset($form[SUBSITE_REF_FIELD])) {
 
-    // If default subsite is not selected then set to users account setting
-    if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
-      !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]))
-    {
-      // Check to see if the user has a subsite account setting
-      if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
-        is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']))
+      // If default subsite is not selected then set to users account setting
+      if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
+        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]))
       {
-        $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
+        // Check to see if the user has a subsite account setting
+        if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
+          is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']))
+        {
+          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
+        }
+
       }
 
     }
-
   }
 
 
@@ -362,6 +365,7 @@ function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $f
     ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']
     : "default";
 
+  // Add a link to enable more themes below the field
   $form[SUBSITE_THEME_FIELD][$node->language]["#description"] = l('Enable more themes here', "admin/appearance");
 
 }
