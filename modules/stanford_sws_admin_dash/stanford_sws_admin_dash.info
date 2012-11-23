@@ -6,5 +6,6 @@ core = 7.x
 
 files[] = "stanford_sws_admin_dash.install"
 dependencies[] = "dashboard"
+dependencies[] = "features_extra"
 dependencies[] = "stanford_sws"
 dependencies[] = "stanford_sws_admin_dash_feat"
