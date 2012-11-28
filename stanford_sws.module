@@ -279,6 +279,7 @@ function stanford_sws_node_submit($node, $form, &$form_state) {
  *
  * Tasks:
  * 1. Create subsite term
+ * 2. Check for subsite ref in order to set active workspace
  */
 function stanford_sws_node_insert($node) {
 
@@ -287,19 +288,35 @@ function stanford_sws_node_insert($node) {
     _insert_subsite_term($node);
   }
 
+  // Set the cookie for active subite working space if subsite ref was provided
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
+    is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
+    _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+  }
+
 }
 
 
 /**
  * Implements hook_node_update().
+ * 1. Clears the path cache for subsite nodes
+ * 2. Checks for subsite ref field in order to set the active subsite workspace
  */
 function stanford_sws_node_update($node) {
-  // Clear out all of the subsite paths
+
+  // Clear out all of the subsite paths so they get updated
   if($node->type == SUBSITE_CONTENT_TYPE) {
     // Clear all path caches
     cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
     _update_subsite_node_term_name($node);
   }
+
+  // Set the cookie for active subite working space if subsite ref was provided
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
+    is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
+    _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+  }
+
 
 }
 
@@ -344,12 +361,20 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
     // Check for site theme field
     if(isset($form[SUBSITE_REF_FIELD])) {
 
-      // If default subsite is not selected then set to users account setting
+      // If default subsite is not selected then set to users current workspace
+      // or default account setting
       if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
         !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]))
       {
+
+        // Check to see if the user has an active working space for the default
+        $niid = _get_subsite_workingspace();
+
+        if($niid) {
+          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = _get_subsite_workingspace();
+        }
         // Check to see if the user has a subsite account setting
-        if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
+        else if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
           is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']))
         {
           $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
@@ -380,6 +405,7 @@ function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $f
     $form[SUBSITE_THEME_FIELD][$node->language]['#options'][$k] = $k;
   }
 
+  // Set the default value
   $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
     (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
     ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']

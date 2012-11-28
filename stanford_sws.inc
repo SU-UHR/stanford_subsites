@@ -258,3 +258,33 @@ function _get_tax_field_instance($bundle) {
 
   return $ret;
 }
+
+/**
+ * _set_subsite_workingspace
+ * Sets the active working space for subsites. Right now only sets the default
+ * subsite on node/add
+ * @param  $nid  The nid of the new active subsite for the working space
+ */
+
+function _set_subsite_workingspace($nid) {
+  $lifetime = time() + (60 * 60 * 24 * 7); // One week lifetime
+  setcookie('sws_subsite_workspace', $nid, $lifetime);
+}
+
+/**
+ * _get_subsite_workingspace
+ * Gets the active working space for subsites. \
+ * @return  $nid  The nid of the active subsite for the working space or false
+ */
+
+function _get_subsite_workingspace() {
+
+  // if a cookie is available
+  if(isset($_COOKIE['sws_subsite_workspace']) &&
+    is_numeric($_COOKIE['sws_subsite_workspace'])) {
+    return check_plain($_COOKIE['sws_subsite_workspace']);
+  }
+
+  // Not available
+  return FALSE;
+}
