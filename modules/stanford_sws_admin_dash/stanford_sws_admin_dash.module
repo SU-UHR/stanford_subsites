@@ -62,8 +62,7 @@ function stanford_sws_admin_dash_block_info() {
   $blocks['stanford_sws_jump_block'] = array(
     'info' => t('Manage Subsites'),
     'cache' => DRUPAL_NO_CACHE,
-    'status' => 1,
-    'region' => 'dashboard_sidebar',
+ //   'region' => "dashboard_sidebar",
   );
 
   return $blocks;
@@ -117,9 +116,6 @@ function stanford_sws_admin_dash_jump_block_form() {
     '#type' =>  'submit',
     '#value' => t('Go'),
   );
-
-  // $form['#validate'][] = "stanford_sws_admin_dash_jump_block_form_validate";
-  // $form['#submit'][] = "stanford_sws_admin_dash_jump_block_form_submit";
 
   return $form;
 }
@@ -177,7 +173,6 @@ function stanford_sws_admin_dash_jump_block_form_submit($form, &$form_state) {
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // VIEWS ALTERS      ///////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +186,7 @@ function stanford_sws_admin_dash_jump_block_form_submit($form, &$form_state) {
 
 function stanford_sws_admin_dash_form_views_exposed_form_alter(&$form, &$form_state) {
 
-  // Manage Content/Users Block & Page
+  // Manage Content/Users Blocks & Pages
   if($form['#id'] == "views-exposed-form-stanford-sws-admin-dash-content-sws-admin-dash-content-block" ||
    $form['#id'] == "views-exposed-form-stanford-sws-admin-dash-content-sws-admin-dash-content-page" ||
    $form['#id'] == "views-exposed-form-stanford-sws-admin-dash-content-admin-dash-content-page-1" ||
@@ -228,12 +223,14 @@ function stanford_sws_admin_dash_form_views_exposed_form_alter(&$form, &$form_st
       $form['field_sws_user_sub_site_target_id']['#size'] = null;
       $form['field_sws_user_sub_site_target_id']['#options'] = $options;
 
+      // if $a3 is numeric it is a nid. Set the value
       if(is_numeric($a3)) {
         $form['field_sws_user_sub_site_target_id']['#value'] = $a3;
       }
 
     }
 
+    // if arg3 is numeric then redirect to base page
     if(is_numeric($a3)) {
       $form['#action'] = base_path().arg(0)."/".arg(1)."/".arg(2);
     }
