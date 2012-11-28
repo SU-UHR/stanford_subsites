@@ -361,17 +361,17 @@ function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
     // Check for site theme field
     if(isset($form[SUBSITE_REF_FIELD])) {
 
-      // If default subsite is not selected then set to users current workspace
+      // If default subsite is not selected and this is the node create form
+      // then set to users current workspace
       // or default account setting
-      if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
-        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]))
+      if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
+        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
+        (!isset($form['nid']["#value"]) || !is_numeric($form['nid']["#value"])))
       {
 
         // Check to see if the user has an active working space for the default
-        $niid = _get_subsite_workingspace();
-
-        if($niid) {
-          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = _get_subsite_workingspace();
+        if($niid = _get_subsite_workingspace()) {
+          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $niid;
         }
         // Check to see if the user has a subsite account setting
         else if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
