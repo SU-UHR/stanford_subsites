@@ -149,6 +149,7 @@ function stanford_sws_preprocess_page(&$variables, $hook) {
  *   1. Change $title [if set]
  *   2. Change $logo [if set]
  *   3. Change the $front_page url [if set]
+ *   4. Create new $logo_title & $alt template variables
  */
 
 function stanford_sws_apply_subsite($node, &$vars) {
@@ -160,11 +161,27 @@ function stanford_sws_apply_subsite($node, &$vars) {
     $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"];
   }
 
+  // Create new $logo_title and $alt variables for use in the page.tpl.php
+  $vars['alt'] = $vars['site_name'];
+  $vars['logo_title'] = $vars['site_name'];
+
   // Change the site logo
   if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"])
     && !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]))
   {
     $vars['logo'] = file_create_url($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]);
+
+    // check for alt and title information on the image field
+    if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt']) &&
+      !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt'])) {
+      $vars['alt'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt']);
+    }
+
+    // title
+    if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']) &&
+      !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title'])) {
+      $vars['title'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']);
+    }
   }
 
   // Change $front_page url
@@ -173,6 +190,9 @@ function stanford_sws_apply_subsite($node, &$vars) {
   {
     $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
   }
+
+
+
 
 }
 
