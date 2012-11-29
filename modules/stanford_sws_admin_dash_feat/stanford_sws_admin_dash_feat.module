@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Site Within A Site Admin Dashboard Feature feature.
- */
-
-include_once 'stanford_sws_admin_dash_feat.features.inc';
