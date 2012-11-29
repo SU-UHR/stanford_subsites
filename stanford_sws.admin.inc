@@ -9,6 +9,24 @@
  */
 function stanford_sws_admin_config_form($form, &$form_state) {
 
+  // If the gotoconf variable is set then show the user the conf variable
+  if(isset($form_state['values']['gotoconf'])) {
+    $form_state['rebuild'] = true;
+    return confirm_form(
+      $form,
+      t("Are you sure you want to do this?"),
+      'admin/config/site-within-site',
+      t("Any previously checked and now unchecked content types will have their subsite fields removed from them. This will destroy their subsite data. Click yes to confirm that you wish to proceed."),
+      t('Yes, Proceed')
+    );
+  }
+
+  // Trigger for going to confirmation form
+  $form['gotoconf'] = array(
+    '#type' => 'hidden',
+    '#value' => "true"
+  );
+
   $form['sws'] = array(
     '#type' => "fieldset",
     '#title' => t('Content Types'),
@@ -31,13 +49,16 @@ function stanford_sws_admin_config_form($form, &$form_state) {
     '#default_value' => $enabled_types,
     );
 
-  $form['warning'] = array(
-    '#type' => 'markup',
-    '#markup' => "<span class=\"error\">" . t("WARNING: Any unchecked content types will have their Site Within A Site fields removed from them. This will delete all subsite data for that content type.") . "</span>",
-  );
+  // $form['warning'] = array(
+  //   '#type' => 'markup',
+  //   '#markup' => "<span class=\"error\">" . t("WARNING: Any unchecked content types will have their Site Within A Site fields removed from them. This will delete all subsite data for that content type.") . "</span>",
+  // );
 
-  $form['#validate'][] = 'stanford_sws_admin_config_form_validate';
-  $form['#submit'][] = 'stanford_sws_admin_config_form_submit';
+  drupal_set_message("WARNING: Any unchecked content types will have their Site Within A Site fields removed from them. This will delete all subsite data for that content type.", 'warning');
+
+  // $form['#action'] = url("admin/config/site-within-site/confirm");
+  // $form['#validate'][] = 'stanford_sws_admin_config_form_validate';
+  // $form['#submit'][] = 'stanford_sws_admin_config_form_submit';
   return system_settings_form($form);
 }
 
@@ -48,8 +69,18 @@ function stanford_sws_admin_config_form($form, &$form_state) {
  *
  */
 
-function stanford_sws_admin_config_form_validate($form, $form_state) {
-// Nothing to do here. Please move along
+function stanford_sws_admin_config_form_validate($form, &$form_state) {
+
+  // Store the values of the submission for later submit hooks
+  foreach($form_state['values'] as $k => $v) {
+    $form_state['storage'][$k] = $v;
+  }
+
+  // If not confirmed then rebuild the form and skip submit
+  if(!$form_state['values']['confirm']) {
+    $form_state['rebuild'] = TRUE;
+  }
+
 }
 
 
@@ -62,7 +93,12 @@ function stanford_sws_admin_config_form_validate($form, $form_state) {
 
 function stanford_sws_admin_config_form_submit($form, $form_state) {
 
-  $values = $form_state['values'];
+  // dont process on a non confirm submit
+  if(!$form_state['values']['confirm']) {
+    return;
+  }
+
+  $values = array_merge($form_state['values'], $form_state['storage']);
   $disabled_types = array_filter($values['sws_content_types'], 'give_zero_values');
 
   // Loop through the disabled content types and remove their field instances
@@ -80,6 +116,28 @@ function stanford_sws_admin_config_form_submit($form, $form_state) {
       $instance = _get_tax_field_instance($type);
       field_delete_instance($instance, FALSE);
     }
+
+    // Get all the nids of the disabled content type and update the alias
+    $q = db_select('node', "n")
+        ->fields("n", array('nid'))
+        ->condition("type", $type)
+        ->execute();
+
+    $nids = array();
+    while($result = $q->fetchAssoc()) {
+      $nids[] = $result['nid'];
+    }
+
+    // Save current action for new aliases and change it to update and
+    // preserve old one.
+    $alias_action = variable_get('pathauto_update_action', 0);
+    variable_set('pathauto_update_action', PATHAUTO_UPDATE_ACTION_LEAVE);
+
+    // add a bulk update operation
+    pathauto_node_update_alias_multiple($nids, 'bulkupdate');
+
+    // Restore original setting
+    variable_set('pathauto_update_action', $alias_action);
 
   }
 
@@ -116,7 +174,6 @@ function stanford_sws_admin_config_form_submit($form, $form_state) {
 
   // Clear all the caches
   drupal_flush_all_caches();
-
 }
 
 
