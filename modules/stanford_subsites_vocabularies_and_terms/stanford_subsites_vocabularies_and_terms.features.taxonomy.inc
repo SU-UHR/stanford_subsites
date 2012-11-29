@@ -9,9 +9,9 @@
  */
 function stanford_subsites_vocabularies_and_terms_taxonomy_default_vocabularies() {
   return array(
-    'sws_sub_sites' => array(
+    'stanford_subsites_sites' => array(
       'name' => 'Subsites',
-      'machine_name' => 'sws_sub_sites',
+      'machine_name' => 'stanford_subsites_sites',
       'description' => 'Subsites Vocabulary',
       'hierarchy' => '0',
       'module' => 'taxonomy',

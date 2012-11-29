@@ -23,19 +23,19 @@ define('SUBSITE_CONTENT_TYPE', "sub_site");
 // The reference field that connects a child node to a subsite
 define('SUBSITE_REF_FIELD', 'field_stanford_subsite_sub_site');
 // The reference field that connects a user to a subsite
-define('SUBSITE_USER_REF_FIELD', 'field_stanford_subsite_user_sub_site');
+define('SUBSITE_USER_REF_FIELD', 'field_stanford_subsite_usr_sub');
 // The field that changes the site title
-define("SUBSITE_NAME_FIELD", "field_stanford_subsite_site_name");
+define("SUBSITE_NAME_FIELD", "field_stanford_subsite_sname");
 // The field that changes the site logo
-define("SUBSITE_LOGO_FIELD", "field_stanford_subsite_site_logo");
+define("SUBSITE_LOGO_FIELD", "field_stanford_subsite_logo");
 // The field that changes $front_page
-define("SUBSITE_FRONT_PAGE_FIELD", "field_stanford_subsite_front_page");
+define("SUBSITE_FRONT_PAGE_FIELD", "field_stanford_subsite_front");
 // The field that changes the theme
-define("SUBSITE_THEME_FIELD", "field_stanford_subsite_site_theme");
+define("SUBSITE_THEME_FIELD", "field_stanford_subsite_theme");
 // The subsite vocabulary machine name
-define("SUBSITE_VOCAB", "sws_sub_sites");
+define("SUBSITE_VOCAB", "stanford_subsites_sites");
 // The subsite tags field
-define("SUBSITE_TAGS_FIELD", "field_stanford_subsite_subsite_tags");
+define("SUBSITE_TAGS_FIELD", "field_stanford_subsite_sub_tags");
 
 
 // Global variable for active subsite
@@ -395,7 +395,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   */
 function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
   $description = '<p>' . t('Choose the subsite(s) to associate with your account. The first listed subsite will be your default when creating new nodes.') . '</p>';
-  $form['field_stanford_subsite_user_sub_site']['und']['#description'] = $description;
+  $form['field_stanford_subsite_usr_sub']['und']['#description'] = $description;
 }
 
 
@@ -404,7 +404,7 @@ function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$
  * stanford_subsites_form_node_form_alter_subsite_node()
  * @param   $form the form array
  * @param   $form_state the submitted form state
- * @param   $form_id the form id
+ * @param   $form_id the form idate(format)
  *
  */
 function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {

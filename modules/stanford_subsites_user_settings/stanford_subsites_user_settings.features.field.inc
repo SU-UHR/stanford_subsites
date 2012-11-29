@@ -10,14 +10,14 @@
 function stanford_subsites_user_settings_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'user-user-field_stanford_subsite_user_sub_site'.
-  $fields['user-user-field_stanford_subsite_user_sub_site'] = array(
+  // Exported field: 'user-user-field_stanford_subsite_usr_sub'.
+  $fields['user-user-field_stanford_subsite_usr_sub'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_stanford_subsite_user_sub_site',
+      'field_name' => 'field_stanford_subsite_usr_sub',
       'foreign keys' => array(
         'node' => array(
           'columns' => array(
@@ -74,7 +74,7 @@ function stanford_subsites_user_settings_field_default_fields() {
         ),
       ),
       'entity_type' => 'user',
-      'field_name' => 'field_stanford_subsite_user_sub_site',
+      'field_name' => 'field_stanford_subsite_usr_sub',
       'label' => 'Subsites',
       'required' => 0,
       'settings' => array(

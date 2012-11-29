@@ -8,4 +8,4 @@ project = stanford_subsites_user_settings
 dependencies[] = entityreference
 dependencies[] = features
 features[features_api][] = api:1
-features[field][] = user-user-field_stanford_subsite_user_sub_site
+features[field][] = user-user-field_stanford_subsite_usr_sub

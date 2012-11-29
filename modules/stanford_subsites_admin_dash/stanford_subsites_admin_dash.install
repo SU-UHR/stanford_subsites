@@ -28,7 +28,7 @@ function stanford_subsites_admin_dash_install() {
   }
 
   // Place views blocks that are included in the feature export
-  $content_block_machine_name = md5("stanford_subsites_admin_dash_content-sws_admin_dash_content_block");
+  $content_block_machine_name = md5("stanford_subsites_admin_dash_content-stanford_subsite_admin_dash_content_block");
   $user_block_machine_name = md5("stanford_subsites_admin_dash_users-stanford_subsites_admin_dash_user_block");
 
   db_update('block')

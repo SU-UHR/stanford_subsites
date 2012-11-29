@@ -96,14 +96,14 @@ function stanford_subsites_content_types_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-page-field_stanford_subsite_subsite_tags'.
-  $fields['node-page-field_stanford_subsite_subsite_tags'] = array(
+  // Exported field: 'node-page-field_stanford_subsite_sub_tags'.
+  $fields['node-page-field_stanford_subsite_sub_tags'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '-1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_stanford_subsite_subsite_tags',
+      'field_name' => 'field_stanford_subsite_sub_tags',
       'foreign keys' => array(
         'tid' => array(
           'columns' => array(
@@ -122,7 +122,7 @@ function stanford_subsites_content_types_field_default_fields() {
       'settings' => array(
         'allowed_values' => array(
           0 => array(
-            'vocabulary' => 'sws_sub_sites',
+            'vocabulary' => 'stanford_subsites_sites',
             'parent' => '0',
           ),
         ),
@@ -151,7 +151,7 @@ function stanford_subsites_content_types_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_stanford_subsite_subsite_tags',
+      'field_name' => 'field_stanford_subsite_sub_tags',
       'label' => 'Subsite Tags',
       'required' => 0,
       'settings' => array(
@@ -243,14 +243,14 @@ function stanford_subsites_content_types_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-sub_site-field_stanford_subsite_front_page'.
-  $fields['node-sub_site-field_stanford_subsite_front_page'] = array(
+  // Exported field: 'node-sub_site-field_stanford_subsite_front'.
+  $fields['node-sub_site-field_stanford_subsite_front'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_stanford_subsite_front_page',
+      'field_name' => 'field_stanford_subsite_front',
       'foreign keys' => array(),
       'indexes' => array(
         'value' => array(
@@ -293,7 +293,7 @@ function stanford_subsites_content_types_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_stanford_subsite_front_page',
+      'field_name' => 'field_stanford_subsite_front',
       'label' => 'Link Logo and Site Name To This Page',
       'required' => 0,
       'settings' => array(
@@ -311,14 +311,14 @@ function stanford_subsites_content_types_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-sub_site-field_stanford_subsite_site_logo'.
-  $fields['node-sub_site-field_stanford_subsite_site_logo'] = array(
+  // Exported field: 'node-sub_site-field_stanford_subsite_logo'.
+  $fields['node-sub_site-field_stanford_subsite_logo'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_stanford_subsite_site_logo',
+      'field_name' => 'field_stanford_subsite_logo',
       'foreign keys' => array(
         'fid' => array(
           'columns' => array(
@@ -360,7 +360,7 @@ function stanford_subsites_content_types_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_stanford_subsite_site_logo',
+      'field_name' => 'field_stanford_subsite_logo',
       'label' => 'Site Logo',
       'required' => 0,
       'settings' => array(
@@ -399,14 +399,14 @@ function stanford_subsites_content_types_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-sub_site-field_stanford_subsite_site_name'.
-  $fields['node-sub_site-field_stanford_subsite_site_name'] = array(
+  // Exported field: 'node-sub_site-field_stanford_subsite_sname'.
+  $fields['node-sub_site-field_stanford_subsite_sname'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_stanford_subsite_site_name',
+      'field_name' => 'field_stanford_subsite_sname',
       'foreign keys' => array(
         'format' => array(
           'columns' => array(
@@ -448,7 +448,7 @@ function stanford_subsites_content_types_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_stanford_subsite_site_name',
+      'field_name' => 'field_stanford_subsite_sname',
       'label' => 'Site Name',
       'required' => 0,
       'settings' => array(
@@ -467,14 +467,14 @@ function stanford_subsites_content_types_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-sub_site-field_stanford_subsite_site_theme'.
-  $fields['node-sub_site-field_stanford_subsite_site_theme'] = array(
+  // Exported field: 'node-sub_site-field_stanford_subsite_theme'.
+  $fields['node-sub_site-field_stanford_subsite_theme'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_stanford_subsite_site_theme',
+      'field_name' => 'field_stanford_subsite_theme',
       'foreign keys' => array(),
       'indexes' => array(
         'value' => array(
@@ -514,7 +514,7 @@ function stanford_subsites_content_types_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_stanford_subsite_site_theme',
+      'field_name' => 'field_stanford_subsite_theme',
       'label' => 'Site Theme',
       'required' => 0,
       'settings' => array(
