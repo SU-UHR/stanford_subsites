@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function stanford_sws_admin_dash_install() {
+
+  // If core drupal search is enabled then place the search block in the top
+  // Right of the dashboard
+
+  if(module_exists('search')) {
+
+    $admin_theme = variable_get('admin_theme');
+
+    db_update('block')
+      ->fields(
+        array(
+          'status' => 1,
+          'weight' => 0,
+          'region' => 'dashboard_sidebar',
+        )
+      )
+    ->condition('theme', $admin_theme)
+    ->condition('module', 'search')
+    ->condition('delta', 'form')
+    ->execute();
+
+  }
+
+  // Place views blocks that are included in the feature export
+  $content_block_machine_name = md5("stanford_sws_admin_dash_content-sws_admin_dash_content_block");
+  $user_block_machine_name = md5("stanford_sws_admin_dash_users-stanford_sws_admin_dash_user_block");
+
+  db_update('block')
+      ->fields(
+        array(
+          'status' => 1,
+          'weight' => 0,
+          'region' => 'dashboard_main',
+        )
+      )
+    ->condition('theme', $admin_theme)
+    ->condition('module', 'views')
+    ->condition('delta', array($content_block_machine_name, $user_block_machine_name))
+    ->execute();
+
+  // Create and place admin links menu in sidebar
+  db_update('block')
+      ->fields(
+        array(
+          'status' => 1,
+          'weight' => 2,
+          'region' => 'dashboard_sidebar',
+        )
+      )
+    ->condition('theme', $admin_theme)
+    ->condition('module', 'menu')
+    ->condition('delta', 'menu-admin-dashboard-admin-tasks')
+    ->execute();
+
+
+  // Create and place admin jumpblock menu in sidebar
+  db_insert('block')
+      ->fields(
+        array(
+          'status' => 1,
+          'weight' => 1,
+          'region' => 'dashboard_sidebar',
+          'theme' => $admin_theme,
+          'module' => "stanford_sws_admin_dash",
+          'delta' => "stanford_sws_jump_block",
+          'pages' => '',
+        )
+      )
+    ->execute();
+
+}

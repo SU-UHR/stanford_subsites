@@ -1,0 +1,494 @@
+<?php
+/**
+ * @file
+ * stanford_sws.module
+ *
+ * @author (s)
+ *         Shea McKinney / sherakama
+ *
+ * @description
+ * This module provides helper functionality to the sws site within a site
+ * feature.
+ *
+ *
+ * @todo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ *
+ *
+ * :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ */
+
+
+// The content type that defines a subsite
+define('SUBSITE_CONTENT_TYPE', "sub_site");
+// The reference field that connects a child node to a subsite
+define('SUBSITE_REF_FIELD', 'field_sws_sub_site');
+// The reference field that connects a user to a subsite
+define('SUBSITE_USER_REF_FIELD', 'field_sws_user_sub_site');
+// The field that changes the site title
+define("SUBSITE_NAME_FIELD", "field_sws_site_name");
+// The field that changes the site logo
+define("SUBSITE_LOGO_FIELD", "field_sws_site_logo");
+// The field that changes $front_page
+define("SUBSITE_FRONT_PAGE_FIELD", "field_sws_front_page");
+// The field that changes the theme and sets the themekey settings
+define("SUBSITE_THEME_FIELD", "field_sws_site_theme");
+// The subsite vocabulary machine name
+define("SUBSITE_VOCAB", "sws_sub_sites");
+// The subsite tags field
+define("SUBSITE_TAGS_FIELD", "field_sws_subsite_tags");
+
+
+// Global variable for active subsite
+global $subsite;
+
+// Load helper files
+module_load_include('inc', 'stanford_sws', 'stanford_sws');
+
+
+/**
+ * Implements hook_help().
+ */
+function stanford_sws_help($path, $arg) {
+  switch ($path) {
+    // Main module help for the block module
+    /*
+     *case 'admin/help#block':
+     *  return '<p>' . t('Blocks are boxes of content rendered into an area, or region, of a web page. The default theme Bartik, for example, implements the regions "Sidebar first", "Sidebar second", "Featured", "Content", "Header", "Footer", etc., and a block may appear in any one of these areas. The <a href="@blocks">blocks administration page</a> provides a drag-and-drop interface for assigning a block to a region, and for controlling the order of blocks within regions.', array('@blocks' => url('admin/structure/block'))) . '</p>';
+     */
+    case 'admin/help#sws':
+      return '<p>' . t('For more help please contact stanford web services: %email',
+       array('%email' => 'help@stanford.edu')) . '</p>';
+  }
+  return;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function stanford_sws_menu() {
+  $items = array();
+
+  $items['admin/config/site-within-site'] = array(
+    'title' => 'Site within a site settings',
+    'description' => 'Settings and configuration options for site within a site behavior',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('stanford_sws_admin_config_form'),
+    'file' => 'stanford_sws.admin.inc',
+    'access arguments' => array('administer sws'),
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_init().
+ */
+function stanford_sws_init() {
+  _get_active_subsite(); // set the global $subsite var for use elsewhere
+}
+
+
+
+/**
+ * Implements hook_permission().
+ */
+function stanford_sws_permission() {
+  return array(
+    'administer sws' => array(
+      'title' => t('Administer SWS'),
+      'description' => t('Perform administration tasks for site within a site.'),
+    ),
+    'administer subsite selection' => array(
+      'title' => t('Administer Subsite Selection'),
+      'description' => t('Access and change the subsite selection field'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_custom_theme().
+ */
+function stanford_sws_custom_theme() {
+
+  /*
+    Check to see if this page is a node. If so apply subtheme by node reference
+   */
+  $subsite_node = _get_active_subsite();
+
+  // Apply the field values
+  if($subsite_node &&
+    isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
+    && $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'] !== "default") {
+    return $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'];
+  }
+
+}
+
+
+/**
+ * Implements hook_preprocess().
+ */
+function stanford_sws_preprocess_page(&$variables, $hook) {
+
+  /**
+   * Apply the subsite
+   */
+  $subsite_node = _get_active_subsite();
+
+  if($subsite_node) {
+    stanford_sws_apply_subsite($subsite_node, $variables);
+  }
+
+}
+
+/**
+ * stanford_sws_apply_subsite
+ * @param $node - the subsite node object
+ * @param $variables - The variables array from hook_preprocess_page
+ * Function tasks:
+ *   1. Change $title [if set]
+ *   2. Change $logo [if set]
+ *   3. Change the $front_page url [if set]
+ *   4. Create new $logo_title & $alt template variables
+ */
+
+function stanford_sws_apply_subsite($node, &$vars) {
+
+  // Change the site Title
+  if(isset($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])
+    && !empty($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"]))
+  {
+    $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"];
+  }
+
+  // Create new $logo_title and $alt variables for use in the page.tpl.php
+  $vars['alt'] = $vars['site_name'];
+  $vars['logo_title'] = $vars['site_name'];
+
+  // Change the site logo
+  if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"])
+    && !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]))
+  {
+    $vars['logo'] = file_create_url($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]);
+
+    // check for alt and title information on the image field
+    if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt']) &&
+      !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt'])) {
+      $vars['alt'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt']);
+    }
+
+    // title
+    if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']) &&
+      !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title'])) {
+      $vars['title'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']);
+    }
+  }
+
+  // Change $front_page url
+  if(isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])
+    && $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])
+  {
+    $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
+  }
+
+
+
+
+}
+
+/**
+ * Implements hook_node_submit().
+ * @param $node: The node object being updated in response to a form submission.
+ * @param $form: The form being used to edit the node.
+ * @param $form_state: The form state array.
+ *
+ * Utiltity tasks for saving nodes of various types
+ * 1. Clear path caches for sub_sites
+ * 2. Check for missing subsite field on non sub_site nodes
+ */
+function stanford_sws_node_submit($node, $form, &$form_state) {
+
+  // If we are saveing a sub_site content type clear path cache
+  // and perform sub_site specific handling
+  if($node->type == SUBSITE_CONTENT_TYPE) {
+    // Clear all path caches
+    cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
+  }
+
+
+  // If the user did not have access to the subsite selector then we need to add
+  // the users subsite setting to the node
+  global $user;
+  $account = user_load($user->uid);
+  $values = &$form_state['values'];
+  $language = $form['language']['#value'];
+
+  // Check to see if the reference field is in the form and if it was submitted
+  if(isset($form[SUBSITE_REF_FIELD]) && !isset($values[SUBSITE_REF_FIELD])) {
+    // Field exists on this form but was not submitted. User did not have access
+
+    if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
+      is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']))
+    {
+      // User has a subsite setting
+      $ref_id = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
+      form_set_value($form[SUBSITE_REF_FIELD], $ref_id, $form_state);
+      $node->{SUBSITE_REF_FIELD}[$language][0]['target_id'] = $ref_id;
+    }
+
+  }
+
+  // Check to see if the submitted node has a subsite_tags field and a reference
+  // the the subsite that is selected in the ref field
+  if(isset($form[SUBSITE_TAGS_FIELD])) {
+
+    // Check to see that there is a subsite NID available
+    if(isset($values[SUBSITE_REF_FIELD])
+      && is_numeric($values[SUBSITE_REF_FIELD]))
+    {
+
+      $subsite_node = node_load($values[SUBSITE_REF_FIELD]);
+      $subsite_term = _get_subsite_term($subsite_node);
+      $found_term = FALSE; // boolean switch for finding the term
+
+      // check to see that tags field has reference
+      foreach($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
+        if($term['tid'] == $subsite_term->tid) {
+          $found_term = TRUE;
+          break;
+        }
+      }
+
+      // Did not find the subsite term in the subsite tags field. Add it!
+      if(!$found_term) {
+        $tags = $values[SUBSITE_TAGS_FIELD][$language];
+        $tags[] = (array)$subsite_term;
+        form_set_value($form[SUBSITE_TAGS_FIELD], $tags, $form_state);
+        $node->{SUBSITE_TAGS_FIELD}[$language] = $tags;
+      }
+
+    }
+
+  }
+
+}
+
+/**
+ * Handles the insert of a new sub_site content type
+ * @param  object $node       the node object
+ *
+ * Tasks:
+ * 1. Create subsite term
+ * 2. Check for subsite ref in order to set active workspace
+ */
+function stanford_sws_node_insert($node) {
+
+  // We have a new sub_site content type. Lets add it to the sub_site vocabulary
+  if($node->type == SUBSITE_CONTENT_TYPE) {
+    _insert_subsite_term($node);
+  }
+
+  // Set the cookie for active subite working space if subsite ref was provided
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
+    is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
+    _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+  }
+
+}
+
+
+/**
+ * Implements hook_node_update().
+ * 1. Clears the path cache for subsite nodes
+ * 2. Checks for subsite ref field in order to set the active subsite workspace
+ */
+function stanford_sws_node_update($node) {
+
+  // Clear out all of the subsite paths so they get updated
+  if($node->type == SUBSITE_CONTENT_TYPE) {
+    // Clear all path caches
+    cache_clear_all('stanford_sws_subsite_paths', 'cache', TRUE);
+    _update_subsite_node_term_name($node);
+  }
+
+  // Set the cookie for active subite working space if subsite ref was provided
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
+    is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
+    _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+  }
+
+
+}
+
+
+/**
+ * Implements pathauto_alias_alter()
+ * Prepends the pathalias of the subsite to a node being referenced to one
+ */
+function stanford_sws_pathauto_alias_alter(&$alias, $context) {
+  $node = $context['data']['node'];
+  $original_alias = $alias;
+
+  // If there is a reference to a sub site then alter the pathauto_alias
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
+  is_object($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']))
+  {
+    $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+    $alias = drupal_get_path_alias("node/" . $subsite_node->nid) . "/" . $original_alias;
+  }
+
+}
+
+/**
+ * Implements hook_form_alter().
+ * Add the active theme options to the theme field
+ */
+function stanford_sws_form_node_form_alter(&$form, &$form_state, $form_id) {
+
+  // ONLY Subsite content types
+  if($form_id == SUBSITE_CONTENT_TYPE . "_node_form") {
+    stanford_sws_form_node_form_alter_subsite_node($form, $form_state, $form_id);
+    return;
+  }
+
+    // The rest of the node forms..
+  if($form['#node_edit_form']) {
+
+    $language = $form['language']['#value'];
+    // global user object
+    global $user;
+    $account = user_load($user->uid);
+
+    // Check for site theme field
+    if(isset($form[SUBSITE_REF_FIELD])) {
+
+      // If default subsite is not selected and this is the node create form
+      // then set to users current workspace
+      // or default account setting
+      if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
+        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
+        (!isset($form['nid']["#value"]) || !is_numeric($form['nid']["#value"])))
+      {
+
+        // Check to see if the user has an active working space for the default
+        if($niid = _get_subsite_workingspace()) {
+          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $niid;
+        }
+        // Check to see if the user has a subsite account setting
+        else if(isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
+          is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']))
+        {
+          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
+        }
+
+      }
+
+    }
+  }
+
+
+}
+
+/**
+ * stanford_sws_form_node_form_alter_subsite_node()
+ * @param   $form the form array
+ * @param   $form_state the submitted form state
+ * @param   $form_id the form id
+ *
+ */
+function stanford_sws_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {
+  $node = $form['#node'];
+
+  // Add only enabled themes to the theme drop down options...
+  $themes = list_themes();
+  foreach($themes as $k => $theme) {
+    if(!$theme->status) { continue; }
+    $form[SUBSITE_THEME_FIELD][$node->language]['#options'][$k] = $k;
+  }
+
+  // Set the default value
+  $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
+    (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
+    ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']
+    : "default";
+
+  // Add a link to enable more themes below the field
+  $form[SUBSITE_THEME_FIELD][$node->language]["#description"] = l('Enable more themes here', "admin/appearance");
+
+}
+
+//  ////////////////////////////////////////////////////////////////////////////
+//  FEILDS //
+//  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implements hook_field_access().
+ */
+function stanford_sws_field_access($op, $field, $entity_type, $entity, $account) {
+
+  // check to see if user can edit the subsite selection field
+   if ($field['field_name'] == SUBSITE_REF_FIELD && $op == 'edit') {
+     return user_access('administer subsite selection', $account);
+   }
+
+  return TRUE;
+}
+
+
+
+
+//  ////////////////////////////////////////////////////////////////////////////
+//  CONTEXT PLUGINS //
+//  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implement `hook_context_plugins()` to define your plugins, classes, and class
+ * hierarchy.
+ * @return $plugins
+ */
+function stanford_sws_context_plugins() {
+  $plugins = array();
+  $plugins['context_condition_active_subsite'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'stanford_sws') .'/plugins',
+      'file' => 'context_condition_active_subsite.inc',
+      'class' => 'context_condition_active_subsite',
+      'parent' => 'context_condition',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implement `hook_context_registry()` to define your conditions and/or
+ * reactions and map them to plugins.
+ * @return array
+ */
+function stanford_sws_context_registry() {
+  return array(
+    'conditions' => array(
+      'active_subsite' => array(
+        'title' => t('Active Subsite'),
+        'plugin' => 'context_condition_active_subsite',
+      ),
+    ),
+  );
+}
+
+/**
+ * Execute Context active subsite conditions
+ *
+ * Allows modules to hook into Context's hook_page_build to execute their
+ * conditions at an appropriate time before the firing of reactions.
+ */
+function stanford_sws_context_page_condition() {
+
+  $plugin = context_get_plugin('condition', 'active_subsite');
+  if ($plugin) {
+    $plugin->execute();
+  }
+
+}
+
+

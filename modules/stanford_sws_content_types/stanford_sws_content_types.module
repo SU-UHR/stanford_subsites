@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Site Within A Site Content Types And Fields feature.
+ */
+
+include_once 'stanford_sws_content_types.features.inc';
