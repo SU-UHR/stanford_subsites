@@ -117,7 +117,8 @@ function stanford_sws_custom_theme() {
   $subsite_node = _get_active_subsite();
 
   // Apply the field values
-  if(isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
+  if($subsite_node &&
+    isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
     && $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'] !== "default") {
     return $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'];
   }

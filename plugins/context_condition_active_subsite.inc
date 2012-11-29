@@ -24,6 +24,7 @@ class context_condition_active_subsite extends context_condition {
 
       // Grab subsites array
       $subsite = _get_active_subsite();
+      if(!$subsite) { return; }
 
       // Loop through contexts with nid value and assert condition met
       foreach ($this->get_contexts($subsite->nid) as $context) {
