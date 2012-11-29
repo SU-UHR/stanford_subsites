@@ -1,0 +1,11 @@
+name = Site Within A Site User Settings
+description = Contains user account and role based settings
+core = 7.x
+package = Stanford
+php = 5.2.4
+version = 7.x-1.0
+project = stanford_subsites_user_settings
+dependencies[] = entityreference
+dependencies[] = features
+features[features_api][] = api:1
+features[field][] = user-user-field_stanford_subsite_user_sub_site

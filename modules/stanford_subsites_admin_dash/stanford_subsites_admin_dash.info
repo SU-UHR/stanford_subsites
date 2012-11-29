@@ -1,0 +1,11 @@
+name = Stanford Site Within a Site Administration Dashboard
+description = Adds a number of adminstrative blocks on the dashboard
+package = Stanford
+version = 1.0
+core = 7.x
+
+files[] = "stanford_subsites_admin_dash.install"
+dependencies[] = "dashboard"
+dependencies[] = "menu_block"
+dependencies[] = "stanford_subsites"
+dependencies[] = "stanford_subsites_admin_dash_feat"

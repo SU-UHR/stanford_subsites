@@ -1,0 +1,13 @@
+name = Stanford Site Within a Site
+description = Creates the ability for content authors to create branded "Subsites" within one drupal installation
+package = Stanford
+version = 1.0
+core = 7.x
+
+files[] = "stanford_subsites.inc"
+files[] = "stanford_subsites.admin.inc"
+files[] = "stanford_subsites.install"
+dependencies[] = "pathauto"
+dependencies[] = "stanford_subsites_content_types"
+dependencies[] = "stanford_subsites_user_settings"
+dependencies[] = "stanford_subsites_vocabularies_and_terms"
