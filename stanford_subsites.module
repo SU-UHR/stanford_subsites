@@ -19,9 +19,9 @@
 
 
 // The content type that defines a subsite
-define('SUBSITE_CONTENT_TYPE', "sub_site");
+define('SUBSITE_CONTENT_TYPE', "stanford_subsite");
 // The reference field that connects a child node to a subsite
-define('SUBSITE_REF_FIELD', 'field_stanford_subsite_sub_site');
+define('SUBSITE_REF_FIELD', 'field_stanford_subsite_subsite');
 // The reference field that connects a user to a subsite
 define('SUBSITE_USER_REF_FIELD', 'field_stanford_subsite_usr_sub');
 // The field that changes the site title
@@ -129,7 +129,14 @@ function stanford_subsites_custom_theme() {
 /**
  * Implements hook_preprocess().
  */
-function stanford_subsites_preprocess_page(&$variables, $hook) {
+function stanford_subsites_preprocess_page(&$vars, $hook) {
+
+  // Some variables need to be persistent
+  $vars['subsite_logo'] = false; // the subsite logo full html and link
+  $vars['subsite_site_name'] = false; // the subsite name full html and link
+  $vars['alt'] = $vars['site_name']; // the alt text for the logo image
+  $vars['logo_title'] = $vars['site_name']; // The title text for the logo image
+
 
   /**
    * Apply the subsite
@@ -137,8 +144,25 @@ function stanford_subsites_preprocess_page(&$variables, $hook) {
   $subsite_node = _get_active_subsite();
 
   if($subsite_node) {
-    stanford_subsites_apply_subsite($subsite_node, $variables);
+    stanford_subsites_apply_subsite($subsite_node, $vars);
   }
+  else {
+    if($vars['logo']) {
+      $img = theme("image",
+        array(
+          'path' => $vars['logo'],
+          'role' => 'presentation',
+          'alt' => check_plain($vars['alt']),
+          'title' => check_plain($vars['site_name']),
+          'attributes' => array(
+            'class' => 'subsite-logo'
+            )
+          )
+        );
+      $vars['subsite_logo'] = l($img, "<front>", array('html'=>TRUE));
+    }
+    $vars['subsite_site_name'] = l($vars['site_name'], "<front>");
+  } // end else if subsite
 
 }
 
@@ -151,6 +175,8 @@ function stanford_subsites_preprocess_page(&$variables, $hook) {
  *   2. Change $logo [if set]
  *   3. Change the $front_page url [if set]
  *   4. Create new $logo_title & $alt template variables
+ *   5. Create completely new $subsite_logo and $subsite_title
+ *      variables with links
  */
 
 function stanford_subsites_apply_subsite($node, &$vars) {
@@ -181,18 +207,58 @@ function stanford_subsites_apply_subsite($node, &$vars) {
     // title
     if(isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']) &&
       !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title'])) {
-      $vars['title'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']);
+      $vars['logo_title'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']);
     }
   }
 
-  // Change $front_page url
-  if(isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])
-    && $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])
-  {
-    $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
+  // Setup subsite logo and title vars
+  // ///////////////////////////////////////////////////////////////////////////
+  $vars['subsite_logo'] = false;
+  $vars['subsite_site_name'] = false;
+
+  // handle the linkage to the subsite logo and title
+  if(isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])) {
+
+    // Support default themes
+    // Change the front page variable to link to the subsite
+    if($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"] == "subsite") {
+      $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
+    }
+
+    // Support customized themes
+    // Render the HTML for the logo
+    if($vars['logo']) {
+      $img = theme("image", array('path' => $vars['logo'], 'role' => 'presentation', 'alt' => check_plain($vars['alt']), 'title' => check_plain($vars['site_name']), 'attributes' => array('class' => 'subsite-logo')));
+    }
+
+    // What the active subsite setting is
+    switch($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"]) {
+
+      // Link the logo and the title to the subsite
+      case "subsite":
+        if($vars['logo']) {
+          $vars['subsite_logo'] = l($img, "node/".$node->nid, array('html'=>TRUE));
+        }
+        $vars['subsite_site_name'] = l($vars['site_name'], "node/".$node->nid);
+      break;
+
+      // Link the title to the subsite and the logo to the main site
+      case "split":
+        if($vars['logo']) {
+          $vars['subsite_logo'] = l($img, "<front>", array('html'=>TRUE));
+       }
+        $vars['subsite_site_name'] = l($vars['site_name'], "node/".$node->nid);
+      break;
+
+      // Link both to main site
+      default:
+        if($vars['logo']) {
+          $vars['subsite_logo'] = l($img, "<front>", array('html'=>TRUE));
+        }
+        $vars['subsite_site_name'] = l($vars['site_name'], "<front>");
+    }
+
   }
-
-
 
 
 }
@@ -204,13 +270,13 @@ function stanford_subsites_apply_subsite($node, &$vars) {
  * @param $form_state: The form state array.
  *
  * Utiltity tasks for saving nodes of various types
- * 1. Clear path caches for sub_sites
- * 2. Check for missing subsite field on non sub_site nodes
+ * 1. Clear path caches for subsites
+ * 2. Check for missing subsite field on non subsite nodes
  */
 function stanford_subsites_node_submit($node, $form, &$form_state) {
 
-  // If we are saveing a sub_site content type clear path cache
-  // and perform sub_site specific handling
+  // If we are saveing a subsite content type clear path cache
+  // and perform subsite specific handling
   if($node->type == SUBSITE_CONTENT_TYPE) {
     // Clear all path caches
     cache_clear_all('stanford_subsites_subsite_paths', 'cache', TRUE);
@@ -245,10 +311,10 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
 
     // Check to see that there is a subsite NID available
     if(isset($values[SUBSITE_REF_FIELD])
-      && is_numeric($values[SUBSITE_REF_FIELD]))
+      && is_numeric($values[SUBSITE_REF_FIELD][$language][0]['target_id']))
     {
 
-      $subsite_node = node_load($values[SUBSITE_REF_FIELD]);
+      $subsite_node = node_load($values[SUBSITE_REF_FIELD][$language][0]['target_id']);
       $subsite_term = _get_subsite_term($subsite_node);
       $found_term = FALSE; // boolean switch for finding the term
 
@@ -275,7 +341,7 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
 }
 
 /**
- * Handles the insert of a new sub_site content type
+ * Handles the insert of a new subsite content type
  * @param  object $node       the node object
  *
  * Tasks:
@@ -284,7 +350,7 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
  */
 function stanford_subsites_node_insert($node) {
 
-  // We have a new sub_site content type. Lets add it to the sub_site vocabulary
+  // We have a new subsite content type. Lets add it to the subsite vocabulary
   if($node->type == SUBSITE_CONTENT_TYPE) {
     _insert_subsite_term($node);
   }
@@ -327,12 +393,14 @@ function stanford_subsites_node_update($node) {
  * Prepends the pathalias of the subsite to a node being referenced to one
  */
 function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
-  $node = $context['data']['node'];
+  $node = (isset($context['data']['node'])) ? $context['data']['node'] : false;
   $original_alias = $alias;
 
+  if(!$node) { return; } // a taxonomy term or a user
+
   // If there is a reference to a subsite then alter the pathauto_alias
-  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
-  is_object($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']))
+  if(isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
+  is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']))
   {
     $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
     $alias = drupal_get_path_alias("node/" . $subsite_node->nid) . "/" . $original_alias;
@@ -366,7 +434,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
       // If default subsite is not selected and this is the node create form
       // then set to users current workspace
       // or default account setting
-      if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
+      if(empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
         !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
         (!isset($form['nid']["#value"]) || !is_numeric($form['nid']["#value"])))
       {

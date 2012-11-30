@@ -306,7 +306,7 @@ function stanford_subsites_admin_dash_feat_views_default_views() {
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
-    'sub_site' => 'sub_site',
+    'subsite' => 'subsite',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
 
@@ -465,7 +465,7 @@ function stanford_subsites_admin_dash_feat_views_default_views() {
       'settings' => array(
         'show_all_tokens' => 1,
         'display_values' => array(
-          'page::field_stanford_subsite_sub_site' => 'page::field_stanford_subsite_sub_site',
+          'page::field_stanford_subsite_subsite' => 'page::field_stanford_subsite_subsite',
           'page::field_stanford_subsite_sub_tags' => 'page::field_stanford_subsite_sub_tags',
         ),
       ),
@@ -686,17 +686,17 @@ function stanford_subsites_admin_dash_feat_views_default_views() {
   $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
   $handler->display->display_options['filters']['title']['expose']['required'] = 0;
   $handler->display->display_options['filters']['title']['expose']['multiple'] = FALSE;
-  /* Filter criterion: Content: Subsite (field_stanford_subsite_sub_site) */
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['id'] = 'field_stanford_subsite_sub_site_target_id';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['table'] = 'field_data_field_stanford_subsite_sub_site';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['field'] = 'field_stanford_subsite_sub_site_target_id';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['group'] = 1;
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['expose']['operator_id'] = 'field_stanford_subsite_sub_site_target_id_op';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['expose']['label'] = 'Subsite';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['expose']['operator'] = 'field_stanford_subsite_sub_site_target_id_op';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['expose']['identifier'] = 'field_stanford_subsite_sub_site_target_id';
-  $handler->display->display_options['filters']['field_stanford_subsite_sub_site_target_id']['expose']['multiple'] = FALSE;
+  /* Filter criterion: Content: Subsite (field_stanford_subsite_subsite) */
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['id'] = 'field_stanford_subsite_subsite_target_id';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['table'] = 'field_data_field_stanford_subsite_subsite';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['field'] = 'field_stanford_subsite_subsite_target_id';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['group'] = 1;
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['expose']['operator_id'] = 'field_stanford_subsite_subsite_target_id_op';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['expose']['label'] = 'Subsite';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['expose']['operator'] = 'field_stanford_subsite_subsite_target_id_op';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['expose']['identifier'] = 'field_stanford_subsite_subsite_target_id';
+  $handler->display->display_options['filters']['field_stanford_subsite_subsite_target_id']['expose']['multiple'] = FALSE;
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
@@ -713,17 +713,17 @@ function stanford_subsites_admin_dash_feat_views_default_views() {
   $handler = $view->new_display('page', 'Argument Page', 'sws_admin_dash_content_page');
   $handler->display->display_options['defaults']['use_ajax'] = FALSE;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: Content: Subsite (field_stanford_subsite_sub_site) */
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['id'] = 'field_stanford_subsite_sub_site_target_id';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['table'] = 'field_data_field_stanford_subsite_sub_site';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['field'] = 'field_stanford_subsite_sub_site_target_id';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['default_argument_skip_url'] = 0;
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['break_phrase'] = 0;
-  $handler->display->display_options['arguments']['field_stanford_subsite_sub_site_target_id']['not'] = 0;
+  /* Contextual filter: Content: Subsite (field_stanford_subsite_subsite) */
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['id'] = 'field_stanford_subsite_subsite_target_id';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['table'] = 'field_data_field_stanford_subsite_subsite';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['field'] = 'field_stanford_subsite_subsite_target_id';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['default_argument_skip_url'] = 0;
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['break_phrase'] = 0;
+  $handler->display->display_options['arguments']['field_stanford_subsite_subsite_target_id']['not'] = 0;
   $handler->display->display_options['path'] = 'admin/subsites/content/%';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Stanford Subsites Manage Content';

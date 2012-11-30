@@ -48,7 +48,7 @@ function stanford_subsites_user_settings_field_default_fields() {
             'type' => 'property',
           ),
           'target_bundles' => array(
-            'sub_site' => 'sub_site',
+            'stanford_subsite' => 'stanford_subsite',
           ),
         ),
         'handler_submit' => 'Change handler',

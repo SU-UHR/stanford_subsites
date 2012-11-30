@@ -36,13 +36,13 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
   );
 
   $type_names = node_type_get_names();
-  $enabled_types = variable_get('sws_content_types', array());
+  $enabled_types = variable_get('stanford_subsite_content_types', array());
 
   // Remove subsite as option
   unset($type_names[SUBSITE_CONTENT_TYPE]);
 
 
-  $form['sws']['sws_content_types'] = array(
+  $form['sws']['stanford_subsite_content_types'] = array(
     '#title' => t("Check To Enable Content Type"),
     '#type' => 'checkboxes',
     '#options' => $type_names,
@@ -77,7 +77,8 @@ function stanford_subsites_admin_config_form_validate($form, &$form_state) {
   }
 
   // If not confirmed then rebuild the form and skip submit
-  if(!$form_state['values']['confirm']) {
+  if(!isset($form_state['values']['confirm']) ||
+    !$form_state['values']['confirm']) {
     $form_state['rebuild'] = TRUE;
   }
 
@@ -99,7 +100,7 @@ function stanford_subsites_admin_config_form_submit($form, $form_state) {
   }
 
   $values = array_merge($form_state['values'], $form_state['storage']);
-  $disabled_types = array_filter($values['sws_content_types'], 'give_zero_values');
+  $disabled_types = array_filter($values['stanford_subsite_content_types'], 'give_zero_values');
 
   // Loop through the disabled content types and remove their field instances
   foreach($disabled_types as $type => $nothing) {
@@ -131,7 +132,7 @@ function stanford_subsites_admin_config_form_submit($form, $form_state) {
     // Save current action for new aliases and change it to update and
     // preserve old one.
     $alias_action = variable_get('pathauto_update_action', 0);
-    variable_set('pathauto_update_action', PATHAUTO_UPDATE_ACTION_LEAVE);
+    variable_set('pathauto_update_action', 1);
 
     // add a bulk update operation
     pathauto_node_update_alias_multiple($nids, 'bulkupdate');
@@ -143,9 +144,9 @@ function stanford_subsites_admin_config_form_submit($form, $form_state) {
 
   // Remove content types from the list that arent enabled and then
   // store the values of the form
-  $filtered = array_filter($values['sws_content_types'], 'remove_zero_values');
+  $filtered = array_filter($values['stanford_subsite_content_types'], 'remove_zero_values');
   $keys = array_keys($filtered);
-  variable_set('sws_content_types', $keys);
+  variable_set('stanford_subsite_content_types', $keys);
 
 
   // We now have a list of content types (bundles) that we need to attach an
