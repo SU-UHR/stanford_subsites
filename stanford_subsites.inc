@@ -147,7 +147,7 @@ function _get_subsite_paths() {
 function _insert_subsite_term($node) {
   $term = new stdClass();
   $term->name = $node->title;
-  $term->description = "Vocabulary term for " . $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] .  " subsite";
+  $term->description = "Vocabulary term for " . $node->title .  " subsite";
   $term->vocabulary_machine_name = SUBSITE_VOCAB;
   $term->format = "filtered_html";
 
