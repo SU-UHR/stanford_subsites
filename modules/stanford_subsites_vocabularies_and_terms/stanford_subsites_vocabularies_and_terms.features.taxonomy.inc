@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * sws_vocabularies_and_terms.features.taxonomy.inc
+ * stanford_vocabularies_and_terms.features.taxonomy.inc
  */
 
 /**

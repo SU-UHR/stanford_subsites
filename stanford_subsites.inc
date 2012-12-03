@@ -268,7 +268,7 @@ function _get_tax_field_instance($bundle) {
 
 function _set_subsite_workingspace($nid) {
   $lifetime = time() + (60 * 60 * 24 * 7); // One week lifetime
-  setcookie('sws_subsite_workspace', $nid, $lifetime);
+  setcookie('stanford_subsite_workspace', $nid, $lifetime);
 }
 
 /**
@@ -280,9 +280,9 @@ function _set_subsite_workingspace($nid) {
 function _get_subsite_workingspace() {
 
   // if a cookie is available
-  if(isset($_COOKIE['sws_subsite_workspace']) &&
-    is_numeric($_COOKIE['sws_subsite_workspace'])) {
-    return check_plain($_COOKIE['sws_subsite_workspace']);
+  if(isset($_COOKIE['stanford_subsite_workspace']) &&
+    is_numeric($_COOKIE['stanford_subsite_workspace'])) {
+    return check_plain($_COOKIE['stanford_subsite_workspace']);
   }
 
   // Not available
