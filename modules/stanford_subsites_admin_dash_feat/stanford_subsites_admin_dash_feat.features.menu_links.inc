@@ -65,7 +65,7 @@ function stanford_subsites_admin_dash_feat_menu_default_menu_links() {
     'weight' => '5',
   );
   // Exported menu link: menu-admin-dashboard-admin-tasks:admin/sws/subsites
-  $menu_links['menu-admin-dashboard-admin-tasks:admin/sws/subsites'] = array(
+  $menu_links['menu-admin-dashboard-admin-tasks:admin/subsites/subsites'] = array(
     'menu_name' => 'menu-admin-dashboard-admin-tasks',
     'link_path' => 'admin/subsites/subsites',
     'router_path' => 'admin/subsites/subsites',
@@ -82,11 +82,11 @@ function stanford_subsites_admin_dash_feat_menu_default_menu_links() {
     'expanded' => '0',
     'weight' => '10',
   );
-  // Exported menu link: menu-admin-dashboard-admin-tasks:node/add/subsite
-  $menu_links['menu-admin-dashboard-admin-tasks:node/add/subsite'] = array(
+  // Exported menu link: menu-admin-dashboard-admin-tasks:node/add/stanford-subsite
+  $menu_links['menu-admin-dashboard-admin-tasks:node/add/stanford-subsite'] = array(
     'menu_name' => 'menu-admin-dashboard-admin-tasks',
-    'link_path' => 'node/add/subsite',
-    'router_path' => 'node/add/subsite',
+    'link_path' => 'node/add/stanford-subsite',
+    'router_path' => 'node/add/stanford-subsite',
     'link_title' => 'New Subsite',
     'options' => array(
       'attributes' => array(
