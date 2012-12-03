@@ -318,12 +318,18 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
       $subsite_term = _get_subsite_term($subsite_node);
       $found_term = FALSE; // boolean switch for finding the term
 
-      // check to see that tags field has reference
-      foreach($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
-        if($term['tid'] == $subsite_term->tid) {
-          $found_term = TRUE;
-          break;
+      if($subsite_term) {
+          // check to see that tags field has reference
+        foreach($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
+          if($term['tid'] == $subsite_term->tid) {
+            $found_term = TRUE;
+            break;
+          }
         }
+      }
+      else {
+        // for some reason or another there is no subsite term. Create one
+        $subsite_term = _insert_subsite_term($subsite_node);
       }
 
       // Did not find the subsite term in the subsite tags field. Add it!
