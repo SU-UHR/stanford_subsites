@@ -197,7 +197,6 @@ function stanford_subsites_admin_dash_form_views_exposed_form_alter(&$form, &$fo
     $a3 = arg(3);   // /admin/sws/content/###
                     // /admin/sws/user/###
 
-    $values = $form_state['values'];
 
     $subsite_nodes = _get_subsite_nodes();
     $options = array('' => t('All')); // this needs to be blank or illegal
