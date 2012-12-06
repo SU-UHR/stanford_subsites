@@ -309,8 +309,7 @@ function _create_subsite_menu_and_menublock($node) {
 
   // Create menu ---------------------------------------------------------------
 
-  $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
-  $menu_name = strtolower(drupal_clean_css_identifier($node->title, $filter));
+  $menu_name = _get_subsite_menu_name($node);
 
   $menu = array(
     'menu_name' => $menu_name,
@@ -428,8 +427,8 @@ function _create_subsite_context($node, $args) {
   $menu_block = isset($args['menu_block']) ? $args['menu_block'] : false;
   $delta = isset($args['menu_block']) ? $menu_block['delta'] : 0;
 
-  $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
-  $context_name = strtolower(drupal_clean_css_identifier($node->title, $filter));
+  // we can cheat here a bit and re-use the menu name function
+  $context_name = _get_subsite_menu_name($node);
 
   // find out what region we are suspposed to be placing the menu block in by
   // getting the theme from the subsite node and comparing it to the subsite
@@ -488,3 +487,15 @@ function _create_subsite_context($node, $args) {
   drupal_set_message("A subsite context was created for you. " . l("Edit it here »", "admin/structure/context/list/" . $context_name."/edit"));
 
 }
+
+/**
+ * Generates the machine name for the drupal menu for a subsite node
+ * @param  $node A subsite node
+ * @return string | The machine name of the menu for the subsite
+ */
+function _get_subsite_menu_name($node) {
+  $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
+  $menu_name = strtolower(drupal_clean_css_identifier($node->title, $filter));
+  return $menu_name;
+}
+
