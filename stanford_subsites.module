@@ -481,7 +481,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   */
 function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
   $description = '<p>' . t('Choose the subsite(s) to associate with your account. The first listed subsite will be your default when creating new nodes.') . '</p>';
-  $form['field_stanford_subsite_usr_sub']['und']['#description'] = $description;
+  $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE]['#description'] = $description;
 }
 
 
