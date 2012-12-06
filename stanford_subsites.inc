@@ -232,6 +232,8 @@ function _get_ref_field_instance($bundle) {
   $ret['field_name'] = SUBSITE_REF_FIELD;
   $ret['label'] = t('Subsite');
   $ret['widget']['type'] = "options_select";
+  $ret['display']['default']['type'] = "hidden";
+  $ret['display']['teaser']['type'] = "hidden";
 
   return $ret;
 }
@@ -249,12 +251,13 @@ function _get_tax_field_instance($bundle) {
   $ret = array();
   $ret['entity_type'] = "node";
   $ret['bundle'] = $bundle;
-
   $ret['field_name'] = SUBSITE_TAGS_FIELD;
   $ret['label'] = t('Subsite Tags');
   $ret['widget']['type'] = "taxonomy_autocomplete";
   $ret['widget']['settings']['size'] = 60;
   $ret['widget']['settings']['autocomplete_path'] = "taxonomy/autocomplete";
+  $ret['display']['default']['type'] = "hidden";
+  $ret['display']['teaser']['type'] = "hidden";
 
   return $ret;
 }
