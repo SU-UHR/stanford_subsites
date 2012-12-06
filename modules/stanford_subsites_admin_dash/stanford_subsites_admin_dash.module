@@ -172,6 +172,21 @@ function stanford_subsites_admin_dash_jump_block_form_submit($form, &$form_state
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// PREPROCESSS & INIT //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+function stanford_subsites_admin_dash_init() {
+
+  $a0 = arg(0);
+  $a1 = arg(1);
+  if($a0 == "admin" && $a1 == "dashboard") {
+    drupal_add_css(drupal_get_path('module','stanford_subsites_admin_dash') . "/stanford_subsites_admin_dash.css");
+  }
+
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // VIEWS ALTERS      ///////////////////////////////////////////////////////////
@@ -241,7 +256,60 @@ function stanford_subsites_admin_dash_form_views_exposed_form_alter(&$form, &$fo
 
 }
 
+/**
+ * Hooks into the post-render loop of a view in order to add additional content
+ * In this case add links to the footer of the view
+ * @param  $view | The view object
+ */
+function stanford_subsites_admin_dash_views_post_render(&$view, &$output) {
 
+  // ADD User Links to the Dashboard Block
+  if ($view->name == 'stanford_subsites_admin_dash_users' &&
+    $view->current_display == "stanford_subsites_admin_dash_user_block") {
+
+    $links = array(
+      l("See more users", 'admin/subsites/users'),
+      l("Add new user", 'admin/people/create'),
+    );
+
+    $links_html = theme_item_list(array(
+      'items' => $links,
+      'title' => '',
+      'type' => 'ul',
+      'attributes' => array('class'=>'inline-list')
+      )
+    );
+
+    $output .= $links_html;
+
+  }
+
+
+  // ADD Content Links to the Dashboard Block
+  if ($view->name == 'stanford_subsites_admin_dash_content' &&
+    $view->current_display == "stanford_subsite_admin_dash_content_block") {
+
+    $links = array(
+      l("See more content", 'admin/subsites/content'),
+      l("Add new Subsite", 'node/add/stanford-subsite'),
+    );
+
+    $links_html = theme_item_list(array(
+      'items' => $links,
+      'title' => '',
+      'type' => 'ul',
+      'attributes' => array('class'=>'inline-list')
+      )
+    );
+
+    $output .= $links_html;
+
+  }
+
+
+
+
+}
 
 
 
