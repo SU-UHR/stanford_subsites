@@ -289,6 +289,199 @@ function _get_subsite_workingspace() {
   return FALSE;
 }
 
+/**
+ * Creates and places a new menu and menu block specifically for this subsite
+ * In the new menu a 'home' link is created to the subsite
+ * menu block theme/region placement is controlled by the settings page
+ * Tasks:
+ *  1. Create menu
+ *  2. Add subsite node as a link
+ *  3. Create menu block from new menu
+ *  4. Place menu block via context into region
+ *
+ * @param  object $node the newly created subsite node (node_insert hook)
+ * @return boolean | true for success
+ */
+function _create_subsite_menu_and_menublock($node) {
+
+  // Create menu ---------------------------------------------------------------
+
+  $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
+  $menu_name = strtolower(drupal_clean_css_identifier($node->title, $filter));
+
+  $menu = array(
+    'menu_name' => $menu_name,
+    'title' => t('Subsite Menu') . ": " . $node->title,
+    'description' => t("Menu for all of this subsites links"),
+  );
+
+  // Save it
+  menu_save($menu);
+
+  // Create menu link ----------------------------------------------------------
+
+  // Add a link to this subsite in the new menu
+  $menu_link = array(
+    "link_path" => drupal_get_normal_path('node/'.$node->nid),
+    "link_title" => t("Home"),
+    "menu_name" => $menu_name,
+  );
+
+  // save it!
+  menu_link_save($menu_link);
+
+  // Let the user know with a nice message
+  drupal_set_message("A Menu for this subsite was sucessfully created. " . l("Edit the menu here »", "admin/structure/menu/manage/".$menu_name));
+
+  // Create menu block ---------------------------------------------------------
+
+  // Now create a menu block and place it
+  $menu_block = array();
+  $block_ids = variable_get('menu_block_ids', array());
+  $delta = empty($block_ids) ? 1 : max($block_ids) + 1;
+  // Save the new array of blocks IDs.
+  $block_ids[] = $delta;
+  variable_set('menu_block_ids', $block_ids);
+
+  $menu_block['delta'] = $delta;
+  $menu_block['module'] = "menu_block";
+  $menu_block['delta'] = $delta;
+  $menu_block['title'] = "<none>";
+  $menu_block['display_options'] = "advanced";
+  $menu_block['title_link'] = 0;
+  $menu_block['admin_title'] = t('Subsite Menu Block: ') .$menu_name;
+  $menu_block['menu_name'] = $menu_name;
+  $menu_block['level'] = 1;
+  $menu_block['follow'] = 0;
+  $menu_block['follow_parent'] = "active";
+  $menu_block['depth'] = "1";
+  $menu_block['expanded'] = 0;
+  $menu_block['sort'] = 0;
+  $menu_block['parent_mlid'] = $menu_name . ":0";
+  $menu_block['regions'] = array();
+  $menu_block['visibility'] = "0";
+  $menu_block['pages'] = "";
+  $menu_block['roles'] = array();
+  $menu_block['custom'] = "0";
+  $menu_block['types'] = array();
+  $menu_block['visibility__active_tab'] = "edit-path";
+  $menu_block['parent'] = $menu_name . ":0";
+
+  menu_block_block_save($delta, $menu_block);
+
+  // Run the normal new block submission (borrowed from block_add_block_form_submit).
+  $query = db_insert('block')->fields(array('visibility', 'pages', 'custom', 'title', 'module', 'theme', 'region', 'status', 'weight', 'delta', 'cache'));
+  foreach (list_themes() as $key => $theme) {
+    if ($theme->status) {
+      $region = !empty($menu_block['regions'][$theme->name]) ? $menu_block['regions'][$theme->name] : BLOCK_REGION_NONE;
+      $query->values(array(
+        'visibility' => (int) $menu_block['visibility'],
+        'pages' => trim($menu_block['pages']),
+        'custom' => (int) $menu_block['custom'],
+        'title' => $menu_block['title'],
+        'module' => $menu_block['module'],
+        'theme' => $theme->name,
+        'region' => ($region == BLOCK_REGION_NONE ? '' : $region),
+        'status' => 0,
+        'status' => (int) ($region != BLOCK_REGION_NONE),
+        'weight' => 0,
+        'delta' => $delta,
+        'cache' => DRUPAL_NO_CACHE,
+      ));
+    }
+  }
+  $query->execute();
+
+  $query = db_insert('block_role')->fields(array('rid', 'module', 'delta'));
+  foreach (array_filter($menu_block['roles']) as $rid) {
+    $query->values(array(
+      'rid' => $rid,
+      'module' => $menu_block['module'],
+      'delta' => $delta,
+    ));
+  }
+  $query->execute();
+
+  drupal_set_message(t('The Menu block has been created.'));
+
+  return array(
+    'menu' => $menu,
+    'menu_block' => $menu_block,
+  );
+
+}
+
+/**
+ * Create subsite context
+ * @param   $node the fully saved and/or loaded subsite node object
+ * @param   $args a misc array of arguments to pass in
+ *           menu => (optional) the menu associated with the subsite
+ *           menu_block => (optional) the menu_block associated with the subsite
+ */
+
+function _create_subsite_context($node, $args) {
+
+  $menu = isset($args['menu']) ? $args['menu'] : false;
+  $menu_block = isset($args['menu_block']) ? $args['menu_block'] : false;
+  $delta = isset($args['menu_block']) ? $menu_block['delta'] : 0;
+
+  $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
+  $context_name = strtolower(drupal_clean_css_identifier($node->title, $filter));
+
+  // find out what region we are suspposed to be placing the menu block in by
+  // getting the theme from the subsite node and comparing it to the subsite
+  // configuration settings
+
+  $the_theme = variable_get('theme_default');
+  $theme_region = false;
+
+  if(isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']) &&
+    $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] !== "default") {
+      $the_theme = $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'];
+  }
+
+  // settings from admin/config/subsites/
+  $settings = variable_get('stanford_subsite_mbtr', array());
+
+  if(isset($settings[$the_theme]) &&
+    $settings[$the_theme] !== "stanford_subsites_dnp") {
+      $theme_region = $settings[$the_theme];
+  }
 
 
+  $context = new stdClass();
+  $context->name = $context_name;
+  $context->description = "Subsite Context for " . $node->title;
+  $context->tag = "Stanford Subsites";
+  $context->conditions = array(
+    'active_subsite' => array(
+      'values' => array(
+          $node->nid => $node->nid,
+        ),
+      ),
+    );
+  if($theme_region) {
+    $context->reactions = array(
+    'block' => array(
+      'blocks' => array(
+        "menu_block-" . $delta => array(
+          'module' => "menu_block",
+          'delta' => $delta,
+          'region' => $theme_region,
+          'weight' => -10,
+          ),
+        ),
+      ),
+    );
+  }
+  $context->condition_mode = 0;
+  $context->table = "context";
+  $context->type = "Normal";
+  $context->export_type = 1;
 
+  context_save($context);
+  cache_clear_all();
+
+  drupal_set_message("A subsite context was created for you. " . l("Edit it here »", "admin/structure/context/list/" . $context_name."/edit"));
+
+}

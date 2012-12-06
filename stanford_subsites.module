@@ -359,6 +359,18 @@ function stanford_subsites_node_insert($node) {
   // We have a new subsite content type. Lets add it to the subsite vocabulary
   if($node->type == SUBSITE_CONTENT_TYPE) {
     _insert_subsite_term($node);
+
+    $args = array(); // storage for passing arguments to subsequential functions
+
+    // If menu/menublock creation is enabled do it!
+    if(variable_get("stanford_subsite_enabled_menus", false)) {
+      $args += _create_subsite_menu_and_menublock($node);
+    }
+
+    // Create a subsite context for this subsite
+    _create_subsite_context($node, $args);
+
+
   }
 
   // Set the cookie for active subite working space if subsite ref was provided
