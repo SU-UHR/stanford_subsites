@@ -100,6 +100,24 @@ function stanford_subsites_admin_dash_feat_menu_default_menu_links() {
     'expanded' => '0',
     'weight' => '-50',
   );
+  // Exported menu link: menu-admin-dashboard-admin-tasks:admin/subsites/content
+  $menu_links['menu-admin-dashboard-admin-tasks:admin/subsites/content'] = array(
+    'menu_name' => 'menu-admin-dashboard-admin-tasks',
+    'link_path' => 'admin/subsites/content',
+    'router_path' => 'admin/subsites/content',
+    'link_title' => 'Content Bulk Operations',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Content Bulk Operations',
+      ),
+    ),
+    'module' => 'menu',
+    'hidden' => '0',
+    'external' => '0',
+    'has_children' => '0',
+    'expanded' => '0',
+    'weight' => '1',
+  );
   // Translatables
   // Included for use with string extractors like potx.
   t('Edit Contexts');
@@ -107,6 +125,7 @@ function stanford_subsites_admin_dash_feat_menu_default_menu_links() {
   t('New Menu Block');
   t('New Subsite');
   t('New User');
+  t('Content Bulk Operations');
 
 
   return $menu_links;
