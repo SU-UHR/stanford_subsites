@@ -10,6 +10,16 @@
 function stanford_subsites_admin_dash_feat_views_default_views() {
   $export = array();
 
+  $view = new view;
+  $view->name = 'stanford_subsites_admin_dash_admin_views';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = 'Stanford Subsite Admin Views';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Subsites';
