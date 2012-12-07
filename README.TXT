@@ -1,5 +1,5 @@
 THEME VARIABLES:
-This module introduces a coule of extra variables into your page.tpl.php
+This module introduces a couple of extra variables into your page.tpl.php
 
 
 $alt                  The alt text provided in the image upload field on subsite
@@ -16,11 +16,11 @@ $subsite_logo         A fully rendered image and link tag complete with alt and
                       $logo image if there is no subsite logo available. This is
                       different from the regular $logo variable as it has alt,
                       title text, and a link that can link to either the subsite
-                      page or the drupal root home.
+                      page or the Drupal root home.
 
 $subsite_site_name    A fully rendered link and site name heading tag. This is
                       different from the regular $site_name page variable as it
                       can have it's link go to either the subsite node or the
-                      drupal root home.
+                      Drupal root home.
 
 

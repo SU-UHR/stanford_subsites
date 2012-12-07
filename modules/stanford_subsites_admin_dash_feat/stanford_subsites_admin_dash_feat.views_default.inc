@@ -452,6 +452,7 @@
   $export['stanford_subsites_admin_dash_admin_views'] = $view;
 
   $view = new view;
+$view = new view;
 $view->name = 'stanford_subsites_admin_dash_content';
 $view->description = '';
 $view->tag = 'default';
@@ -541,6 +542,15 @@ $handler->display->display_options['style_options']['info'] = array(
 $handler->display->display_options['style_options']['override'] = 1;
 $handler->display->display_options['style_options']['sticky'] = 0;
 $handler->display->display_options['style_options']['empty_table'] = 0;
+/* Footer: Global: Text area */
+$handler->display->display_options['footer']['area']['id'] = 'area';
+$handler->display->display_options['footer']['area']['table'] = 'views';
+$handler->display->display_options['footer']['area']['field'] = 'area';
+$handler->display->display_options['footer']['area']['label'] = 'Helper Links';
+$handler->display->display_options['footer']['area']['empty'] = TRUE;
+$handler->display->display_options['footer']['area']['content'] = '<!-- Admin Links Rendered Here -->';
+$handler->display->display_options['footer']['area']['format'] = 'full_html';
+$handler->display->display_options['footer']['area']['tokenize'] = 0;
 /* Relationship: Content: Author */
 $handler->display->display_options['relationships']['uid']['id'] = 'uid';
 $handler->display->display_options['relationships']['uid']['table'] = 'node';
@@ -1303,421 +1313,428 @@ $handler->display->display_options['menu']['title'] = 'Stanford Subsites Manage 
 $handler->display->display_options['menu']['name'] = 'devel';
 
 
+
   $export['stanford_subsites_admin_dash_content'] = $view;
 
-  $view = new view;
-  $view->name = 'stanford_subsites_admin_dash_users';
-  $view->description = '';
-  $view->tag = 'SWS';
-  $view->base_table = 'users';
-  $view->human_name = 'SWS Manage Users';
-  $view->core = 7;
-  $view->api_version = '3.0';
-  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+$view = new view;
+$view->name = 'stanford_subsites_admin_dash_users';$export['stanford_subsites_admin_dash_content'] = $view;
+$view->description = '';
+$view->tag = 'SWS';
+$view->base_table = 'users';
+$view->human_name = 'SWS Manage Users';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
-  /* Display: Master */
-  $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Manage Users';
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'access user profiles';
-  $handler->display->display_options['cache']['type'] = 'none';
-  $handler->display->display_options['query']['type'] = 'views_query';
-  $handler->display->display_options['query']['options']['query_comment'] = FALSE;
-  $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '40';
-  $handler->display->display_options['style_plugin'] = 'table';
-  $handler->display->display_options['style_options']['columns'] = array(
-    'views_bulk_operations' => 'views_bulk_operations',
-    'name' => 'name',
-    'rid' => 'rid',
-    'field_stanford_subsite_usr_sub' => 'field_stanford_subsite_usr_sub',
-    'created' => 'created',
-    'login' => 'login',
-    'edit_node' => 'edit_node',
-  );
-  $handler->display->display_options['style_options']['default'] = 'login';
-  $handler->display->display_options['style_options']['info'] = array(
-    'views_bulk_operations' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'name' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'desc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'rid' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_stanford_subsite_usr_sub' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'created' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'login' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'desc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'edit_node' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-  );
-  $handler->display->display_options['style_options']['override'] = 1;
-  $handler->display->display_options['style_options']['sticky'] = 0;
-  $handler->display->display_options['style_options']['empty_table'] = 0;
-  /* Field: Bulk operations: User */
-  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
-  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'users';
-  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
-  $handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['views_bulk_operations']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['entity_load_capacity'] = '10';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['operations'] = array(
-    'action::system_block_ip_action' => array(
-      'selected' => 0,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::user_block_user_action' => array(
-      'selected' => 1,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_delete_item' => array(
-      'selected' => 0,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::system_message_action' => array(
-      'selected' => 1,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_script_action' => array(
-      'selected' => 0,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::views_bulk_operations_modify_action' => array(
-      'selected' => 1,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 1,
-      'label' => 'Edit User\'s Subsite(s)',
-      'settings' => array(
-        'show_all_tokens' => 1,
-        'display_values' => array(
-          'user::field_stanford_subsite_usr_sub' => 'user::field_stanford_subsite_usr_sub',
-        ),
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Manage Users';
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['access']['perm'] = 'access user profiles';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['query']['options']['query_comment'] = FALSE;
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '40';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'views_bulk_operations' => 'views_bulk_operations',
+  'name' => 'name',
+  'rid' => 'rid',
+  'field_stanford_subsite_usr_sub' => 'field_stanford_subsite_usr_sub',
+  'created' => 'created',
+  'login' => 'login',
+  'edit_node' => 'edit_node',
+);
+$handler->display->display_options['style_options']['default'] = 'login';
+$handler->display->display_options['style_options']['info'] = array(
+  'views_bulk_operations' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 1,
+    'default_sort_order' => 'desc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'rid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'field_stanford_subsite_usr_sub' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'created' => array(
+    'sortable' => 1,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'login' => array(
+    'sortable' => 1,
+    'default_sort_order' => 'desc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'edit_node' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['style_options']['override'] = 1;
+$handler->display->display_options['style_options']['sticky'] = 0;
+$handler->display->display_options['style_options']['empty_table'] = 0;
+/* Footer: Global: Text area */
+$handler->display->display_options['footer']['area']['id'] = 'area';
+$handler->display->display_options['footer']['area']['table'] = 'views';
+$handler->display->display_options['footer']['area']['field'] = 'area';
+$handler->display->display_options['footer']['area']['empty'] = FALSE;
+$handler->display->display_options['footer']['area']['content'] = '<!-- Admin Links Rendered Here -->';
+$handler->display->display_options['footer']['area']['format'] = 'full_html';
+$handler->display->display_options['footer']['area']['tokenize'] = 0;
+/* Field: Bulk operations: User */
+$handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+$handler->display->display_options['fields']['views_bulk_operations']['table'] = 'users';
+$handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+$handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['external'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['alter']['html'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['views_bulk_operations']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['views_bulk_operations']['hide_empty'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['empty_zero'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '0';
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+  'action::system_block_ip_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::user_block_user_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::views_bulk_operations_delete_item' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::system_message_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::views_bulk_operations_script_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::views_bulk_operations_modify_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 0,
+    'override_label' => 1,
+    'label' => 'Edit User\'s Subsite(s)',
+    'settings' => array(
+      'show_all_tokens' => 1,
+      'display_values' => array(
+        'user::field_stanford_subsite_usr_sub' => 'user::field_stanford_subsite_usr_sub',
       ),
     ),
-    'action::views_bulk_operations_user_roles_action' => array(
-      'selected' => 1,
-      'use_queue' => 0,
-      'skip_confirmation' => 1,
-      'override_label' => 0,
-      'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::views_bulk_operations_user_roles_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 1,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::views_bulk_operations_argument_selector_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'url' => '',
     ),
-    'action::views_bulk_operations_argument_selector_action' => array(
-      'selected' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-      'settings' => array(
-        'url' => '',
-      ),
-    ),
-    'action::system_goto_action' => array(
-      'selected' => 0,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::system_send_email_action' => array(
-      'selected' => 1,
-      'use_queue' => 1,
-      'skip_confirmation' => 1,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::pathauto_user_update_action' => array(
-      'selected' => 0,
-      'use_queue' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-  );
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['enable_select_all_pages'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['display_type'] = '0';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['display_result'] = 1;
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['merge_single_action'] = 0;
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo']['force_single'] = 0;
-  /* Field: User: Name */
-  $handler->display->display_options['fields']['name']['id'] = 'name';
-  $handler->display->display_options['fields']['name']['table'] = 'users';
-  $handler->display->display_options['fields']['name']['field'] = 'name';
-  $handler->display->display_options['fields']['name']['label'] = 'User';
-  $handler->display->display_options['fields']['name']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['word_boundary'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['ellipsis'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['name']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['name']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['name']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['name']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['name']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['name']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['name']['link_to_user'] = 1;
-  $handler->display->display_options['fields']['name']['overwrite_anonymous'] = 0;
-  $handler->display->display_options['fields']['name']['format_username'] = 1;
-  /* Field: User: Roles */
-  $handler->display->display_options['fields']['rid']['id'] = 'rid';
-  $handler->display->display_options['fields']['rid']['table'] = 'users_roles';
-  $handler->display->display_options['fields']['rid']['field'] = 'rid';
-  $handler->display->display_options['fields']['rid']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['rid']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['rid']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['rid']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['rid']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['rid']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['rid']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['rid']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['rid']['hide_alter_empty'] = 1;
-  /* Field: User: Subsites */
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['id'] = 'field_stanford_subsite_usr_sub';
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['table'] = 'field_data_field_stanford_subsite_usr_sub';
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['field'] = 'field_stanford_subsite_usr_sub';
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['settings'] = array(
-    'link' => 0,
-  );
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['group_rows'] = 1;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['delta_offset'] = '0';
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['delta_reversed'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['delta_first_last'] = 0;
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['multi_type'] = 'ul';
-  $handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['field_api_classes'] = 0;
-  /* Field: User: Created date */
-  $handler->display->display_options['fields']['created']['id'] = 'created';
-  $handler->display->display_options['fields']['created']['table'] = 'users';
-  $handler->display->display_options['fields']['created']['field'] = 'created';
-  $handler->display->display_options['fields']['created']['label'] = 'Created';
-  $handler->display->display_options['fields']['created']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['created']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['created']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['created']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['created']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['created']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['created']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['created']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['created']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['created']['date_format'] = 'custom';
-  $handler->display->display_options['fields']['created']['custom_date_format'] = 'M d, Y';
-  /* Field: User: Last login */
-  $handler->display->display_options['fields']['login']['id'] = 'login';
-  $handler->display->display_options['fields']['login']['table'] = 'users';
-  $handler->display->display_options['fields']['login']['field'] = 'login';
-  $handler->display->display_options['fields']['login']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['login']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['login']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['login']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['login']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['login']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['login']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['login']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['login']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['login']['date_format'] = 'custom';
-  $handler->display->display_options['fields']['login']['custom_date_format'] = 'M d, Y H:i';
-  /* Field: User: Edit link */
-  $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
-  $handler->display->display_options['fields']['edit_node']['table'] = 'users';
-  $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
-  $handler->display->display_options['fields']['edit_node']['label'] = 'Actions';
-  $handler->display->display_options['fields']['edit_node']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['make_link'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['absolute'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['external'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['replace_spaces'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['trim_whitespace'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['nl2br'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['word_boundary'] = 1;
-  $handler->display->display_options['fields']['edit_node']['alter']['ellipsis'] = 1;
-  $handler->display->display_options['fields']['edit_node']['alter']['more_link'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['strip_tags'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['trim'] = 0;
-  $handler->display->display_options['fields']['edit_node']['alter']['html'] = 0;
-  $handler->display->display_options['fields']['edit_node']['element_label_colon'] = 1;
-  $handler->display->display_options['fields']['edit_node']['element_default_classes'] = 1;
-  $handler->display->display_options['fields']['edit_node']['hide_empty'] = 0;
-  $handler->display->display_options['fields']['edit_node']['empty_zero'] = 0;
-  $handler->display->display_options['fields']['edit_node']['hide_alter_empty'] = 1;
-  /* Contextual filter: User: Subsites (field_stanford_subsite_usr_sub) */
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['id'] = 'field_stanford_subsite_usr_sub_target_id';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['table'] = 'field_data_field_stanford_subsite_usr_sub';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['field'] = 'field_stanford_subsite_usr_sub_target_id';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['default_argument_skip_url'] = 0;
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['break_phrase'] = 0;
-  $handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['not'] = 0;
-  /* Filter criterion: User: Active */
-  $handler->display->display_options['filters']['status']['id'] = 'status';
-  $handler->display->display_options['filters']['status']['table'] = 'users';
-  $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = '1';
-  $handler->display->display_options['filters']['status']['group'] = 1;
-  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: User: Authentication name */
-  $handler->display->display_options['filters']['authname']['id'] = 'authname';
-  $handler->display->display_options['filters']['authname']['table'] = 'authmap';
-  $handler->display->display_options['filters']['authname']['field'] = 'authname';
-  $handler->display->display_options['filters']['authname']['operator'] = 'word';
-  $handler->display->display_options['filters']['authname']['group'] = 1;
-  $handler->display->display_options['filters']['authname']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['authname']['expose']['operator_id'] = 'authname_op';
-  $handler->display->display_options['filters']['authname']['expose']['label'] = 'User name';
-  $handler->display->display_options['filters']['authname']['expose']['operator'] = 'authname_op';
-  $handler->display->display_options['filters']['authname']['expose']['identifier'] = 'authname';
-  $handler->display->display_options['filters']['authname']['expose']['required'] = 0;
-  $handler->display->display_options['filters']['authname']['expose']['multiple'] = FALSE;
-  /* Filter criterion: User: Subsites (field_stanford_subsite_usr_sub) */
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['id'] = 'field_stanford_subsite_usr_sub_target_id';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['table'] = 'field_data_field_stanford_subsite_usr_sub';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['field'] = 'field_stanford_subsite_usr_sub_target_id';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['group'] = 1;
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['operator_id'] = 'field_stanford_subsite_usr_sub_target_id_op';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['label'] = 'Subsites';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['operator'] = 'field_stanford_subsite_usr_sub_target_id_op';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['identifier'] = 'field_stanford_subsite_usr_sub_target_id';
-  $handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['multiple'] = FALSE;
+  ),
+  'action::system_goto_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+  'action::system_send_email_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 1,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 1,
+  ),
+  'action::pathauto_user_update_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'postpone_processing' => 0,
+  ),
+);
+/* Field: User: Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'users';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'User';
+$handler->display->display_options['fields']['name']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['name']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['name']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['name']['alter']['external'] = 0;
+$handler->display->display_options['fields']['name']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['name']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['name']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['name']['alter']['word_boundary'] = 0;
+$handler->display->display_options['fields']['name']['alter']['ellipsis'] = 0;
+$handler->display->display_options['fields']['name']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['name']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['name']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['name']['alter']['html'] = 0;
+$handler->display->display_options['fields']['name']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['name']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['name']['hide_empty'] = 0;
+$handler->display->display_options['fields']['name']['empty_zero'] = 0;
+$handler->display->display_options['fields']['name']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['name']['link_to_user'] = 1;
+$handler->display->display_options['fields']['name']['overwrite_anonymous'] = 0;
+$handler->display->display_options['fields']['name']['format_username'] = 1;
+/* Field: User: Roles */
+$handler->display->display_options['fields']['rid']['id'] = 'rid';
+$handler->display->display_options['fields']['rid']['table'] = 'users_roles';
+$handler->display->display_options['fields']['rid']['field'] = 'rid';
+$handler->display->display_options['fields']['rid']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['external'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['rid']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['rid']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['rid']['alter']['html'] = 0;
+$handler->display->display_options['fields']['rid']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['rid']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['rid']['hide_empty'] = 0;
+$handler->display->display_options['fields']['rid']['empty_zero'] = 0;
+$handler->display->display_options['fields']['rid']['hide_alter_empty'] = 1;
+/* Field: User: Subsites */
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['id'] = 'field_stanford_subsite_usr_sub';
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['table'] = 'field_data_field_stanford_subsite_usr_sub';
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['field'] = 'field_stanford_subsite_usr_sub';
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['external'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['alter']['html'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['hide_empty'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['empty_zero'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['group_rows'] = 1;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['delta_offset'] = '0';
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['delta_reversed'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['delta_first_last'] = 0;
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['multi_type'] = 'ul';
+$handler->display->display_options['fields']['field_stanford_subsite_usr_sub']['field_api_classes'] = 0;
+/* Field: User: Created date */
+$handler->display->display_options['fields']['created']['id'] = 'created';
+$handler->display->display_options['fields']['created']['table'] = 'users';
+$handler->display->display_options['fields']['created']['field'] = 'created';
+$handler->display->display_options['fields']['created']['label'] = 'Created';
+$handler->display->display_options['fields']['created']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['created']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['created']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['created']['alter']['external'] = 0;
+$handler->display->display_options['fields']['created']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['created']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['created']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['created']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['created']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['created']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['created']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['created']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['created']['alter']['html'] = 0;
+$handler->display->display_options['fields']['created']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['created']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['created']['hide_empty'] = 0;
+$handler->display->display_options['fields']['created']['empty_zero'] = 0;
+$handler->display->display_options['fields']['created']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['created']['date_format'] = 'custom';
+$handler->display->display_options['fields']['created']['custom_date_format'] = 'M d, Y';
+/* Field: User: Last login */
+$handler->display->display_options['fields']['login']['id'] = 'login';
+$handler->display->display_options['fields']['login']['table'] = 'users';
+$handler->display->display_options['fields']['login']['field'] = 'login';
+$handler->display->display_options['fields']['login']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['login']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['login']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['login']['alter']['external'] = 0;
+$handler->display->display_options['fields']['login']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['login']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['login']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['login']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['login']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['login']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['login']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['login']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['login']['alter']['html'] = 0;
+$handler->display->display_options['fields']['login']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['login']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['login']['hide_empty'] = 0;
+$handler->display->display_options['fields']['login']['empty_zero'] = 0;
+$handler->display->display_options['fields']['login']['hide_alter_empty'] = 1;
+$handler->display->display_options['fields']['login']['date_format'] = 'custom';
+$handler->display->display_options['fields']['login']['custom_date_format'] = 'M d, Y H:i';
+/* Field: User: Edit link */
+$handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
+$handler->display->display_options['fields']['edit_node']['table'] = 'users';
+$handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
+$handler->display->display_options['fields']['edit_node']['label'] = 'Actions';
+$handler->display->display_options['fields']['edit_node']['alter']['alter_text'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['make_link'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['absolute'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['external'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['replace_spaces'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['trim_whitespace'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['nl2br'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['word_boundary'] = 1;
+$handler->display->display_options['fields']['edit_node']['alter']['ellipsis'] = 1;
+$handler->display->display_options['fields']['edit_node']['alter']['more_link'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['strip_tags'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['trim'] = 0;
+$handler->display->display_options['fields']['edit_node']['alter']['html'] = 0;
+$handler->display->display_options['fields']['edit_node']['element_label_colon'] = 1;
+$handler->display->display_options['fields']['edit_node']['element_default_classes'] = 1;
+$handler->display->display_options['fields']['edit_node']['hide_empty'] = 0;
+$handler->display->display_options['fields']['edit_node']['empty_zero'] = 0;
+$handler->display->display_options['fields']['edit_node']['hide_alter_empty'] = 1;
+/* Contextual filter: User: Subsites (field_stanford_subsite_usr_sub) */
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['id'] = 'field_stanford_subsite_usr_sub_target_id';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['table'] = 'field_data_field_stanford_subsite_usr_sub';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['field'] = 'field_stanford_subsite_usr_sub_target_id';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['default_argument_skip_url'] = 0;
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['break_phrase'] = 0;
+$handler->display->display_options['arguments']['field_stanford_subsite_usr_sub_target_id']['not'] = 0;
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: User: Authentication name */
+$handler->display->display_options['filters']['authname']['id'] = 'authname';
+$handler->display->display_options['filters']['authname']['table'] = 'authmap';
+$handler->display->display_options['filters']['authname']['field'] = 'authname';
+$handler->display->display_options['filters']['authname']['operator'] = 'word';
+$handler->display->display_options['filters']['authname']['group'] = 1;
+$handler->display->display_options['filters']['authname']['exposed'] = TRUE;
+$handler->display->display_options['filters']['authname']['expose']['operator_id'] = 'authname_op';
+$handler->display->display_options['filters']['authname']['expose']['label'] = 'User name';
+$handler->display->display_options['filters']['authname']['expose']['operator'] = 'authname_op';
+$handler->display->display_options['filters']['authname']['expose']['identifier'] = 'authname';
+$handler->display->display_options['filters']['authname']['expose']['required'] = 0;
+$handler->display->display_options['filters']['authname']['expose']['multiple'] = FALSE;
+/* Filter criterion: User: Subsites (field_stanford_subsite_usr_sub) */
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['id'] = 'field_stanford_subsite_usr_sub_target_id';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['table'] = 'field_data_field_stanford_subsite_usr_sub';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['field'] = 'field_stanford_subsite_usr_sub_target_id';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['group'] = 1;
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['operator_id'] = 'field_stanford_subsite_usr_sub_target_id_op';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['label'] = 'Subsites';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['operator'] = 'field_stanford_subsite_usr_sub_target_id_op';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['identifier'] = 'field_stanford_subsite_usr_sub_target_id';
+$handler->display->display_options['filters']['field_stanford_subsite_usr_sub_target_id']['expose']['multiple'] = FALSE;
 
-  /* Display: Argument Page */
-  $handler = $view->new_display('page', 'Argument Page', 'stanford_subsites_admin_dash_user_page');
-  $handler->display->display_options['path'] = 'admin/subsites/users/%';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Manage Users';
-  $handler->display->display_options['menu']['name'] = 'devel';
+/* Display: Argument Page */
+$handler = $view->new_display('page', 'Argument Page', 'stanford_subsites_admin_dash_user_page');
+$handler->display->display_options['path'] = 'admin/subsites/users/%';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'Manage Users';
+$handler->display->display_options['menu']['name'] = 'devel';
 
-  /* Display: Block */
-  $handler = $view->new_display('block', 'Block', 'stanford_subsites_admin_dash_user_block');
-  $handler->display->display_options['defaults']['use_ajax'] = FALSE;
-  $handler->display->display_options['use_ajax'] = TRUE;
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
-  $handler->display->display_options['block_description'] = 'Admin Dashboard Manage Users';
+/* Display: Block */
+$handler = $view->new_display('block', 'Block', 'stanford_subsites_admin_dash_user_block');
+$handler->display->display_options['defaults']['use_ajax'] = FALSE;
+$handler->display->display_options['use_ajax'] = TRUE;
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '5';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+$handler->display->display_options['block_description'] = 'Admin Dashboard Manage Users';
 
-  /* Display: Landing Page */
-  $handler = $view->new_display('page', 'Landing Page', 'page_1');
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
-  $handler->display->display_options['path'] = 'admin/subsites/users';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Manage Users';
-  $handler->display->display_options['menu']['name'] = 'devel';
+/* Display: Landing Page */
+$handler = $view->new_display('page', 'Landing Page', 'page_1');
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+$handler->display->display_options['path'] = 'admin/subsites/users';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'Manage Users';
+$handler->display->display_options['menu']['name'] = 'devel';
+
   $export['stanford_subsites_admin_dash_users'] = $view;
-
   return $export;
 }

@@ -267,7 +267,7 @@ function stanford_subsites_admin_dash_form_views_exposed_form_alter(&$form, &$fo
  * In this case add links to the footer of the view
  * @param  $view | The view object
  */
-function stanford_subsites_admin_dash_views_post_render(&$view, &$output) {
+function stanford_subsites_admin_dash_views_pre_render(&$view) {
 
   // ADD User Links to the Dashboard Block
   if ($view->name == 'stanford_subsites_admin_dash_users' &&
@@ -286,9 +286,17 @@ function stanford_subsites_admin_dash_views_post_render(&$view, &$output) {
       )
     );
 
-    $output .= $links_html;
+    // Manipulate the view with a new footer
+    $view->footer['area']->options = array(
+      "content" => $links_html,
+      "format" => "full_html",
+      'tokenize' => 0,
+    );
+
+
 
   }
+
 
 
   // ADD Content Links to the Dashboard Block
@@ -308,7 +316,13 @@ function stanford_subsites_admin_dash_views_post_render(&$view, &$output) {
       )
     );
 
-    $output .= $links_html;
+    // Manipulate the view with a new footer
+    $view->footer['area']->options = array(
+      "content" => $links_html,
+      "format" => "full_html",
+      'tokenize' => 0,
+    );
+
 
   }
 
