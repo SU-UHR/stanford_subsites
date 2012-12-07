@@ -11,6 +11,7 @@ dependencies[] = image
 dependencies[] = list
 dependencies[] = options
 dependencies[] = stanford_subsites_vocabularies_and_terms
+dependencies[] = strongarm
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:1
 features[field][] = node-page-field_stanford_subsite_subsite
