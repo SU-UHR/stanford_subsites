@@ -270,8 +270,11 @@ function _get_tax_field_instance($bundle) {
  */
 
 function _set_subsite_workingspace($nid) {
+
+  // Set it
   $lifetime = time() + (60 * 60 * 24 * 7); // One week lifetime
-  setcookie('stanford_subsite_workspace', $nid, $lifetime);
+  setcookie('stanford_subsite_workspace', $nid, $lifetime, "/"); // <--need path
+
 }
 
 /**
