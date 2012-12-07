@@ -42,13 +42,6 @@ function stanford_subsites_admin_dash_permission() {
 }
 
 
-/**
- * Implements hook_form_alter().
- */
-function stanford_subsites_admin_dash_form_alter(&$form, &$form_state, $form_id) {
-  // Alter code here
-
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // BLOCKS       ////////////////////////////////////////////////////////////////

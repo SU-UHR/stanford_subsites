@@ -316,7 +316,7 @@ function _create_subsite_menu_and_menublock($node) {
 
   $menu = array(
     'menu_name' => $menu_name,
-    'title' => t('Subsite Menu') . ": " . $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'],
+    'title' => t('Subsite Menu') . ": " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 64),
     'description' => t("Menu for all of this subsites links"),
   );
 
@@ -456,7 +456,7 @@ function _create_subsite_context($node, $args) {
 
   $context = new stdClass();
   $context->name = $context_name;
-  $context->description = "Subsite Context for " . $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
+  $context->description = "Subsite Context for " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 210);
   $context->tag = "Stanford Subsites";
   $context->conditions = array(
     'active_subsite' => array(
@@ -499,6 +499,10 @@ function _create_subsite_context($node, $args) {
 function _get_subsite_menu_name($node) {
   $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
   $menu_name = strtolower(drupal_clean_css_identifier($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], $filter));
+
+  // Max length of menu name is 32 chars
+  $menu_name = substr($menu_name, 0, 32);
+
   return $menu_name;
 }
 
