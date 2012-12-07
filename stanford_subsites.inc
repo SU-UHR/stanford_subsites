@@ -176,7 +176,7 @@ function _update_subsite_node_term_name($node) {
   $old_node = node_load($node->nid);
 
   // Check if the title of the node changed
-  if($old_node->{SUBSITE_NAME_FIELD}[$node->$language][0]['value'] == $node->{SUBSITE_NAME_FIELD}[$node->$language][0]['value']) {
+  if($old_node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] == $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']) {
     return; // they are the same. Nothing to do here.
   }
 
