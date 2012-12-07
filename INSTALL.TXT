@@ -1,0 +1,49 @@
+Included in this module are a bunch of sub modules. You should be able to enable
+the stanford subsite module and the stanford subsite admin dash module through
+the modules page but if you are having troubles getting these modules installed
+try doing the following:
+
+1. Enable Stanford Subsites module
+2. Enable Admin Dashboard Feature
+3. Revert the features
+      stanford_subsites_content_types
+      stanford_subsites_admin_dash_feat
+4. Enable Admin Dashboard Module
+
+********************************************************************************
+
+If you are doing this via Drush try:
+
+drush en stanford_subsites_admin_dash -y
+drush fr stanford_subsites_content_types -y
+drush fr stanford_subsites_admin_dash_feat -y
+drush en devel
+drush dre stanford_subsites_admin_dash -y
+drush cc all
+
+********************************************************************************
+
+THEME VARIABLES:
+This module introduces a coule of extra variables into your page.tpl.php
+
+
+$alt                  The alt text provided in the image upload field on subsite
+                      nodes. field_stanford_subsite_logo. This can be added to
+                      the default page.tpl.php markup
+
+$logo_title           The title text provided in the image upload field on
+                      subsite nodes. field_stanford_subsite_logo. This can be
+                      added to the default page.tpl.php markup
+
+$subsite_logo         A fully rendered image and link tag complete with alt and
+                      title text. This variable should replace the $logo
+                      variable in page.tpl.php. It falls back to the default
+                      $logo image if there is no subsite logo available. This is
+                      different from the regular $logo variable as it has alt,
+                      title text, and a link that can link to either the subsite
+                      page or the drupal root home.
+
+$subsite_site_name    A fully rendered link and site name heading tag. This is
+                      different from the regular $site_name page variable as it
+                      can have it's link go to either the subsite node or the
+                      drupal root home.
