@@ -146,8 +146,8 @@ function _get_subsite_paths() {
  */
 function _insert_subsite_term($node) {
   $term = new stdClass();
-  $term->name = $node->title;
-  $term->description = "Vocabulary term for " . $node->title .  " subsite";
+  $term->name = $node->{SUBSITE_NAME_FIELD}[$language][0]['value'];
+  $term->description = "Vocabulary term for " . $node->{SUBSITE_NAME_FIELD}[$language][0]['value'] .  " subsite";
   $term->vocabulary_machine_name = SUBSITE_VOCAB;
   $term->format = "filtered_html";
 
@@ -176,12 +176,12 @@ function _update_subsite_node_term_name($node) {
   $old_node = node_load($node->nid);
 
   // Check if the title of the node changed
-  if($old_node->title == $node->title) {
+  if($old_node->{SUBSITE_NAME_FIELD}[$language][0]['value'] == $node->{SUBSITE_NAME_FIELD}[$language][0]['value']) {
     return; // they are the same. Nothing to do here.
   }
 
   // The title is different. Load up term by term name
-  $terms = taxonomy_get_term_by_name($old_node->title, SUBSITE_VOCAB);
+  $terms = taxonomy_get_term_by_name($old_node->{SUBSITE_NAME_FIELD}[$language][0]['value'], SUBSITE_VOCAB);
 
   // Failed to get a term. Lets insert a new one
   if(!$terms) {
@@ -192,7 +192,7 @@ function _update_subsite_node_term_name($node) {
   // Change the name and save it
   $old_term = array_pop($terms);
   $term = clone($old_term);
-  $term->name = $node->title;
+  $term->name = $node->{SUBSITE_NAME_FIELD}[$language][0]['value'];
   $term->original = $old_term;
 
   $term = taxonomy_term_save($term, SUBSITE_VOCAB);
@@ -207,7 +207,7 @@ function _update_subsite_node_term_name($node) {
 function _get_subsite_term($node) {
 
   // The title is different. Load up term by term name
-  $terms = taxonomy_get_term_by_name($node->title, SUBSITE_VOCAB);
+  $terms = taxonomy_get_term_by_name($node->{SUBSITE_NAME_FIELD}[$language][0]['value'], SUBSITE_VOCAB);
 
   // Failed to get a term. Lets insert a new one
   if(!$terms) {
@@ -316,7 +316,7 @@ function _create_subsite_menu_and_menublock($node) {
 
   $menu = array(
     'menu_name' => $menu_name,
-    'title' => t('Subsite Menu') . ": " . $node->title,
+    'title' => t('Subsite Menu') . ": " . $node->{SUBSITE_NAME_FIELD}[$language][0]['value'],
     'description' => t("Menu for all of this subsites links"),
   );
 
@@ -456,7 +456,7 @@ function _create_subsite_context($node, $args) {
 
   $context = new stdClass();
   $context->name = $context_name;
-  $context->description = "Subsite Context for " . $node->title;
+  $context->description = "Subsite Context for " . $node->{SUBSITE_NAME_FIELD}[$language][0]['value'];
   $context->tag = "Stanford Subsites";
   $context->conditions = array(
     'active_subsite' => array(
@@ -498,7 +498,7 @@ function _create_subsite_context($node, $args) {
  */
 function _get_subsite_menu_name($node) {
   $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
-  $menu_name = strtolower(drupal_clean_css_identifier($node->title, $filter));
+  $menu_name = strtolower(drupal_clean_css_identifier($node->{SUBSITE_NAME_FIELD}[$language][0]['value'], $filter));
   return $menu_name;
 }
 
