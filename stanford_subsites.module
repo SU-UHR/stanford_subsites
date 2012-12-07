@@ -69,7 +69,7 @@ function stanford_subsites_menu() {
   $items = array();
 
   $items['admin/config/subsites'] = array(
-    'title' => 'Site within a site settings',
+    'title' => 'Stanford Subsite Settings',
     'description' => 'Settings and configuration options for site within a site behavior',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('stanford_subsites_admin_config_form'),
@@ -78,6 +78,14 @@ function stanford_subsites_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter
+ * @param  [type] $menu [description]
+ */
+function stanford_subsites_menu_alter(&$menu) {
+   $menu['entityreference/autocomplete/single/%/%/%']['page callback'] = "stanford_subsites_entityreference_autocomplete_callback";
 }
 
 
@@ -494,6 +502,24 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
 function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
   $description = '<p>' . t('Choose the subsite(s) to associate with your account. The first listed subsite will be your default when creating new nodes.') . '</p>';
   $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE]['#description'] = $description;
+
+  // Update the labels :)
+  foreach($form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE] as $k => $value) {
+
+    // Check for empty field
+    if(!is_array($value) || !isset($value['target_id']) || !is_object($value['target_id']['#entity'])) { continue; }
+
+    // Load up the node from cache
+    $node = node_load($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k]['target_id']);
+
+    // If node was deleted or something skip
+    if(!$node) { continue; }
+
+    // Get and set the new site name
+    $site_name = $node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'];
+    $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE][$k]['target_id']["#default_value"] = $site_name . " (" . $node->nid . ")";
+  }
+
 }
 
 
@@ -527,7 +553,7 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
 }
 
 //  ////////////////////////////////////////////////////////////////////////////
-//  FEILDS //
+//  FEILDS + Autocomplete //
 //  ////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -543,6 +569,123 @@ function stanford_subsites_field_access($op, $field, $entity_type, $entity, $acc
   return TRUE;
 }
 
+/**
+ * Menu callback: autocomplete the label of an entity.
+ *
+ * @param $type
+ *   The widget type (i.e. 'single' or 'tags').
+ * @param $field_name
+ *   The name of the entity-reference field.
+ * @param $entity_type
+ *   The entity type.
+ * @param $bundle_name
+ *   The bundle name.
+ * @param $entity_id
+ *   Optional; The entity ID the entity-reference field is attached to.
+ *   Defaults to ''.
+ * @param $string
+ *   The label of the entity to query by.
+ */
+function stanford_subsites_entityreference_autocomplete_callback($type, $field_name, $entity_type, $bundle_name, $entity_id = '', $string = '') {
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  return stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id, $string);
+}
+
+
+/**
+ * Return JSON based on given field, instance and string.
+ *
+ * This function can be used by other modules that wish to pass a mocked
+ * definition of the field on instance.
+ *
+ * @param $type
+ *   The widget type (i.e. 'single' or 'tags').
+ * @param $field
+ *   The field array defintion.
+ * @param $instance
+ *   The instance array defintion.
+ * @param $entity_type
+ *   The entity type.
+ * @param $entity_id
+ *   Optional; The entity ID the entity-reference field is attached to.
+ *   Defaults to ''.
+ * @param $string
+ *   The label of the entity to query by.
+ */
+function stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id = '', $string = '') {
+  $matches = array();
+
+  $entity = NULL;
+  if ($entity_id !== 'NULL') {
+    $entity = entity_load_single($entity_type, $entity_id);
+    if (!$entity || !entity_access('view', $entity_type, $entity)) {
+      return MENU_ACCESS_DENIED;
+    }
+  }
+
+  $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+
+  if ($type == 'tags') {
+    // The user enters a comma-separated list of tags. We only autocomplete the last tag.
+    $tags_typed = drupal_explode_tags($string);
+    $tag_last = drupal_strtolower(array_pop($tags_typed));
+    if (!empty($tag_last)) {
+      $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
+    }
+  }
+  else {
+    // The user enters a single tag.
+    $prefix = '';
+    $tag_last = $string;
+  }
+
+  if (isset($tag_last)) {
+    // Get an array of matching entities.
+    $entity_labels = $handler->getReferencableEntities($tag_last, $instance['widget']['settings']['match_operator'], 10);
+
+    // Loop through the products and convert them into autocomplete output.
+    foreach ($entity_labels as $values) {
+      foreach ($values as $entity_id => $label) {
+        $key = "$label ($entity_id)";
+        // Strip things like starting/trailing white spaces, line breaks and tags.
+        $key = preg_replace('/\s\s+/', ' ', str_replace("\n", '', trim(decode_entities(strip_tags($key)))));
+        // Names containing commas or quotes must be wrapped in quotes.
+        if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
+          $key = '"' . str_replace('"', '""', $key) . '"';
+        }
+        $matches[$prefix . $key] = '<div class="reference-autocomplete">' . $label . '</div>';
+      }
+    }
+  }
+
+
+  // Override the labels if the ref field is the subsite ref fields
+  if($field['field_name'] == SUBSITE_REF_FIELD ||
+    $field['field_name'] == SUBSITE_USER_REF_FIELD ) {
+
+      // Add additional Matches Here and overwrite keys with new matches and label
+    $query = db_select("field_data_" . SUBSITE_NAME_FIELD, 'sf')
+         //     ->join('node', 'n', 'n.nid = sf.entity_id')
+              ->fields('sf',array(SUBSITE_NAME_FIELD . '_value', 'entity_id'))
+         //     ->fields('n', array('title'))
+              ->condition(SUBSITE_NAME_FIELD . '_value', "%" . $string . "%", 'LIKE')
+              ->range(0,10)
+              ->execute();
+
+    while($o = $query->fetchAssoc()) {
+      $node = node_load($o['entity_id']); // its cached :)
+      unset($matches[$node->title . " (" . $node->nid . ")"]); // remove old match
+      $site_name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
+      $matches[$site_name . " (" . $node->nid . ")"] = '<div class="reference-autocomplete">' . $site_name . '</div>';
+    }
+  }
+
+
+
+  drupal_json_output($matches);
+}
 
 
 
