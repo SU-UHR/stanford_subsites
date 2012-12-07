@@ -95,7 +95,7 @@ function stanford_subsites_admin_dash_jump_block_form() {
   $options = array();
   $subsites = _get_subsite_nodes();
   foreach($subsites as $k => $node) {
-    $options[$node->nid] = $node->title;
+    $options[$node->nid] = decode_entities($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']);
   }
 
   $form['subsites'] = array(
@@ -225,7 +225,7 @@ function stanford_subsites_admin_dash_form_views_exposed_form_alter(&$form, &$fo
     $subsite_nodes = _get_subsite_nodes();
     $options = array('' => t('All')); // this needs to be blank or illegal
     foreach($subsite_nodes as $k => $node) {
-      $options[$node->nid] = $node->title;
+      $options[$node->nid] = decode_entities($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']);
     }
 
     // Change the text input for subsite into a drop down select [CONTENT]

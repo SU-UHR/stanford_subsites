@@ -476,9 +476,10 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
       }
     }
 
+    $subsite_nodes = node_load_multiple(array_keys($form[SUBSITE_REF_FIELD][$language]['#options']));
     // Fix the rendering of the options as they dont handle html entities right
-    foreach($form[SUBSITE_REF_FIELD][$language]['#options'] as $knid => $name) {
-      $form[SUBSITE_REF_FIELD][$language]["#options"][$knid] = decode_entities($name);
+    foreach($subsite_nodes as $k => $snode) {
+      $form[SUBSITE_REF_FIELD][$language]["#options"][$snode->nid] = decode_entities($snode->{SUBSITE_NAME_FIELD}[$language][0]['value']);
     }
 
 

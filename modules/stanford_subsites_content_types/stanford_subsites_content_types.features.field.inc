@@ -450,7 +450,7 @@ function stanford_subsites_content_types_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_stanford_subsite_sname',
       'label' => 'Site Name',
-      'required' => 0,
+      'required' => 1,
       'settings' => array(
         'text_processing' => '0',
         'user_register_form' => FALSE,
