@@ -546,6 +546,31 @@
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['required'] = 0;
+  /* Field: Content: Path */
+  $handler->display->display_options['fields']['path']['id'] = 'path';
+  $handler->display->display_options['fields']['path']['table'] = 'node';
+  $handler->display->display_options['fields']['path']['field'] = 'path';
+  $handler->display->display_options['fields']['path']['label'] = '';
+  $handler->display->display_options['fields']['path']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['path']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['external'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['replace_spaces'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['trim_whitespace'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['nl2br'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['word_boundary'] = 1;
+  $handler->display->display_options['fields']['path']['alter']['ellipsis'] = 1;
+  $handler->display->display_options['fields']['path']['alter']['more_link'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['path']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['path']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['path']['element_default_classes'] = 1;
+  $handler->display->display_options['fields']['path']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['path']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['path']['hide_alter_empty'] = 1;
+  $handler->display->display_options['fields']['path']['absolute'] = 1;
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
   $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'node';
@@ -709,7 +734,8 @@
   $handler->display->display_options['fields']['field_stanford_subsite_sname']['field'] = 'field_stanford_subsite_sname';
   $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['alter_text'] = 1;
   $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['text'] = '[field_stanford_subsite_sname]: ';
-  $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['make_link'] = 1;
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['path'] = '[path]';
   $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['absolute'] = 0;
   $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['external'] = 0;
   $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['replace_spaces'] = 0;
@@ -1249,6 +1275,7 @@
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Stanford Subsites Manage Content';
   $handler->display->display_options['menu']['name'] = 'devel';
+
 
   $export['stanford_subsites_admin_dash_content'] = $view;
 
