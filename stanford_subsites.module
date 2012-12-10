@@ -26,6 +26,8 @@ define('SUBSITE_REF_FIELD', 'field_stanford_subsite_subsite');
 define('SUBSITE_USER_REF_FIELD', 'field_stanford_subsite_usr_sub');
 // The field that changes the site title
 define("SUBSITE_NAME_FIELD", "field_stanford_subsite_sname");
+// The field that changes the site slogan
+define("SUBSITE_SLOGAN_FIELD", "field_stanford_subsite_slogan");
 // The field that changes the site logo
 define("SUBSITE_LOGO_FIELD", "field_stanford_subsite_logo");
 // The field that changes $front_page
@@ -268,6 +270,12 @@ function stanford_subsites_apply_subsite($node, &$vars) {
 
   }
 
+  // SUBSITE SLOGAN
+  // ///////////////////////////////////////////////////////////////////////////
+
+  if(isset($node->{SUBSITE_SLOGAN_FIELD}[$node->language][0]["value"])) {
+    $vars['site_slogan'] = t($node->{SUBSITE_SLOGAN_FIELD}[$node->language][0]["value"]);
+  }
 
 }
 

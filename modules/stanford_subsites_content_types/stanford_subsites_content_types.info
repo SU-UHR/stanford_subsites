@@ -21,5 +21,6 @@ features[field][] = node-stanford_subsite-field_stanford_subsite_front
 features[field][] = node-stanford_subsite-field_stanford_subsite_logo
 features[field][] = node-stanford_subsite-field_stanford_subsite_sname
 features[field][] = node-stanford_subsite-field_stanford_subsite_theme
+features[field][] = node-stanford_subsite-field_stanford_subsite_slogan
 features[node][] = subsite
 features[variable][] = pathauto_node_stanford_subsite_pattern
