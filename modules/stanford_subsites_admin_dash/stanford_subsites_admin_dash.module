@@ -200,7 +200,7 @@ function stanford_subsites_admin_dash_create_content_form($form, &$form_state) {
 
   $form['content_type'] = array(
     '#type' => 'select',
-    '#title' => t('Create a'),
+    '#title' => t('Create a new'),
     '#description' => t(''),
     '#options' => $type_options,
   );
@@ -223,7 +223,7 @@ function stanford_subsites_admin_dash_create_content_form($form, &$form_state) {
   $form['submit'] = array(
     '#type' => 'submit',
     '#title' => t('Create'),
-    '#value' => 'submit',
+    '#value' => 'Create',
   );
 
   return $form;
