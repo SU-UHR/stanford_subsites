@@ -58,6 +58,12 @@ function stanford_subsites_admin_dash_block_info() {
  //   'region' => "dashboard_sidebar",
   );
 
+  $blocks['stanford_subsites_quick_create'] = array(
+    'info' => t('Create Content'),
+    'cache' => DRUPAL_NO_CACHE,
+ //   'region' => "dashboard_sidebar",
+  );
+
   return $blocks;
 }
 
@@ -71,7 +77,12 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
     case 'stanford_subsites_jump_block':
       $block['subject'] = t('Manage Subsites');
       $block['content'] = drupal_get_form('stanford_subsites_admin_dash_jump_block_form');
-      break;
+    break;
+
+    case 'stanford_subsites_quick_create':
+      $block['subject'] = t('Create Content');
+      $block['content'] = drupal_get_form('stanford_subsites_admin_dash_create_content_form');
+    break;
 
   }
   return $block;
@@ -170,6 +181,70 @@ function stanford_subsites_admin_dash_jump_block_form_submit($form, &$form_state
   }
 
 }
+
+/**
+ * The quick create content block for the admin dashboard page
+ * @param  $form  The form array
+ * @param  $form_state  the form state array
+ * @return The form array for the content block
+ */
+function stanford_subsites_admin_dash_create_content_form($form, &$form_state) {
+
+  $type_names = node_type_get_names();
+  $enabled_types = variable_get('stanford_subsite_content_types', array());
+
+  $type_options = array();
+  foreach($enabled_types as $k => $v) {
+    $type_options[$v] = $type_names[$v];
+  }
+
+  $form['content_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Create a'),
+    '#description' => t(''),
+    '#options' => $type_options,
+  );
+
+
+  $subsites = _get_subsite_nodes();
+  $subsite_options = array();
+
+  foreach($subsites as $k => $node) {
+    $subsite_options[$node->nid] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
+  }
+
+  $form['subsite'] = array(
+    '#type' => 'select',
+    '#title' => t("In this subsite"),
+    '#description' => t(''),
+    '#options' => $subsite_options,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Create'),
+    '#value' => 'submit',
+  );
+
+  return $form;
+}
+
+/**
+ * submit function for the create content block. This function redirects the
+ * user to the node add form of enabled subsite content types as well as sets
+ * the subsite active working space
+ * @param  $form       [description]
+ * @param  $form_state [description]
+ */
+function stanford_subsites_admin_dash_create_content_form_submit($form, &$form_state) {
+
+  $values = $form_state['values'];
+  _set_subsite_workingspace($values['subsite']);
+  $goto = url('node/add/' . str_replace("_","-",$values['content_type']), array('absolute' => TRUE));
+
+  drupal_goto($goto);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // PREPROCESSS & INIT //////////////////////////////////////////////////////////
