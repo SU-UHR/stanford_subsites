@@ -506,8 +506,15 @@ function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$
   // Update the labels :)
   foreach($form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE] as $k => $value) {
 
-    // Check for empty field
-    if(!is_array($value) || !isset($value['target_id']) || !is_object($value['target_id']['#entity'])) { continue; }
+    // Check for empty field.. @todo: clean this check up
+    if(!is_array($value) ||
+     !isset($value['target_id']) ||
+     !is_object($value['target_id']['#entity']) ||
+     !isset($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k])
+     )
+    {
+      continue;
+    }
 
     // Load up the node from cache
     $node = node_load($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k]['target_id']);
