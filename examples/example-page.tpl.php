@@ -17,14 +17,20 @@
  * - $is_front: TRUE if the current page is the front page.
  * - $logged_in: TRUE if the user is registered and signed in.
  * - $is_admin: TRUE if the user has permission to access administration pages.
+ * - $alt: Alt text to be used in the logo tag
+ * - $logo_title: Img Tag Title text to be used in the site logo tag
  *
  * Site identity:
  * - $front_page: The URL of the front page. Use this instead of $base_path,
  *   when linking to the front page. This includes the language domain or
  *   prefix.
  * - $logo: The path to the logo image, as defined in theme configuration.
+ * - $subsite_logo: A fully rendered image and link that defaults to the theme
+ *   configuration logo if no subsite logo provided
  * - $site_name: The name of the site, empty when display has been disabled
  *   in theme settings.
+ * - $subsite_site_name: A fully rendered link and site name variable that can
+ *   be overridden in subsite nodes. Defaults to system defined site name.
  * - $site_slogan: The slogan of the site, empty when display has been disabled
  *   in theme settings.
  *
