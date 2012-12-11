@@ -306,7 +306,7 @@ function _get_subsite_workingspace() {
  *  4. Place menu block via context into region
  *
  * @param  object $node the newly created subsite node (node_insert hook)
- * @return boolean | true for success
+ * @return array | menu => the menu, menu_block => the menu block object
  */
 function _create_subsite_menu_and_menublock($node) {
 
@@ -415,6 +415,30 @@ function _create_subsite_menu_and_menublock($node) {
   );
 
 }
+/**
+ * Enable the menu for use on all subsite enabled content types
+ * @param  $menu - a fully loaded menu object
+ *
+ */
+function _enable_menu_for_subsite_content_types($menu) {
+
+  // Get all enabled content types from the settings form array
+  $enabled_types = variable_get('stanford_subsite_content_types', array());
+
+  // Loop through the enabled types and add the new menu to their settings array
+  foreach($enabled_types as $k => $type) {
+    $opts = variable_get('menu_options_' . $type, array('main-menu'));
+    $opts[] = $menu['menu_name'];
+    variable_set('menu_options_' . $type, $opts);
+  }
+
+  // also do subsite content types by default...
+  $opts = variable_get('menu_options_' . SUBSITE_CONTENT_TYPE, array('main-menu'));
+  $opts[] = $menu['menu_name'];
+  variable_set('menu_options_' . SUBSITE_CONTENT_TYPE, $opts);
+
+}
+
 
 /**
  * Create subsite context

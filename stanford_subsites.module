@@ -381,6 +381,7 @@ function stanford_subsites_node_insert($node) {
     // If menu/menublock creation is enabled do it!
     if(variable_get("stanford_subsite_enabled_menus", false)) {
       $args += _create_subsite_menu_and_menublock($node);
+      _enable_menu_for_subsite_content_types($args['menu']);
     }
 
     // Create a subsite context for this subsite
