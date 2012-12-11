@@ -387,7 +387,6 @@ function stanford_subsites_node_insert($node) {
     // Create a subsite context for this subsite
     _create_subsite_context($node, $args);
 
-
   }
 
   // Set the cookie for active subite working space if subsite ref was provided
@@ -771,6 +770,22 @@ function stanford_subsites_preprocess_views_view_field(&$vars) {
   }
 
 }
+
+//  ////////////////////////////////////////////////////////////////////////////
+//  VIEWS PLUGINS and OTHER //
+//  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implments hook_views_api
+ * @return array
+ */
+function stanford_subsites_views_api() {
+  return array("version" => "3.0");
+}
+
+// More in views.inc
+
+
 
 //  ////////////////////////////////////////////////////////////////////////////
 //  CONTEXT PLUGINS //
