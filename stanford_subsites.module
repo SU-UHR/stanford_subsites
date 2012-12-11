@@ -135,7 +135,6 @@ function stanford_subsites_custom_theme() {
 
 }
 
-
 /**
  * Implements hook_preprocess().
  */
@@ -187,6 +186,7 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
  *   4. Create new $logo_title & $alt template variables
  *   5. Create completely new $subsite_logo and $subsite_title
  *      variables with links
+ *   6. Override the site_logo variable with subsite logo if present.
  */
 
 function stanford_subsites_apply_subsite($node, &$vars) {
@@ -675,13 +675,41 @@ function stanford_subsites_entityreference_autocomplete_callback_get_matches($ty
     }
   }
 
+  // implment a hook to futz with autocomplete results :)
+  foreach (module_implements('entityreference_alter_results') as $module) {
+    $function = $module . '_entityreference_alter_results';
+    $function($matches, $field, $instance, $entity_type, $entity_id, $string);
+  }
 
+  drupal_json_output($matches);
+}
+
+
+/**
+ * Implements a hook alter for augmenting the entityreference autocomplete call
+ * @param  $matches
+ *   The matches already found by autocomplete. Just before it is sent to json.
+ * @param $type
+ *   The widget type (i.e. 'single' or 'tags').
+ * @param $field
+ *   The field array defintion.
+ * @param $instance
+ *   The instance array defintion.
+ * @param $entity_type
+ *   The entity type.
+ * @param $entity_id
+ *   Optional; The entity ID the entity-reference field is attached to.
+ *   Defaults to ''.
+ * @param $string
+ *   The label of the entity to query by.
+ */
+function stanford_subsites_entityreference_alter_results(&$matches, $field, $instance, $entity_type, $entity_id = '', $string = '') {
   // Override the labels if the ref field is the subsite ref fields
   if($field['field_name'] == SUBSITE_REF_FIELD ||
     $field['field_name'] == SUBSITE_USER_REF_FIELD ) {
 
       // Add additional Matches Here and overwrite keys with new matches and label
-    $query = db_select("field_data_" . SUBSITE_NAME_FIELD, 'sf')
+    $my_query = db_select("field_data_" . SUBSITE_NAME_FIELD, 'sf')
          //     ->join('node', 'n', 'n.nid = sf.entity_id')
               ->fields('sf',array(SUBSITE_NAME_FIELD . '_value', 'entity_id'))
          //     ->fields('n', array('title'))
@@ -689,7 +717,7 @@ function stanford_subsites_entityreference_autocomplete_callback_get_matches($ty
               ->range(0,10)
               ->execute();
 
-    while($o = $query->fetchAssoc()) {
+    while($o = $my_query->fetchAssoc()) {
       $node = node_load($o['entity_id']); // its cached :)
       unset($matches[$node->title . " (" . $node->nid . ")"]); // remove old match
       $site_name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
@@ -697,12 +725,51 @@ function stanford_subsites_entityreference_autocomplete_callback_get_matches($ty
     }
   }
 
+}
 
+/**
+ * Override the output of the reference field by default so that it does
+ * site_name instead of $title
+ *
+ */
+function stanford_subsites_preprocess_field(&$vars, $hook) {
+  $field = &$vars['element'];
+  if(isset($field['#field_name']) && $field['#field_name'] == SUBSITE_USER_REF_FIELD) {
+    foreach($field['#items'] as $k => $v) {
+      $site_name = $v['entity']->field_stanford_subsite_sname[$v['entity']->language][0]['safe_value'];
+      $field[$k]['#markup'] = $site_name;
+      $vars['items'][$k]["#markup"] = $site_name;
+    }
+  }
 
-  drupal_json_output($matches);
 }
 
 
+/**
+ * Schtoopid views messing with my preprocessed output...
+ * Alter the output of the user_sub_target_id autocomplete field on all views
+ */
+
+function stanford_subsites_preprocess_views_view_field(&$vars) {
+
+  $field = $vars['field'];
+  if($field->real_field == "field_stanford_subsite_usr_sub_target_id") {
+    // fix the field output
+
+    $row = &$vars['row'];
+    $items = array();
+    foreach($row->field_field_stanford_subsite_usr_sub as $k => $v) {
+      $raw = $v['raw'];
+      $site_name = $raw['entity']->{SUBSITE_NAME_FIELD}[$raw['entity']->language][0]['safe_value'];
+
+      // add to items
+      $items[] = l($site_name, 'node/' . $raw['entity']->nid);
+    }
+
+    $vars['output'] = theme_item_list(array('items'=>$items, 'title' => '', 'type' => 'ul', 'attributes' => array()));
+  }
+
+}
 
 //  ////////////////////////////////////////////////////////////////////////////
 //  CONTEXT PLUGINS //
