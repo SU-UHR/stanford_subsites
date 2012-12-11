@@ -23,7 +23,7 @@ class views_plugin_argument_validate_subsite extends views_plugin_argument_valid
       '#type' => 'textarea',
       '#title' => t('Subsite'),
       '#default_value' => $this->options['subsite'],
-      '#description' => t('subsite'),
+      '#description' => t('Use the active subsite'),
     );
 
     $this->check_access($form, 'subsite');
@@ -47,7 +47,7 @@ class views_plugin_argument_validate_subsite extends views_plugin_argument_valid
     // set up variables to make it easier to reference during the argument.
     $view = &$this->view;
     $handler = &$this->argument;
-    global $subsite;
+    $subsite = _get_active_subsite();
 
     ob_start();
     if(isset($subsite->nid)) {
