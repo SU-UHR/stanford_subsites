@@ -209,7 +209,7 @@ function stanford_subsites_content_types_field_default_fields() {
           'label' => 'hidden',
           'module' => 'text',
           'settings' => array(),
-          'type' => 'hidden',
+          'type' => 'text_default',
           'weight' => '0',
         ),
         'teaser' => array(
@@ -218,7 +218,7 @@ function stanford_subsites_content_types_field_default_fields() {
           'settings' => array(
             'trim_length' => 600,
           ),
-          'type' => 'hidden',
+          'type' => 'text_summary_or_trimmed',
           'weight' => 0,
         ),
       ),

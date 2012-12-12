@@ -134,7 +134,8 @@ function _get_jumpbox_operations() {
     'edit_info' => t('Edit Info'),
     'view_users' => t('View Users'),
     'view_content' => t('View Content'),
-    'edit_menu' => t('Edit Menu')
+    'edit_menu' => t('Edit Menu'),
+    'goto' => t('Go To Subsite'),
   );
 }
 
@@ -177,6 +178,9 @@ function stanford_subsites_admin_dash_jump_block_form_submit($form, &$form_state
       $node = node_load($values['subsites']);
       $menu_name = _get_subsite_menu_name($node);
       drupal_goto("admin/structure/menu/manage/".$menu_name);
+    break;
+    case "goto":
+      drupal_goto("node/".$values['subsites']);
     break;
   }
 
@@ -355,16 +359,11 @@ function stanford_subsites_admin_dash_views_pre_render(&$view) {
     );
 
     // Manipulate the view with a new footer
-    $view->footer['area']->options = array(
-      "content" => $links_html,
-      "format" => "full_html",
-      'tokenize' => 0,
-    );
-
-
+    $view->footer['area']->options["content"] = $links_html;
+    $view->footer['area']->options["format"] = "full_html";
+    $view->footer['area']->options["tokenize"] = 0;
 
   }
-
 
 
   // ADD Content Links to the Dashboard Block
@@ -385,12 +384,9 @@ function stanford_subsites_admin_dash_views_pre_render(&$view) {
     );
 
     // Manipulate the view with a new footer
-    $view->footer['area']->options = array(
-      "content" => $links_html,
-      "format" => "full_html",
-      'tokenize' => 0,
-    );
-
+    $view->footer['area']->options["content"] = $links_html;
+    $view->footer['area']->options["format"] = "full_html";
+    $view->footer['area']->options["tokenize"] = 0;
 
   }
 
