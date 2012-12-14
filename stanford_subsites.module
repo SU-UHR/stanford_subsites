@@ -859,8 +859,7 @@ function stanford_subsites_token_info() {
  * Implements hook_tokens().
  */
 function stanford_subsites_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
-  global $user;
-  global $subsite;
+  $subsite = _get_active_subsite();
 
   // If there is no active subsite do not return anything.
   if (!$subsite) {
