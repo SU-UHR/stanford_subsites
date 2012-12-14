@@ -26,6 +26,8 @@ define('SUBSITE_REF_FIELD', 'field_stanford_subsite_subsite');
 define('SUBSITE_USER_REF_FIELD', 'field_stanford_subsite_usr_sub');
 // The field that changes the site title
 define("SUBSITE_NAME_FIELD", "field_stanford_subsite_sname");
+// The field that changes the site slogan
+define("SUBSITE_SLOGAN_FIELD", "field_stanford_subsite_slogan");
 // The field that changes the site logo
 define("SUBSITE_LOGO_FIELD", "field_stanford_subsite_logo");
 // The field that changes $front_page
@@ -69,7 +71,7 @@ function stanford_subsites_menu() {
   $items = array();
 
   $items['admin/config/subsites'] = array(
-    'title' => 'Site within a site settings',
+    'title' => 'Stanford Subsite Settings',
     'description' => 'Settings and configuration options for site within a site behavior',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('stanford_subsites_admin_config_form'),
@@ -78,6 +80,14 @@ function stanford_subsites_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter
+ * @param  [type] $menu [description]
+ */
+function stanford_subsites_menu_alter(&$menu) {
+   $menu['entityreference/autocomplete/single/%/%/%']['page callback'] = "stanford_subsites_entityreference_autocomplete_callback";
 }
 
 
@@ -96,7 +106,7 @@ function stanford_subsites_init() {
 function stanford_subsites_permission() {
   return array(
     'administer sws' => array(
-      'title' => t('Administer SWS'),
+      'title' => t('Administer Stanford Subsite'),
       'description' => t('Perform administration tasks for site within a site.'),
     ),
     'administer subsite selection' => array(
@@ -124,7 +134,6 @@ function stanford_subsites_custom_theme() {
   }
 
 }
-
 
 /**
  * Implements hook_preprocess().
@@ -177,6 +186,7 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
  *   4. Create new $logo_title & $alt template variables
  *   5. Create completely new $subsite_logo and $subsite_title
  *      variables with links
+ *   6. Override the site_logo variable with subsite logo if present.
  */
 
 function stanford_subsites_apply_subsite($node, &$vars) {
@@ -260,6 +270,12 @@ function stanford_subsites_apply_subsite($node, &$vars) {
 
   }
 
+  // SUBSITE SLOGAN
+  // ///////////////////////////////////////////////////////////////////////////
+
+  if(isset($node->{SUBSITE_SLOGAN_FIELD}[$node->language][0]["value"])) {
+    $vars['site_slogan'] = t($node->{SUBSITE_SLOGAN_FIELD}[$node->language][0]["value"]);
+  }
 
 }
 
@@ -318,12 +334,18 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
       $subsite_term = _get_subsite_term($subsite_node);
       $found_term = FALSE; // boolean switch for finding the term
 
-      // check to see that tags field has reference
-      foreach($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
-        if($term['tid'] == $subsite_term->tid) {
-          $found_term = TRUE;
-          break;
+      if($subsite_term) {
+          // check to see that tags field has reference
+        foreach($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
+          if($term['tid'] == $subsite_term->tid) {
+            $found_term = TRUE;
+            break;
+          }
         }
+      }
+      else {
+        // for some reason or another there is no subsite term. Create one
+        $subsite_term = _insert_subsite_term($subsite_node);
       }
 
       // Did not find the subsite term in the subsite tags field. Add it!
@@ -353,6 +375,18 @@ function stanford_subsites_node_insert($node) {
   // We have a new subsite content type. Lets add it to the subsite vocabulary
   if($node->type == SUBSITE_CONTENT_TYPE) {
     _insert_subsite_term($node);
+
+    $args = array(); // storage for passing arguments to subsequential functions
+
+    // If menu/menublock creation is enabled do it!
+    if(variable_get("stanford_subsite_enabled_menus", false)) {
+      $args += _create_subsite_menu_and_menublock($node);
+      _enable_menu_for_subsite_content_types($args['menu']);
+    }
+
+    // Create a subsite context for this subsite
+    _create_subsite_context($node, $args);
+
   }
 
   // Set the cookie for active subite working space if subsite ref was provided
@@ -414,13 +448,19 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
  */
 function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) {
 
+  // ---------------------------------------------------------------------------
   // ONLY Subsite content types
+  // ---------------------------------------------------------------------------
+
   if($form_id == SUBSITE_CONTENT_TYPE . "_node_form") {
     stanford_subsites_form_node_form_alter_subsite_node($form, $form_state, $form_id);
     return;
   }
 
-    // The rest of the node forms..
+  // ---------------------------------------------------------------------------
+  // The rest of the node forms..
+  // ---------------------------------------------------------------------------
+
   if($form['#node_edit_form']) {
 
     $language = $form['language']['#value'];
@@ -449,13 +489,16 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
         {
           $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
         }
-
       }
 
+      $subsite_nodes = node_load_multiple(array_keys($form[SUBSITE_REF_FIELD][$language]['#options']));
+      // Fix the rendering of the options as they dont handle html entities right
+      foreach($subsite_nodes as $k => $snode) {
+        $form[SUBSITE_REF_FIELD][$language]["#options"][$snode->nid] = decode_entities($snode->{SUBSITE_NAME_FIELD}[$language][0]['value']);
+
+      }
     }
   }
-
-
 }
 
 /**
@@ -463,7 +506,32 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   */
 function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
   $description = '<p>' . t('Choose the subsite(s) to associate with your account. The first listed subsite will be your default when creating new nodes.') . '</p>';
-  $form['field_stanford_subsite_usr_sub']['und']['#description'] = $description;
+  $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE]['#description'] = $description;
+
+  // Update the labels :)
+  foreach($form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE] as $k => $value) {
+
+    // Check for empty field.. @todo: clean this check up
+    if(!is_array($value) ||
+     !isset($value['target_id']) ||
+     !is_object($value['target_id']['#entity']) ||
+     !isset($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k])
+     )
+    {
+      continue;
+    }
+
+    // Load up the node from cache
+    $node = node_load($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k]['target_id']);
+
+    // If node was deleted or something skip
+    if(!$node) { continue; }
+
+    // Get and set the new site name
+    $site_name = $node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'];
+    $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE][$k]['target_id']["#default_value"] = $site_name . " (" . $node->nid . ")";
+  }
+
 }
 
 
@@ -497,7 +565,7 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
 }
 
 //  ////////////////////////////////////////////////////////////////////////////
-//  FEILDS //
+//  FEILDS + Autocomplete //
 //  ////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -513,6 +581,206 @@ function stanford_subsites_field_access($op, $field, $entity_type, $entity, $acc
   return TRUE;
 }
 
+/**
+ * Menu callback: autocomplete the label of an entity.
+ *
+ * @param $type
+ *   The widget type (i.e. 'single' or 'tags').
+ * @param $field_name
+ *   The name of the entity-reference field.
+ * @param $entity_type
+ *   The entity type.
+ * @param $bundle_name
+ *   The bundle name.
+ * @param $entity_id
+ *   Optional; The entity ID the entity-reference field is attached to.
+ *   Defaults to ''.
+ * @param $string
+ *   The label of the entity to query by.
+ */
+function stanford_subsites_entityreference_autocomplete_callback($type, $field_name, $entity_type, $bundle_name, $entity_id = '', $string = '') {
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  return stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id, $string);
+}
+
+
+/**
+ * Return JSON based on given field, instance and string.
+ *
+ * This function can be used by other modules that wish to pass a mocked
+ * definition of the field on instance.
+ *
+ * @param $type
+ *   The widget type (i.e. 'single' or 'tags').
+ * @param $field
+ *   The field array defintion.
+ * @param $instance
+ *   The instance array defintion.
+ * @param $entity_type
+ *   The entity type.
+ * @param $entity_id
+ *   Optional; The entity ID the entity-reference field is attached to.
+ *   Defaults to ''.
+ * @param $string
+ *   The label of the entity to query by.
+ */
+function stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id = '', $string = '') {
+  $matches = array();
+
+  $entity = NULL;
+  if ($entity_id !== 'NULL') {
+    $entity = entity_load_single($entity_type, $entity_id);
+    if (!$entity || !entity_access('view', $entity_type, $entity)) {
+      return MENU_ACCESS_DENIED;
+    }
+  }
+
+  $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+
+  if ($type == 'tags') {
+    // The user enters a comma-separated list of tags. We only autocomplete the last tag.
+    $tags_typed = drupal_explode_tags($string);
+    $tag_last = drupal_strtolower(array_pop($tags_typed));
+    if (!empty($tag_last)) {
+      $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
+    }
+  }
+  else {
+    // The user enters a single tag.
+    $prefix = '';
+    $tag_last = $string;
+  }
+
+  if (isset($tag_last)) {
+    // Get an array of matching entities.
+    $entity_labels = $handler->getReferencableEntities($tag_last, $instance['widget']['settings']['match_operator'], 10);
+
+    // Loop through the products and convert them into autocomplete output.
+    foreach ($entity_labels as $values) {
+      foreach ($values as $entity_id => $label) {
+        $key = "$label ($entity_id)";
+        // Strip things like starting/trailing white spaces, line breaks and tags.
+        $key = preg_replace('/\s\s+/', ' ', str_replace("\n", '', trim(decode_entities(strip_tags($key)))));
+        // Names containing commas or quotes must be wrapped in quotes.
+        if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
+          $key = '"' . str_replace('"', '""', $key) . '"';
+        }
+        $matches[$prefix . $key] = '<div class="reference-autocomplete">' . $label . '</div>';
+      }
+    }
+  }
+
+  // implment a hook to futz with autocomplete results :)
+  foreach (module_implements('entityreference_alter_results') as $module) {
+    $function = $module . '_entityreference_alter_results';
+    $function($matches, $field, $instance, $entity_type, $entity_id, $string);
+  }
+
+  drupal_json_output($matches);
+}
+
+
+/**
+ * Implements a hook alter for augmenting the entityreference autocomplete call
+ * @param  $matches
+ *   The matches already found by autocomplete. Just before it is sent to json.
+ * @param $type
+ *   The widget type (i.e. 'single' or 'tags').
+ * @param $field
+ *   The field array defintion.
+ * @param $instance
+ *   The instance array defintion.
+ * @param $entity_type
+ *   The entity type.
+ * @param $entity_id
+ *   Optional; The entity ID the entity-reference field is attached to.
+ *   Defaults to ''.
+ * @param $string
+ *   The label of the entity to query by.
+ */
+function stanford_subsites_entityreference_alter_results(&$matches, $field, $instance, $entity_type, $entity_id = '', $string = '') {
+  // Override the labels if the ref field is the subsite ref fields
+  if($field['field_name'] == SUBSITE_REF_FIELD ||
+    $field['field_name'] == SUBSITE_USER_REF_FIELD ) {
+
+      // Add additional Matches Here and overwrite keys with new matches and label
+    $my_query = db_select("field_data_" . SUBSITE_NAME_FIELD, 'sf')
+         //     ->join('node', 'n', 'n.nid = sf.entity_id')
+              ->fields('sf',array(SUBSITE_NAME_FIELD . '_value', 'entity_id'))
+         //     ->fields('n', array('title'))
+              ->condition(SUBSITE_NAME_FIELD . '_value', "%" . $string . "%", 'LIKE')
+              ->range(0,10)
+              ->execute();
+
+    while($o = $my_query->fetchAssoc()) {
+      $node = node_load($o['entity_id']); // its cached :)
+      unset($matches[$node->title . " (" . $node->nid . ")"]); // remove old match
+      $site_name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
+      $matches[$site_name . " (" . $node->nid . ")"] = '<div class="reference-autocomplete">' . $site_name . '</div>';
+    }
+  }
+
+}
+
+/**
+ * Override the output of the reference field by default so that it does
+ * site_name instead of $title
+ *
+ */
+function stanford_subsites_preprocess_field(&$vars, $hook) {
+  $field = &$vars['element'];
+  if(isset($field['#field_name']) && $field['#field_name'] == SUBSITE_USER_REF_FIELD) {
+    foreach($field['#items'] as $k => $v) {
+      $site_name = $v['entity']->field_stanford_subsite_sname[$v['entity']->language][0]['safe_value'];
+      $field[$k]['#markup'] = $site_name;
+      $vars['items'][$k]["#markup"] = $site_name;
+    }
+  }
+
+}
+
+
+/**
+ * Schtoopid views messing with my preprocessed output...
+ * Alter the output of the user_sub_target_id autocomplete field on all views
+ */
+
+function stanford_subsites_preprocess_views_view_field(&$vars) {
+
+  $field = $vars['field'];
+  if($field->real_field == "field_stanford_subsite_usr_sub_target_id") {
+    // fix the field output
+
+    $row = &$vars['row'];
+    $items = array();
+    foreach($row->field_field_stanford_subsite_usr_sub as $k => $v) {
+      $raw = $v['raw'];
+      $site_name = $raw['entity']->{SUBSITE_NAME_FIELD}[$raw['entity']->language][0]['safe_value'];
+
+      // add to items
+      $items[] = l($site_name, 'node/' . $raw['entity']->nid);
+    }
+
+    $vars['output'] = theme_item_list(array('items'=>$items, 'title' => '', 'type' => 'ul', 'attributes' => array()));
+  }
+
+}
+
+//  ////////////////////////////////////////////////////////////////////////////
+//  VIEWS PLUGINS and OTHER //
+//  ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implments hook_views_api
+ * @return array
+ */
+function stanford_subsites_views_api() {
+  return array("version" => "3.0");
+}
+
+// More in views.inc
 
 
 

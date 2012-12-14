@@ -1,0 +1,26 @@
+.page-admin-dashboard ul.inline-list {
+  display: block;
+  margin: 10px 0px;
+  padding: 10px;
+  border: solid 1px #CCC;
+}
+
+ul.inline-list li {
+  display:-moz-inline-stack;
+  display:inline-block;
+  zoom:1;
+  *display:inline;
+  list-style-type: none;
+  list-style: none;
+  list-style-image: none;
+}
+
+ul.inline-list li a,
+ul.inline-list li a:link,
+ul.inline-list li a:visited {
+  display:-moz-inline-stack;
+  display:inline-block;
+  zoom:1;
+  *display:inline;
+  padding: 2px 5px;
+}

@@ -49,7 +49,7 @@ function stanford_subsites_admin_dash_install() {
       ->fields(
         array(
           'status' => 1,
-          'weight' => 2,
+          'weight' => 3,
           'region' => 'dashboard_sidebar',
         )
       )
@@ -64,7 +64,7 @@ function stanford_subsites_admin_dash_install() {
       ->fields(
         array(
           'status' => 1,
-          'weight' => 1,
+          'weight' => 2,
           'region' => 'dashboard_sidebar',
           'theme' => $admin_theme,
           'module' => "stanford_subsites_admin_dash",
@@ -73,5 +73,21 @@ function stanford_subsites_admin_dash_install() {
         )
       )
     ->execute();
+
+  // Create and place admin create content in dash sidebar
+    db_insert('block')
+        ->fields(
+          array(
+            'status' => 1,
+            'weight' => 1,
+            'region' => 'dashboard_sidebar',
+            'theme' => $admin_theme,
+            'module' => "stanford_subsites_admin_dash",
+            'delta' => "stanford_subsites_quick_create",
+            'pages' => '',
+          )
+        )
+      ->execute();
+
 
 }

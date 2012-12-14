@@ -4,10 +4,21 @@ package = Stanford
 version = 1.0
 core = 7.x
 
+; DEFAULT FILES
 files[] = "stanford_subsites.inc"
 files[] = "stanford_subsites.admin.inc"
 files[] = "stanford_subsites.install"
+
+; VIEWS PLUGINS
+files[] = "stanford_subsites.views.inc"
+files[] = "plugins/views_plugin_argument_default_subsite.inc"
+files[] = "plugins/views_plugin_argument_validate_subsite.inc"
+
+; DEPENDENCIES
 dependencies[] = "pathauto"
+dependencies[] = "entityreference"
+dependencies[] = "features"
+dependencies[] = "strongarm"
 dependencies[] = "stanford_subsites_content_types"
 dependencies[] = "stanford_subsites_user_settings"
 dependencies[] = "stanford_subsites_vocabularies_and_terms"
