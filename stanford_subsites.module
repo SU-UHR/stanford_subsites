@@ -67,7 +67,7 @@ function stanford_subsites_help($path, $arg) {
       $output = '<h2>' . t('To Use') . '</h2>';
       $output .= '<ol><li>' . t('Enable the module and all dependencies, plus all submodules') . '</li>';
       $output .= '<li>' . t('!permissions and give selected roles the following permissions:', array('!permissions' => l('Go to the permissions page', 'admin/people/permissions#module-stanford_subsites')));
-      $output .= '<ul><li>' . t('Administer Stanford Subsite') . '</li>';
+      $output .= '<ul><li>' . t('Administer Subsite') . '</li>';
       $output .= '<li>' . t('Administer Subsite Selection') . '</li></ul></li>';
       $output .= '<li>' . t('!configpage and:', array('!configpage' => l('Go to the configuration page', 'admin/config/subsites')));
       $output .= '<ul><li>' . t('Select content types that can be used within subsites') . '</li>';
@@ -91,8 +91,8 @@ function stanford_subsites_menu() {
   $items = array();
 
   $items['admin/config/subsites'] = array(
-    'title' => 'Stanford Subsite Settings',
-    'description' => 'Settings and configuration options for site within a site behavior',
+    'title' => 'Subsite Settings',
+    'description' => 'Settings and configuration options for subsite behavior',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('stanford_subsites_admin_config_form'),
     'file' => 'stanford_subsites.admin.inc',
