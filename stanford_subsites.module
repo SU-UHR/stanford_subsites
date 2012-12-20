@@ -126,8 +126,8 @@ function stanford_subsites_init() {
 function stanford_subsites_permission() {
   return array(
     'administer sws' => array(
-      'title' => t('Administer Stanford Subsite'),
-      'description' => t('Perform administration tasks for site within a site.'),
+      'title' => t('Administer Subsite'),
+      'description' => t('Perform administration tasks for subsites.'),
     ),
     'administer subsite selection' => array(
       'title' => t('Administer Subsite Selection'),

@@ -1,5 +1,5 @@
-name = Stanford Site Within a Site
-description = Creates the ability for content authors to create branded "Subsites" within one drupal installation
+name = Subsite
+description = Creates the ability for content authors to create branded "Subsites" within one Drupal installation. Originally developed for use at Stanford University.
 package = Stanford
 version = 1.0
 core = 7.x
