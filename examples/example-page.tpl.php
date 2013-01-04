@@ -25,11 +25,11 @@
  *   when linking to the front page. This includes the language domain or
  *   prefix.
  * - $logo: The path to the logo image, as defined in theme configuration.
- * - $subsite_logo: A fully rendered image and link that defaults to the theme
+ * - $subsite_logo_html: A fully rendered image and link that defaults to the theme
  *   configuration logo if no subsite logo provided
  * - $site_name: The name of the site, empty when display has been disabled
  *   in theme settings.
- * - $subsite_site_name: A fully rendered link and site name variable that can
+ * - $subsite_site_name_html: A fully rendered link and site name variable that can
  *   be overridden in subsite nodes. Defaults to system defined site name.
  * - $site_slogan: The slogan of the site, empty when display has been disabled
  *   in theme settings.
@@ -81,20 +81,20 @@
 
     <div id="header"><div class="section clearfix">
 
-      <?php if ($subsite_logo): ?>
-        <?php print $subsite_logo; ?>
+      <?php if ($subsite_logo_html): ?>
+        <?php print $subsite_logo_html; ?>
       <?php endif; ?>
 
-      <?php if ($subsite_site_name || $site_slogan): ?>
+      <?php if ($subsite_site_name_html || $site_slogan): ?>
         <div id="name-and-slogan">
-          <?php if ($subsite_site_name): ?>
+          <?php if ($subsite_site_name_html): ?>
             <?php if ($title): ?>
               <div id="site-name"><strong>
-               <?php print $subsite_site_name; ?>
+               <?php print $subsite_site_name_html; ?>
               </strong></div>
             <?php else: /* Use h1 when the content title is empty */ ?>
               <h1 id="site-name">
-                <?php print $subsite_site_name; ?>
+                <?php print $subsite_site_name_html; ?>
               </h1>
             <?php endif; ?>
           <?php endif; ?>

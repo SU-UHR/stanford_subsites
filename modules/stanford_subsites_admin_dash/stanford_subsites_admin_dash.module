@@ -346,7 +346,7 @@ function stanford_subsites_admin_dash_views_pre_render(&$view) {
     $view->current_display == "stanford_subsites_admin_dash_user_block") {
 
     $links = array(
-      l("See more users", 'admin/subsites/users'),
+      l("View full page", 'admin/subsites/users'),
       l("Add new user", 'admin/people/create'),
     );
 
@@ -371,7 +371,7 @@ function stanford_subsites_admin_dash_views_pre_render(&$view) {
     $view->current_display == "stanford_subsite_admin_dash_content_block") {
 
     $links = array(
-      l("See more content", 'admin/subsites/content'),
+      l("View full page", 'admin/subsites/content'),
       l("Add new Subsite", 'node/add/stanford-subsite'),
     );
 
