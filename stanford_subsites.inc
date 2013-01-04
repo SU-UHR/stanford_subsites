@@ -278,6 +278,17 @@ function _set_subsite_workingspace($nid) {
 }
 
 /**
+ * Removes the active subsite working space
+ * @return [type] [description]
+ */
+
+function _clear_subsite_workingspace() {
+  $lifetime = time() - (60 * 60 * 24 * 7); // One week lifetime
+  setcookie('stanford_subsite_workspace', 0, $lifetime, "/"); // <--need path
+}
+
+
+/**
  * _get_subsite_workingspace
  * Gets the active working space for subsites. \
  * @return  $nid  The nid of the active subsite for the working space or false
