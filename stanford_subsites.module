@@ -440,6 +440,9 @@ function stanford_subsites_node_insert($node) {
     is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
     _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
   }
+  else {
+    _clear_subsite_workingspace();
+  }
 
 }
 
@@ -462,6 +465,9 @@ function stanford_subsites_node_update($node) {
   if (isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
     is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
     _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+  }
+  else {
+    _clear_subsite_workingspace();
   }
 
 
