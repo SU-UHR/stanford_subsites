@@ -25,9 +25,13 @@ function _get_active_subsite() {
   $a0 = arg(0);
   $a1 = arg(1);
 
-  if($a0 == "node" && is_numeric($a1)) {
+  if ($a0 == "node" && is_numeric($a1)) {
+
     $node = node_load($a1);
-    $subsite_node = _lookup_subsite_reference_by_node($node);
+    if (is_object($node)) {
+      $subsite_node = _lookup_subsite_reference_by_node($node);
+    }
+
   }
 
 
