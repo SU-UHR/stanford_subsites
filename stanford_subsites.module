@@ -547,11 +547,13 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
       // or default account setting.
 
       if (empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
-        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
-        (!isset($form['nid']["#value"]) || !is_numeric($form['nid']["#value"]))) {
+        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0])) {
 
+        if (isset($form['nid']['#value'])) {
+          // Node exists already. Carry on.
+        }
         // Check to see if the user has an active working space for the default.
-        if ($niid = _get_subsite_workingspace()) {
+        elseif ($niid = _get_subsite_workingspace()) {
           $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $niid;
         }
         // Check to see if the user has a subsite account setting.
@@ -559,6 +561,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
           is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'])) {
           $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
         }
+
       }
 
       $subsite_nodes = node_load_multiple(array_keys($form[SUBSITE_REF_FIELD][$language]['#options']));
