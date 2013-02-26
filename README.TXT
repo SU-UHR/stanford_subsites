@@ -39,3 +39,19 @@ $subsite_name_logo_setting    A string of text with the setting value for the
                               root), subsite (link both to subsite node), or
                               split (link logo to site root and site name to the
                               subsite logo)
+
+
+
+
+
+Some additional variables are available to your html.tpl.php
+
+$subsite_site_name_html   A fully rendered link and site name heading tag. This
+                          is different from the regular $site_name page variable
+                          as it can have it's link go to either the subsite node
+                          or the Drupal root home.
+
+$subsite_site_name_text   A plain text string of the currently active susbsite
+                          site name text
+
+$site_name                The original site name.

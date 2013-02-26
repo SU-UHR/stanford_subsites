@@ -13,15 +13,15 @@
 function _get_active_subsite() {
   global $subsite;
 
-  // Grab from global object first
-  if($subsite) {
+  // Grab from global object first.
+  if ($subsite) {
     return $subsite;
   }
 
   // Not found or set yet. Carry on.
   $subsite_node = FALSE;
 
-  // First try from node
+  // First try from node.
   $a0 = arg(0);
   $a1 = arg(1);
 
@@ -35,13 +35,13 @@ function _get_active_subsite() {
   }
 
 
-  // If the page being viewed is not a node then check the path
-  if(!$subsite_node) {
+  // If the page being viewed is not a node then check the path.
+  if (!$subsite_node) {
     $request_path = request_path();
     $subsite_node = _lookup_subsite_reference_by_path($request_path);
   }
 
-  // Assign the global subsite variable and return the result
+  // Assign the global subsite variable and return the result.
   $subsite = $subsite_node;
   return $subsite_node;
 }
@@ -59,7 +59,7 @@ function _get_subsite_nodes() {
             ->execute();
 
   $nids = array();
-  while($result = $query->fetchAssoc()) {
+  while ($result = $query->fetchAssoc()) {
     $nids[] = $result['nid'];
   }
 
@@ -75,21 +75,22 @@ function _get_subsite_nodes() {
 function _lookup_subsite_reference_by_node($node) {
 
   // If the node that is being viewed is the subsite node then just return it!
-  if($node->type == SUBSITE_CONTENT_TYPE) { return $node; }
+  if ($node->type == SUBSITE_CONTENT_TYPE) {
+    return $node;
+  }
 
-  // Node is of another type... Get parent
-  if(!isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
-  !is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']))
-  {
-    return false;
-  } // no reference
+  // Node is of another type... Get parent.
+  if (!isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
+  !is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
+    return FALSE;
+  }
 
-  // This should always be a subsite content type based on field settings
+  // This should always be a subsite content type based on field settings.
   $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
 
-  // But just in case someone mucked with them
-  if($subsite_node->type !== SUBSITE_CONTENT_TYPE) {
-    return false;
+  // But just in case someone mucked with them.
+  if ($subsite_node->type !== SUBSITE_CONTENT_TYPE) {
+    return FALSE;
   }
 
   return $subsite_node;
@@ -103,12 +104,12 @@ function _lookup_subsite_reference_by_node($node) {
 
 function _lookup_subsite_reference_by_path($path) {
 
-  // First get all of the subsite paths
+  // First get all of the subsite paths.
   $subsite_paths = _get_subsite_paths();
 
-  // Check raw string for path... :( needs optimization
-  foreach($subsite_paths as $nid => $site_path) {
-    if(stripos($path, $site_path) !== FALSE) {
+  // Check raw string for path... :( needs optimization.
+  foreach ($subsite_paths as $nid => $site_path) {
+    if (stripos($path, $site_path) !== FALSE) {
       return node_load($nid);
     }
   }
@@ -124,22 +125,22 @@ function _get_subsite_paths() {
 
   $paths = cache_get('stanford_subsites_subsite_paths');
 
-  // If cache isnt set then we need to generate it
-  if(!$paths) {
+  // If cache isnt set then we need to generate it.
+  if (!$paths) {
     $paths = array();
-    $query = db_select('node','n')
+    $query = db_select('node', 'n')
               ->fields('n', array('nid'))
               ->condition('type', SUBSITE_CONTENT_TYPE)
               ->execute();
 
-    while($path_string = $query->fetchAssoc()) {
+    while ($path_string = $query->fetchAssoc()) {
       $paths[$path_string['nid']] = drupal_get_path_alias("node/" . $path_string['nid']);
     }
     cache_set('stanford_subsites_subsite_paths', $paths);
     return $paths;
   }
 
-  // Cached version
+  // Cached version.
   return $paths->data;
 }
 
@@ -160,7 +161,7 @@ function _insert_subsite_term($node) {
 
 
   $status = taxonomy_term_save($term, SUBSITE_VOCAB);
-  if($status) {
+  if ($status) {
     return $term;
   }
   else {
@@ -176,24 +177,25 @@ function _insert_subsite_term($node) {
  */
 function _update_subsite_node_term_name($node) {
 
-  // New node has been saved but we can still get the old node from cache
+  // New node has been saved but we can still get the old node from cache.
   $old_node = node_load($node->nid);
 
-  // Check if the title of the node changed
-  if($old_node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] == $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']) {
-    return; // they are the same. Nothing to do here.
+  // Check if the title of the node changed.
+  if ($old_node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] == $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']) {
+    // They are the same. Nothing to do here.
+    return;
   }
 
-  // The title is different. Load up term by term name
+  // The title is different. Load up term by term name.
   $terms = taxonomy_get_term_by_name($old_node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], SUBSITE_VOCAB);
 
-  // Failed to get a term. Lets insert a new one
-  if(!$terms) {
+  // Failed to get a term. Lets insert a new one.
+  if (!$terms) {
     $term = _insert_subsite_term($node);
     return;
   }
 
-  // Change the name and save it
+  // Change the name and save it.
   $old_term = array_pop($terms);
   $term = clone($old_term);
   $term->name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
@@ -213,8 +215,8 @@ function _get_subsite_term($node) {
   // The title is different. Load up term by term name
   $terms = taxonomy_get_term_by_name($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], SUBSITE_VOCAB);
 
-  // Failed to get a term. Lets insert a new one
-  if(!$terms) {
+  // Failed to get a term. Lets insert a new one.
+  if (!$terms) {
     return FALSE;
   }
 
@@ -228,7 +230,9 @@ function _get_subsite_term($node) {
 
 function _get_ref_field_instance($bundle) {
 
-  if(!$bundle) { return false; }
+  if (!$bundle) {
+    return FALSE;
+  }
 
   $ret = array();
   $ret['entity_type'] = "node";
@@ -250,7 +254,9 @@ function _get_ref_field_instance($bundle) {
 
 function _get_tax_field_instance($bundle) {
 
-  if(!$bundle) { return false; }
+  if (!$bundle) {
+    return FALSE;
+  }
 
   $ret = array();
   $ret['entity_type'] = "node";
@@ -300,13 +306,13 @@ function _clear_subsite_workingspace() {
 
 function _get_subsite_workingspace() {
 
-  // if a cookie is available
-  if(isset($_COOKIE['stanford_subsite_workspace']) &&
+  // If a cookie is available.
+  if (isset($_COOKIE['stanford_subsite_workspace']) &&
     is_numeric($_COOKIE['stanford_subsite_workspace'])) {
     return check_plain($_COOKIE['stanford_subsite_workspace']);
   }
 
-  // Not available
+  // Not available.
   return FALSE;
 }
 
@@ -335,27 +341,27 @@ function _create_subsite_menu_and_menublock($node) {
     'description' => t("Menu for all of this subsites links"),
   );
 
-  // Save it
+  // Save it.
   menu_save($menu);
 
   // Create menu link ----------------------------------------------------------
 
-  // Add a link to this subsite in the new menu
+  // Add a link to this subsite in the new menu.
   $menu_link = array(
     "link_path" => drupal_get_normal_path('node/'.$node->nid),
     "link_title" => t("Home"),
     "menu_name" => $menu_name,
   );
 
-  // save it!
+  // Save it!
   menu_link_save($menu_link);
 
-  // Let the user know with a nice message
+  // Let the user know with a nice message.
   drupal_set_message("A Menu for this subsite was sucessfully created. " . l("Edit the menu here »", "admin/structure/menu/manage/".$menu_name));
 
   // Create menu block ---------------------------------------------------------
 
-  // Now create a menu block and place it
+  // Now create a menu block and place it.
   $menu_block = array();
   $block_ids = variable_get('menu_block_ids', array());
   $delta = empty($block_ids) ? 1 : max($block_ids) + 1;
@@ -369,7 +375,7 @@ function _create_subsite_menu_and_menublock($node) {
   $menu_block['title'] = "<none>";
   $menu_block['display_options'] = "advanced";
   $menu_block['title_link'] = 0;
-  $menu_block['admin_title'] = t('Subsite Menu Block: ') .$menu_name;
+  $menu_block['admin_title'] = t('Subsite Menu Block: ') . $menu_name;
   $menu_block['menu_name'] = $menu_name;
   $menu_block['level'] = 1;
   $menu_block['follow'] = 0;
@@ -389,8 +395,22 @@ function _create_subsite_menu_and_menublock($node) {
 
   menu_block_block_save($delta, $menu_block);
 
-  // Run the normal new block submission (borrowed from block_add_block_form_submit).
-  $query = db_insert('block')->fields(array('visibility', 'pages', 'custom', 'title', 'module', 'theme', 'region', 'status', 'weight', 'delta', 'cache'));
+  // Run the normal new block submission
+  // (borrowed from block_add_block_form_submit).
+  $query = db_insert('block')->fields(array(
+    'visibility',
+    'pages',
+    'custom',
+    'title',
+    'module',
+    'theme',
+    'region',
+    'status',
+    'weight',
+    'delta',
+    'cache'
+  ));
+
   foreach (list_themes() as $key => $theme) {
     if ($theme->status) {
       $region = !empty($menu_block['regions'][$theme->name]) ? $menu_block['regions'][$theme->name] : BLOCK_REGION_NONE;
@@ -437,17 +457,17 @@ function _create_subsite_menu_and_menublock($node) {
  */
 function _enable_menu_for_subsite_content_types($menu) {
 
-  // Get all enabled content types from the settings form array
+  // Get all enabled content types from the settings form array.
   $enabled_types = variable_get('stanford_subsite_content_types', array());
 
-  // Loop through the enabled types and add the new menu to their settings array
-  foreach($enabled_types as $k => $type) {
+  // Loop through the enabled types and add the new menu to their settings array.
+  foreach ($enabled_types as $k => $type) {
     $opts = variable_get('menu_options_' . $type, array('main-menu'));
     $opts[] = $menu['menu_name'];
     variable_set('menu_options_' . $type, $opts);
   }
 
-  // also do subsite content types by default...
+  // Also do subsite content types by default...
   $opts = variable_get('menu_options_' . SUBSITE_CONTENT_TYPE, array('main-menu'));
   $opts[] = $menu['menu_name'];
   variable_set('menu_options_' . SUBSITE_CONTENT_TYPE, $opts);
@@ -465,31 +485,29 @@ function _enable_menu_for_subsite_content_types($menu) {
 
 function _create_subsite_context($node, $args) {
 
-  $menu = isset($args['menu']) ? $args['menu'] : false;
-  $menu_block = isset($args['menu_block']) ? $args['menu_block'] : false;
+  $menu = isset($args['menu']) ? $args['menu'] : FALSE;
+  $menu_block = isset($args['menu_block']) ? $args['menu_block'] : FALSE;
   $delta = isset($args['menu_block']) ? $menu_block['delta'] : 0;
 
-  // we can cheat here a bit and re-use the menu name function
+  // We can cheat here a bit and re-use the menu name function.
   $context_name = _get_subsite_menu_name($node);
 
-  // find out what region we are suspposed to be placing the menu block in by
+  // Find out what region we are suspposed to be placing the menu block in by
   // getting the theme from the subsite node and comparing it to the subsite
-  // configuration settings
+  // configuration settings.
 
   $the_theme = variable_get('theme_default');
-  $theme_region = false;
+  $theme_region = FALSE;
 
-  if(isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']) &&
-    $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] !== "default") {
-      $the_theme = $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'];
+  if (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']) && $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] !== "default") {
+    $the_theme = $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'];
   }
 
-  // settings from admin/config/subsites/
+  // Settings from admin/config/subsites/.
   $settings = variable_get('stanford_subsite_mbtr', array());
 
-  if(isset($settings[$the_theme]) &&
-    $settings[$the_theme] !== "stanford_subsites_dnp") {
-      $theme_region = $settings[$the_theme];
+  if (isset($settings[$the_theme]) && $settings[$the_theme] !== "stanford_subsites_dnp") {
+    $theme_region = $settings[$the_theme];
   }
 
 
@@ -500,19 +518,20 @@ function _create_subsite_context($node, $args) {
   $context->conditions = array(
     'active_subsite' => array(
       'values' => array(
-          $node->nid => $node->nid,
-        ),
+        $node->nid => $node->nid,
       ),
-    );
-  if($theme_region) {
+    ),
+  );
+
+  if ($theme_region) {
     $context->reactions = array(
-    'block' => array(
-      'blocks' => array(
-        "menu_block-" . $delta => array(
-          'module' => "menu_block",
-          'delta' => $delta,
-          'region' => $theme_region,
-          'weight' => -10,
+      'block' => array(
+        'blocks' => array(
+          "menu_block-" . $delta => array(
+            'module' => "menu_block",
+            'delta' => $delta,
+            'region' => $theme_region,
+            'weight' => -10,
           ),
         ),
       ),
@@ -526,7 +545,7 @@ function _create_subsite_context($node, $args) {
   context_save($context);
   cache_clear_all();
 
-  drupal_set_message("A subsite context was created for you. " . l("Edit it here »", "admin/structure/context/list/" . $context_name."/edit"));
+  drupal_set_message("A subsite context was created for you. " . l(t("Edit it here") . " »", "admin/structure/context/list/" . $context_name . "/edit"));
 
 }
 
@@ -539,9 +558,8 @@ function _get_subsite_menu_name($node) {
   $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
   $menu_name = strtolower(drupal_clean_css_identifier($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], $filter));
 
-  // Max length of menu name is 32 chars
+  // Max length of menu name is 32 chars.
   $menu_name = substr($menu_name, 0, 32);
 
   return $menu_name;
 }
-

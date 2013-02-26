@@ -12,7 +12,8 @@
  *
  *
  * @todo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
- *  remove all 'Features' and have this whole thing as one module
+ *  remove all 'Features' and have this whole thing as one module using
+ *  field api more.
  *
  * :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  */
@@ -153,6 +154,38 @@ function stanford_subsites_custom_theme() {
 
 }
 
+
+/**
+ * Add some additional variables to the preprocess page function for use in the
+ * theme templates like
+ *   $vars['site_name'];
+ * @param $vars
+ *        An array or variables
+ * @param  $hook
+ *         A string of the hook name
+ */
+
+function stanford_subsites_preprocess_html(&$vars, $hook) {
+
+  $vars['site_name'] = variable_get('site_name');
+  $vars['subsite_site_name_text'] = FALSE;
+  $vars['subsite_site_name_html'] = FALSE;
+
+  // Check to see if this page is a node. If so apply subtheme by node reference.
+  $subsite_node = _get_active_subsite();
+
+  if ($subsite_node) {
+    $vars['subsite_site_name_text'] = $subsite_node->{SUBSITE_NAME_FIELD}[$subsite_node->language][0]["safe_value"];
+    $vars['subsite_site_name_html'] = l($vars['subsite_site_name_text'], "<front>");
+  }
+  else {
+    $vars['subsite_site_name_html'] = l($vars['site_name'], "<front>");
+  }
+
+}
+
+
+
 /**
  * Implements hook_preprocess().
  * [stanford_subsites_preprocess_page description]
@@ -174,7 +207,7 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
 
   // Check to see if this page is a subsite node type. If it is then we are at
   // a subsite 'front'
-  if(isset($vars['node']) && $vars['node']->type == SUBSITE_CONTENT_TYPE) {
+  if (isset($vars['node']) && $vars['node']->type == SUBSITE_CONTENT_TYPE) {
     $vars['subsite_is_front'] = TRUE;
   }
 
@@ -225,7 +258,10 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   if (isset($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])
     && !empty($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])) {
     $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"];
+    $vars['subsite_site_name_text'] = $vars['site_name'];
   }
+
+
 
   // Create new $logo_title and $alt variables for use in the page.tpl.php
   $vars['alt'] = $vars['site_name'];
@@ -287,7 +323,7 @@ function stanford_subsites_apply_subsite($node, &$vars) {
         }
         $vars['subsite_site_name_html'] = l($vars['site_name'], "node/" . $node->nid);
 
-        // set the variable as well for use in the theme
+        // Set the variable as well for use in the theme.
         break;
 
       // Link the title to the subsite and the logo to the main site.
@@ -377,7 +413,7 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
 
       $subsite_node = node_load($values[SUBSITE_REF_FIELD][$language][0]['target_id']);
       $subsite_term = _get_subsite_term($subsite_node);
-      $found_term = FALSE; // boolean switch for finding the term
+      $found_term = FALSE; // Boolean switch for finding the term.
 
       if ($subsite_term) {
         // Check to see that tags field has reference.
@@ -527,13 +563,16 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
 
       // If default subsite is not selected and this is the node create form
       // then set to users current workspace
-      // or default account setting
-      if (empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
-        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) &&
-        (!isset($form['nid']["#value"]) || !is_numeric($form['nid']["#value"]))) {
+      // or default account setting.
 
+      if (empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
+        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0])) {
+
+        if (isset($form['nid']['#value'])) {
+          // Node exists already. Carry on.
+        }
         // Check to see if the user has an active working space for the default.
-        if ($niid = _get_subsite_workingspace()) {
+        elseif ($niid = _get_subsite_workingspace()) {
           $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $niid;
         }
         // Check to see if the user has a subsite account setting.
@@ -541,6 +580,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
           is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'])) {
           $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
         }
+
       }
 
       $subsite_nodes = node_load_multiple(array_keys($form[SUBSITE_REF_FIELD][$language]['#options']));
