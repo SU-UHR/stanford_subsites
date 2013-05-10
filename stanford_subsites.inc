@@ -357,7 +357,7 @@ function _create_subsite_menu_and_menublock($node) {
   menu_link_save($menu_link);
 
   // Let the user know with a nice message.
-  drupal_set_message("A Menu for this subsite was sucessfully created. " . l("Edit the menu here »", "admin/structure/menu/manage/".$menu_name));
+  drupal_set_message("A Menu for this subsite was successfully created. " . l("Edit the menu here »", "admin/structure/menu/manage/".$menu_name));
 
   // Create menu block ---------------------------------------------------------
 
