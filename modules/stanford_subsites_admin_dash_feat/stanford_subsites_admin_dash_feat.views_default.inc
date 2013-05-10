@@ -463,7 +463,7 @@ function stanford_subsites_admin_dash_feat_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'SWS Manage Content';
+  $handler->display->display_options['title'] = 'Manage Content';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -997,9 +997,9 @@ function stanford_subsites_admin_dash_feat_views_default_views() {
   $view = new view;
   $view->name = 'stanford_subsites_admin_dash_users';
   $view->description = '';
-  $view->tag = 'SWS';
+  $view->tag = '';
   $view->base_table = 'users';
-  $view->human_name = 'SWS Manage Users';
+  $view->human_name = 'Manage Users';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */

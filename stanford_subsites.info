@@ -1,7 +1,7 @@
-name = Subsite
+name = Stanford Subsites
 description = Creates the ability for content authors to create branded "Subsites" within one Drupal installation. Originally developed for use at Stanford University.
 package = Stanford
-version = 1.0
+version = 1.0-beta1
 core = 7.x
 
 ; DEFAULT FILES

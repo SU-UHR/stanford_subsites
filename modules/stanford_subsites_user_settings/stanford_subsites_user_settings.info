@@ -1,4 +1,4 @@
-name = Site Within A Site User Settings
+name = Stanford Subsites User Settings
 description = Contains user account and role based settings
 core = 7.x
 package = Stanford

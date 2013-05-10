@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Code for the Site Within A Site Content Types And Fields feature.
+ * Code for the Stanford Subsites Content Types And Fields feature.
  */
 
 include_once 'stanford_subsites_content_types.features.inc';

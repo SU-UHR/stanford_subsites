@@ -1,5 +1,5 @@
-name = Site Within A Site Vocabularies and Terms
-description = Site within a site Vocabularies and Terms Feature
+name = Stanford Subsites Vocabularies and Terms
+description = Stanford Subsites Vocabularies and Terms Feature
 core = 7.x
 package = Stanford
 version = 7.x-1.0

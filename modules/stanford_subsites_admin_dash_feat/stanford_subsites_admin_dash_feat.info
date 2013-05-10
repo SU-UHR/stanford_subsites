@@ -1,5 +1,5 @@
-name = Site Within A Site Admin Dashboard Feature
-description = Administration Dashboard Views + Menus
+name = Site Subsites Admin Dashboard Feature
+description = Administration Dashboard Views and Menus
 core = 7.x
 package = Stanford
 php = 5.2.4

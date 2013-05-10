@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Stanford Site Within a Site administrative functions
+ * Stanford Subsites administrative functions
  */
 
 /**
@@ -100,7 +100,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
   // ---------------------------------------------------------------------------
   //
 
-  drupal_set_message(t("WARNING: Any unchecked content types will have their Site Within A Site fields removed from them. This will delete all subsite data for that content type."), 'warning', FALSE);
+  drupal_set_message(t("WARNING: Any unchecked content types will have their Subsite fields removed from them. This will delete all subsite data for that content type."), 'warning', FALSE);
 
   return system_settings_form($form);
 }
