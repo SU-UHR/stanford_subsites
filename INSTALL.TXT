@@ -23,7 +23,7 @@ If you are doing this via Drush try:
 drush en stanford_subsites_admin_dash -y
 drush fr stanford_subsites_content_types -y
 drush fr stanford_subsites_admin_dash_feat -y
-drush en devel
+drush en devel -y
 drush dre stanford_subsites_admin_dash -y
 drush cc all
 
