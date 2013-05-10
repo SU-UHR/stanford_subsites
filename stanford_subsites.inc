@@ -555,7 +555,7 @@ function _create_subsite_context($node, $args) {
  * @return string | The machine name of the menu for the subsite
  */
 function _get_subsite_menu_name($node) {
-  $filter = array(' ' => '_', '-' => '_', '/' => '_', '[' => '_', ']' => '_');
+  $filter = array(' ' => '-', '/' => '-', '[' => '-', ']' => '-');
   $menu_name = strtolower(drupal_clean_css_identifier($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], $filter));
 
   // Max length of menu name is 32 chars.
