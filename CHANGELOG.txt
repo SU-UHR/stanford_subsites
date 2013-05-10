@@ -1,2 +1,6 @@
 Stanford Subsites x.x-x.x xxxx-xx-xx
 ------------------------------------
+
+Stanford Subsites 7.x-1.0-beta1 2013-05-10
+------------------------------------------
+Initial public release of Stanford Subsites
