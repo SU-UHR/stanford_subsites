@@ -413,6 +413,10 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
       // Did not find the subsite term in the subsite tags field. Add it!
       if (!$found_term) {
         $tags = $values[SUBSITE_TAGS_FIELD][$language];
+        // Ensure no null values...
+        if (!is_numeric($tags[0]['tid'])) {
+          unset($tags[0]);
+        }
         $tags[] = (array) $subsite_term;
         form_set_value($form[SUBSITE_TAGS_FIELD], $tags, $form_state);
         $node->{SUBSITE_TAGS_FIELD}[$language] = $tags;
