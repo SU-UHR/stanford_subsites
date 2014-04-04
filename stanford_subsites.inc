@@ -109,7 +109,7 @@ function _lookup_subsite_reference_by_path($path) {
 
   // Check raw string for path... :( needs optimization.
   foreach ($subsite_paths as $nid => $site_path) {
-    if (stripos($path, $site_path) !== FALSE) {
+    if (stripos($path, $site_path . "/") !== FALSE) {
       return node_load($nid);
     }
   }
