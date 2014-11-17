@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * stanford_subsites_admin_dash_feat.views_default.inc
+ * stanford_subsites_admin_dash.views_default.inc
  */
 
 /**
  * Implements hook_views_default_views().
  */
-function stanford_subsites_admin_dash_feat_views_default_views() {
+function stanford_subsites_admin_dash_views_default_views() {
   $export = array();
 
   $view = new view;

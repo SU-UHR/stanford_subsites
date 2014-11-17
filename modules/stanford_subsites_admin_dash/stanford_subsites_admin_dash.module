@@ -41,6 +41,27 @@ function stanford_subsites_admin_dash_permission() {
   );
 }
 
+/**
+ * Implements hook_menu().
+ */
+function stanford_subsites_admin_dash_menu($items = array()) {
+  $items['admin/config/subsites/dashboard'] = array(
+    'title' => 'Subsite administration dashboard',
+    'page callback' => 'stanford_subsites_admin_dash_dashboard',
+    'description' => 'An administration page for managing subsites and subsite content.',
+    'access arguments' => array('access sws admin dash'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => "stanford_subsites_admin_dash.pages.inc",
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function stanford_subsites_admin_dash_views_api() {
+  return array("version" => "3.0");
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

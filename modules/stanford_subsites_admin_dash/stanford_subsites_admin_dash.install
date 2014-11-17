@@ -1,93 +1,59 @@
 <?php
+/**
+ * @file - Installation tasks.
+ */
 
 /**
  * Implements hook_install().
  */
 function stanford_subsites_admin_dash_install() {
+  // Create a menu and a few links.
 
-  // If core drupal search is enabled then place the search block in the top
-  // Right of the dashboard
+  $menu = array(
+    "menu_name" => "menu-admin-dashboard-admin-tasks",
+    "title" => t("Admin Dashboard Admin Tasks"),
+    "description" => t("Common Tasks for Administrators"),
+  );
 
-  if(module_exists('search')) {
+  menu_save($menu);
 
-    $admin_theme = variable_get('admin_theme');
+  $links = array(
+    'admin/people/create' => t('New user'),
+    'admin/structure/block/add-menu-block' => t('New menu block'),
+    'admin/structure/context' => t('Edit contexts'),
+    'admin/subsites/subsites' => t('Edit subsites'),
+    'node/add/stanford-subsite' => t('New subsite'),
+    'admin/subsites/content' => t('Content bulk operations'),
+  );
 
-    db_update('block')
-      ->fields(
-        array(
-          'status' => 1,
-          'weight' => 0,
-          'region' => 'dashboard_sidebar',
-        )
-      )
-    ->condition('theme', $admin_theme)
-    ->condition('module', 'search')
-    ->condition('delta', 'form')
-    ->execute();
-
+  // Loop through and save all links.
+  $i = 0;
+  foreach ($links as $url => $title) {
+    $item = array(
+      "link_path" => $url,
+      "link_title" => $title,
+      "menu_name" => $menu['menu_name'],
+      'weight' => ++$i,
+    );
+    menu_link_save($item);
   }
 
-  // Place views blocks that are included in the feature export
-  $content_block_machine_name = md5("stanford_subsites_admin_dash_content-stanford_subsite_admin_dash_content_block");
-  $user_block_machine_name = md5("stanford_subsites_admin_dash_users-stanford_subsites_admin_dash_user_block");
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Admin Dashboard Admin Tasks');
+  t('Common Tasks for Administrators');
 
-  db_update('block')
-      ->fields(
-        array(
-          'status' => 1,
-          'weight' => 0,
-          'region' => 'dashboard_main',
-        )
-      )
-    ->condition('theme', $admin_theme)
-    ->condition('module', 'views')
-    ->condition('delta', array($content_block_machine_name, $user_block_machine_name))
-    ->execute();
+}
 
-  // Create and place admin links menu in sidebar
-  db_update('block')
-      ->fields(
-        array(
-          'status' => 1,
-          'weight' => 3,
-          'region' => 'dashboard_sidebar',
-        )
-      )
-    ->condition('theme', $admin_theme)
-    ->condition('module', 'menu')
-    ->condition('delta', 'menu-admin-dashboard-admin-tasks')
-    ->execute();
-
-
-  // Create and place admin jumpblock menu in sidebar
-  db_insert('block')
-      ->fields(
-        array(
-          'status' => 1,
-          'weight' => 2,
-          'region' => 'dashboard_sidebar',
-          'theme' => $admin_theme,
-          'module' => "stanford_subsites_admin_dash",
-          'delta' => "stanford_subsites_jump_block",
-          'pages' => '',
-        )
-      )
-    ->execute();
-
-  // Create and place admin create content in dash sidebar
-    db_insert('block')
-        ->fields(
-          array(
-            'status' => 1,
-            'weight' => 1,
-            'region' => 'dashboard_sidebar',
-            'theme' => $admin_theme,
-            'module' => "stanford_subsites_admin_dash",
-            'delta' => "stanford_subsites_quick_create",
-            'pages' => '',
-          )
-        )
-      ->execute();
-
-
+/**
+ * Implements hook_uninstall().
+ */
+function stanford_subsites_admin_dash_uninstall() {
+  // Remove the administration menu.
+  $menu = array(
+    "menu_name" => "menu-admin-dashboard-admin-tasks",
+    "title" => t("Admin Dashboard Admin Tasks"),
+    "description" => t("Common Tasks for Administrators"),
+  );
+  menu_delete($menu);
 }

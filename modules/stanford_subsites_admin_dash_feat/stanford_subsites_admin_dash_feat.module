@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Stanford Subsites Admin Dashboard Feature feature.
- */
-
-include_once 'stanford_subsites_admin_dash_feat.features.inc';
