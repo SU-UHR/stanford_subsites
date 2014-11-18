@@ -8,7 +8,6 @@ files[] = "stanford_subsites_admin_dash.pages.inc"
 
 dependencies[] = "menu_block"
 dependencies[] = "stanford_subsites"
-dependencies[] = "context"
 dependencies[] = "views_bulk_operations"
 dependencies[] = "views"
 dependencies[] = "menu"

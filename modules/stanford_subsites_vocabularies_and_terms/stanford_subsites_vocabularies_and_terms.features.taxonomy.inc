@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * stanford_vocabularies_and_terms.features.taxonomy.inc
+ * stanford_subsites_vocabularies_and_terms.features.taxonomy.inc
  */
 
 /**
@@ -13,9 +13,9 @@ function stanford_subsites_vocabularies_and_terms_taxonomy_default_vocabularies(
       'name' => 'Subsites',
       'machine_name' => 'stanford_subsites_sites',
       'description' => 'Subsites Vocabulary',
-      'hierarchy' => '0',
+      'hierarchy' => 0,
       'module' => 'taxonomy',
-      'weight' => '0',
+      'weight' => 0,
       'rdf_mapping' => array(
         'rdftype' => array(
           0 => 'skos:ConceptScheme',

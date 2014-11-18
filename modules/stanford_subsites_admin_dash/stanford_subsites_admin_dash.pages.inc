@@ -32,20 +32,21 @@ function stanford_subsites_admin_dash_dashboard() {
   // Right sidebar column.
   $output['sidebar_first']["wrapper_top"]['#markup'] = "<div class=\"sidebar-column-33\">";
   if (module_exists("search")) {
-    $output['sidebar_first']['search_form_title']['#markup'] = "<h2>" . t("Search") . "</h2>";
-    $output['sidebar_first']['search_form'] = drupal_get_form("search_box");
+    $block = block_load('search', 'search');
+    $block->title = t("Search");
+    $block->region = NULL;
+    $output['sidebar_first']['search_blox'] = _block_get_renderable_array(_block_render_blocks(array($block)));
   }
 
-  $output['sidebar_first']['create_content']["#markup"] = "<h2>Create content</h2>";
-  $output['sidebar_first']['create_content']["#markup"] .= views_embed_view("stanford_subsites_admin_dash", "stanford_subsites_quick_create");
+  $block = block_load('stanford_subsites_admin_dash', 'stanford_subsites_quick_create');
+  $output['sidebar_first']['create_content'] = _block_get_renderable_array(_block_render_blocks(array($block)));
 
   $block = block_load('stanford_subsites_admin_dash', 'stanford_subsites_jump_block');
-  $output['sidebar_first']['manage_subsite']= _block_get_renderable_array(_block_render_blocks(array($block)));
+  $output['sidebar_first']['manage_subsite'] = _block_get_renderable_array(_block_render_blocks(array($block)));
 
   $block = block_load('menu', 'menu-admin-dashboard-admin-tasks');
   $output['sidebar_first']['admin_tasks'] = _block_get_renderable_array(_block_render_blocks(array($block)));
   $output['sidebar_first']["wrapper_bottom"]['#markup'] = "</div>";
-
 
   return $output;
 }

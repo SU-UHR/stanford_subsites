@@ -8,14 +8,23 @@
  * Default argument plugin to provide a subsite as an option.
  */
 class views_plugin_argument_default_subsite extends views_plugin_argument_default {
-  function option_definition() {
-    $options = parent::option_definition();
-    // $options['subsite'] = array('default' => '0');
 
+  /**
+   * [option_definition description]
+   * @return [type] [description]
+   */
+  public function option_definition() {
+    $options = parent::option_definition();
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * [options_form description]
+   * @param  [type] $form       [description]
+   * @param  [type] $form_state [description]
+   * @return [type]             [description]
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
   }
 
@@ -23,24 +32,28 @@ class views_plugin_argument_default_subsite extends views_plugin_argument_defaul
    * Only let users with administer sws permissions set/modify this
    * default plugin.
    */
-  function access() {
+  public function access() {
     return user_access('administer sws');
   }
 
-  function get_argument() {
+  /**
+   * [get_argument description]
+   * @return [type] [description]
+   */
+  public function get_argument() {
     // Set up variables to make it easier to reference during the argument.
     $view = &$this->view;
     $argument = &$this->argument;
     ob_start();
     $subsite = _get_active_subsite();
 
-    ob_start();
     if (isset($subsite->nid)) {
       $result = $subsite->nid;
     }
     else {
       $result = 0;
     }
+
     ob_end_clean();
     return $result;
   }

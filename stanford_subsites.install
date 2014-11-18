@@ -5,7 +5,7 @@
  */
 function stanford_subsites_install() {
 
-  // Because it is bundled in the feature we have to enable it
+  // Because it is bundled in the feature we have to enable it.
   variable_set('stanford_subsite_content_types', array('page'));
 
 }

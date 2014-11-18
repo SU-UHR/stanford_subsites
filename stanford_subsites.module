@@ -67,15 +67,15 @@ function stanford_subsites_help($path, $arg) {
     case 'admin/help#stanford_subsites':
       $output = '<h2>' . t('To Use') . '</h2>';
       $output .= '<ol><li>' . t('Enable the module and all dependencies, plus all submodules') . '</li>';
-      $output .= '<li>' . t('!permissions and give selected roles the following permissions:', array('!permissions' => l('Go to the permissions page', 'admin/people/permissions#module-stanford_subsites')));
+      $output .= '<li>' . t('!permissions and give selected roles the following permissions:', array('!permissions' => l(t('Go to the permissions page'), 'admin/people/permissions#module-stanford_subsites')));
       $output .= '<ul><li>' . t('Administer Subsite') . '</li>';
       $output .= '<li>' . t('Administer Subsite Selection') . '</li></ul></li>';
-      $output .= '<li>' . t('!configpage and:', array('!configpage' => l('Go to the configuration page', 'admin/config/subsites')));
+      $output .= '<li>' . t('!configpage and:', array('!configpage' => l(t('Go to the configuration page'), 'admin/config/subsites')));
       $output .= '<ul><li>' . t('Select content types that can be used within subsites') . '</li>';
       $output .= '<li>' . t('Enable the placement of menu blocks') . '</li>';
-      $output .= '<li>' .t( 'Select theme regions where the main menu blocks should be placed')  . '</li></ul></li>';
-      $output .= '<li>' . t('!createsubsite and choose theme options', array('!createsubsite' => l('Create a new subsite', 'node/add/stanford-subsite'))) . '</li>';
-      $output .= '<li>' . t('!createcontent and select a parent subsite', array('!createcontent' => l('Create content', 'node/add'))) . '</li>';
+      $output .= '<li>' . t('Select theme regions where the main menu blocks should be placed') . '</li></ul></li>';
+      $output .= '<li>' . t('!createsubsite and choose theme options', array('!createsubsite' => l(t('Create a new subsite'), 'node/add/stanford-subsite'))) . '</li>';
+      $output .= '<li>' . t('!createcontent and select a parent subsite', array('!createcontent' => l(t('Create content'), 'node/add'))) . '</li>';
       $output .= '</ol>';
 
       $output .= '<h2>' . t('Known Issues') . '</h2>';
@@ -104,8 +104,7 @@ function stanford_subsites_menu() {
 }
 
 /**
- * Implements hook_menu_alter
- * @param  $menu [description]
+ * Implements hook_menu_alter.
  */
 function stanford_subsites_menu_alter(&$menu) {
   $menu['entityreference/autocomplete/single/%/%/%']['page callback'] = "stanford_subsites_entityreference_autocomplete_callback";
@@ -156,15 +155,15 @@ function stanford_subsites_custom_theme() {
 
 
 /**
- * Add some additional variables to the preprocess page function for use in the
- * theme templates like
- *   $vars['site_name'];
- * @param $vars
- *        An array or variables
- * @param  $hook
- *         A string of the hook name
+ * Add some additional variables to the preprocess page function.
+ *
+ * For use in the theme templates like $vars['site_name'];
+ *
+ * @param array $vars
+ *   An array or variables
+ * @param string $hook
+ *   A string of the hook name
  */
-
 function stanford_subsites_preprocess_html(&$vars, $hook) {
 
   $vars['site_name'] = variable_get('site_name');
@@ -187,15 +186,11 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
 
 
 /**
- * Implements hook_preprocess().
- * [stanford_subsites_preprocess_page description]
- * @param  [type] $vars [description]
- * @param  [type] $hook [description]
- *
+ * Implements hook_preprocess()
  */
 function stanford_subsites_preprocess_page(&$vars, $hook) {
 
-  // Some variables need to be persistent
+  // Some variables need to be persistent.
   $vars['subsite_logo_html'] = FALSE; // the subsite logo full html and link
   $vars['subsite_site_name_html'] = FALSE; // the subsite name full html and link
   $vars['subsite_site_name_text'] = FALSE; // the subsite name plain text
@@ -206,7 +201,7 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
   $vars['subsite_front'] = FALSE; // string of the path to the active subsite
 
   // Check to see if this page is a subsite node type. If it is then we are at
-  // a subsite 'front'
+  // a subsite 'front'.
   if (isset($vars['node']) && $vars['node']->type == SUBSITE_CONTENT_TYPE) {
     $vars['subsite_is_front'] = TRUE;
   }
@@ -239,9 +234,13 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
 }
 
 /**
- * stanford_subsites_apply_subsite
- * @param $node - the subsite node object
- * @param $variables - The variables array from hook_preprocess_page
+ * Apply a subsite after the page that is being viewed is validated as such.
+ *
+ * @param object $node
+ *   The subsite node object.
+ * @param array $vars
+ *   The variables array from hook_preprocess_page.
+ *
  * Function tasks:
  *   1. Change $title [if set]
  *   2. Change $logo [if set]
@@ -251,7 +250,6 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
  *      variables with links
  *   6. Override the site_logo variable with subsite logo if present.
  */
-
 function stanford_subsites_apply_subsite($node, &$vars) {
 
   // Change the site title.
@@ -364,9 +362,13 @@ function stanford_subsites_apply_subsite($node, &$vars) {
 
 /**
  * Implements hook_node_submit().
- * @param $node: The node object being updated in response to a form submission.
- * @param $form: The form being used to edit the node.
- * @param $form_state: The form state array.
+ *
+ * @param object $node
+ *   The node object being updated in response to a form submission.
+ * @param array $form
+ *   The form being used to edit the node.
+ * @param array $form_state
+ *   The form state array.
  *
  * Utiltity tasks for saving nodes of various types
  * 1. Clear path caches for subsites
@@ -448,8 +450,10 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
 }
 
 /**
- * Handles the insert of a new subsite content type
- * @param  object $node       the node object
+ * Handles the insert of a new subsite content type.
+ *
+ * @param object $node
+ *   The node object
  *
  * Tasks:
  * 1. Create subsite term
@@ -489,6 +493,10 @@ function stanford_subsites_node_insert($node) {
 
 /**
  * Implements hook_node_update().
+ *
+ * @param object $node
+ *   The node object.
+ *
  * 1. Clears the path cache for subsite nodes
  * 2. Checks for subsite ref field in order to set the active subsite workspace
  */
@@ -510,12 +518,17 @@ function stanford_subsites_node_update($node) {
     _clear_subsite_workingspace();
   }
 
-
 }
 
 
 /**
- * Implements pathauto_alias_alter()
+ * Implements pathauto_alias_alter().
+ *
+ * @param string $alias
+ *   The subsite alias
+ * @param object $context
+ *   The context object.
+ *
  * Prepends the pathalias of the subsite to a node being referenced to one
  */
 function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
@@ -538,6 +551,7 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
 
 /**
  * Implements hook_form_alter().
+ *
  * Add the active theme options to the theme field
  */
 function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) {
@@ -633,10 +647,14 @@ function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$
 
 
 /**
- * stanford_subsites_form_node_form_alter_subsite_node()
- * @param   $form the form array
- * @param   $form_state the submitted form state
- * @param   $form_id the form idate(format)
+ * Alter the subsite node on form submit.
+ *
+ * @param array $form
+ *   The form array
+ * @param array $form_state
+ *   The submitted form state
+ * @param int $form_id
+ *   The form idate(format)
  */
 function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
@@ -651,19 +669,16 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
   }
 
   // Set the default value.
-  $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] =
-    (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']))
-    ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']
-    : "default";
+  $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] = (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'])) ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] : "default";
 
   // Add a link to enable more themes below the field.
   $form[SUBSITE_THEME_FIELD][$node->language]["#description"] = l(t('Enable more themes here'), "admin/appearance");
 
 }
 
-//  ////////////////////////////////////////////////////////////////////////////
-//  FEILDS + Autocomplete //
-//  ////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////
+// FEILDS + Autocomplete //
+// ////////////////////////////////////////////////////////////////////////////
 
 /**
  * Implements hook_field_access().
@@ -681,18 +696,18 @@ function stanford_subsites_field_access($op, $field, $entity_type, $entity, $acc
 /**
  * Menu callback: autocomplete the label of an entity.
  *
- * @param $type
+ * @param string $type
  *   The widget type (i.e. 'single' or 'tags').
- * @param $field_name
+ * @param array  $field_name
  *   The name of the entity-reference field.
- * @param $entity_type
+ * @param string $entity_type
  *   The entity type.
- * @param $bundle_name
+ * @param string $bundle_name
  *   The bundle name.
- * @param $entity_id
+ * @param int $entity_id
  *   Optional; The entity ID the entity-reference field is attached to.
  *   Defaults to ''.
- * @param $string
+ * @param string $string
  *   The label of the entity to query by.
  */
 function stanford_subsites_entityreference_autocomplete_callback($type, $field_name, $entity_type, $bundle_name, $entity_id = '', $string = '') {
@@ -709,18 +724,18 @@ function stanford_subsites_entityreference_autocomplete_callback($type, $field_n
  * This function can be used by other modules that wish to pass a mocked
  * definition of the field on instance.
  *
- * @param $type
+ * @param string $type
  *   The widget type (i.e. 'single' or 'tags').
- * @param $field
+ * @param array $field
  *   The field array defintion.
- * @param $instance
+ * @param array $instance
  *   The instance array defintion.
- * @param $entity_type
+ * @param string $entity_type
  *   The entity type.
- * @param $entity_id
+ * @param int $entity_id
  *   Optional; The entity ID the entity-reference field is attached to.
  *   Defaults to ''.
- * @param $string
+ * @param string $string
  *   The label of the entity to query by.
  */
 function stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id = '', $string = '') {
@@ -780,21 +795,20 @@ function stanford_subsites_entityreference_autocomplete_callback_get_matches($ty
 
 
 /**
- * Implements a hook alter for augmenting the entityreference autocomplete call
- * @param  $matches
+ * Implements a hook alter for augmenting the entityreference autocomplete call.
+ *
+ * @param array $matches
  *   The matches already found by autocomplete. Just before it is sent to json.
- * @param $type
- *   The widget type (i.e. 'single' or 'tags').
- * @param $field
+ * @param array $field
  *   The field array defintion.
- * @param $instance
+ * @param array $instance
  *   The instance array defintion.
- * @param $entity_type
+ * @param string $entity_type
  *   The entity type.
- * @param $entity_id
+ * @param int $entity_id
  *   Optional; The entity ID the entity-reference field is attached to.
  *   Defaults to ''.
- * @param $string
+ * @param string $string
  *   The label of the entity to query by.
  */
 function stanford_subsites_entityreference_alter_results(&$matches, $field, $instance, $entity_type, $entity_id = '', $string = '') {
@@ -822,8 +836,9 @@ function stanford_subsites_entityreference_alter_results(&$matches, $field, $ins
 }
 
 /**
- * Override the output of the reference field by default so that it does
- * site_name instead of $title
+ * Override the output of the reference field.
+ *
+ * by default so that it does site_name instead of $title.
  *
  */
 function stanford_subsites_preprocess_field(&$vars, $hook) {
@@ -841,7 +856,8 @@ function stanford_subsites_preprocess_field(&$vars, $hook) {
 
 /**
  * Schtoopid views messing with my preprocessed output...
- * Alter the output of the user_sub_target_id autocomplete field on all views
+ *
+ * Alter the output of the user_sub_target_id autocomplete field on all views.
  */
 
 function stanford_subsites_preprocess_views_view_field(&$vars) {
@@ -871,9 +887,9 @@ function stanford_subsites_preprocess_views_view_field(&$vars) {
 
 }
 
-//  ////////////////////////////////////////////////////////////////////////////
-//  TOKENS //
-//  ////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////
+// TOKENS //
+// ////////////////////////////////////////////////////////////////////////////
 
 /**
  * Implements hook_token_info().
@@ -958,13 +974,12 @@ function stanford_subsites_tokens_tokens($type, $tokens, array $data = array(), 
 }
 
 
-//  ////////////////////////////////////////////////////////////////////////////
-//  VIEWS PLUGINS and OTHER //
-//  ////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////
+// VIEWS PLUGINS and OTHER //
+// ////////////////////////////////////////////////////////////////////////////
 
 /**
- * Implments hook_views_api
- * @return array
+ * Implments hook_views_api().
  */
 function stanford_subsites_views_api() {
   return array("version" => "3.0");
@@ -974,14 +989,17 @@ function stanford_subsites_views_api() {
 
 
 
-//  ////////////////////////////////////////////////////////////////////////////
-//  CONTEXT PLUGINS //
-//  ////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////
+// CONTEXT PLUGINS //
+// ////////////////////////////////////////////////////////////////////////////
 
 /**
- * Implement `hook_context_plugins()` to define your plugins, classes, and class
- * hierarchy.
- * @return $plugins
+ * Implements hook_context_plugins().
+ *
+ * To define your plugins, classes, and class hierarchy.
+ *
+ * @return array
+ *   An array of plugin information
  */
 function stanford_subsites_context_plugins() {
   $plugins = array();
@@ -997,9 +1015,12 @@ function stanford_subsites_context_plugins() {
 }
 
 /**
- * Implement `hook_context_registry()` to define your conditions and/or
- * reactions and map them to plugins.
+ * Implements hook_context_registry().
+ *
+ * To define your conditions and/or reactions and map them to plugins.
+ *
  * @return array
+ *   An array of configuration values.
  */
 function stanford_subsites_context_registry() {
   return array(
@@ -1013,7 +1034,7 @@ function stanford_subsites_context_registry() {
 }
 
 /**
- * Execute Context active subsite conditions
+ * Execute Context active subsite conditions.
  *
  * Allows modules to hook into Context's hook_page_build to execute their
  * conditions at an appropriate time before the firing of reactions.

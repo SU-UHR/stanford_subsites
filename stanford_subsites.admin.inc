@@ -9,13 +9,12 @@
  */
 function stanford_subsites_admin_config_form($form, &$form_state) {
 
-  // set the validate hook
+  // Set the validate hook.
   $form["#validate"][] = "stanford_subsites_admin_config_form_process_validate";
 
-
-  // If the gotoconf variable is set then show the user the conf variable
-  if(isset($form_state['values']['gotoconf']) && $form_state['values']['gotoconf'] == "true") {
-    $form_state['rebuild'] = true;
+  // If the gotoconf variable is set then show the user the conf variable.
+  if (isset($form_state['values']['gotoconf']) && $form_state['values']['gotoconf'] == "true") {
+    $form_state['rebuild'] = TRUE;
     return confirm_form(
       $form,
       t("Are you sure you want to do this?"),
@@ -25,7 +24,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     );
   }
 
-  // Trigger for going to confirmation form
+  // Trigger for going to confirmation form.
   $form['gotoconf'] = array(
     '#type' => 'hidden',
     '#value' => "false"
@@ -33,7 +32,6 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
 
   // Content Types
   // ---------------------------------------------------------------------------
-  //
 
   $form['sws'] = array(
     '#type' => "fieldset",
@@ -46,9 +44,8 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
   $type_names = node_type_get_names();
   $enabled_types = variable_get('stanford_subsite_content_types', array());
 
-  // Remove subsite as option
+  // Remove subsite as option.
   unset($type_names[SUBSITE_CONTENT_TYPE]);
-
 
   $form['sws']['stanford_subsite_content_types'] = array(
     '#title' => t("Check To Enable Content Type"),
@@ -59,7 +56,6 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
 
   // Menu Block Placement
   // ---------------------------------------------------------------------------
-  //
 
   $form['sws_menu'] = array(
     '#type' => "fieldset",
@@ -73,15 +69,17 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     '#title' => t("Check To Enable Menu and Menu Block Creation"),
     '#description' => t("Checking this box will enable menu and menu block creation and placement on the creation of new subsites only."),
     '#type' => 'checkbox',
-    '#default_value' => variable_get('stanford_subsite_enabled_menus',false),
+    '#default_value' => variable_get('stanford_subsite_enabled_menus', FALSE),
   );
 
   $mbtr = variable_get('stanford_subsite_mbtr', array());
 
-  // We want to list out all enabled themes and provide their regions as options
+  // We want to list out all enabled themes and provide their regions as options.
   $themes = list_themes();
-  foreach($themes as $k => $theme) {
-    if(!$theme->status) { continue; }
+  foreach ($themes as $k => $theme) {
+    if (!$theme->status) {
+      continue;
+    }
 
     $regions = $theme->info['regions'];
     $regions['stanford_subsites_dnp'] = "- " . t("Do Not Place") . " -";
@@ -98,96 +96,98 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
 
   // Final bits
   // ---------------------------------------------------------------------------
-  //
 
   drupal_set_message(t("WARNING: Any unchecked content types will have their Subsite fields removed from them. This will delete all subsite data for that content type."), 'warning', FALSE);
-
   return system_settings_form($form);
 }
 
 /**
- * Settings form custom validate actions. Handles redirecting the users to
+ * Settings form custom validate actions.
+ *
+ * Handles redirecting the users to
  * confirmation forms, and setting up additional submit handlers
- * @param $form
- * @param $form_state
+ *
+ * @param array $form
+ *   The form array
+ * @param array $form_state
+ *   The form state array.
  */
-
 function stanford_subsites_admin_config_form_process_validate(&$form, &$form_state) {
 
-  // Store the values of the submission for later submit hooks
-  foreach($form_state['values'] as $k => $v) {
+  // Store the values of the submission for later submit hooks.
+  foreach ($form_state['values'] as $k => $v) {
     $form_state['storage'][$k] = $v;
   }
 
-  // compare enabled content types to the form submission
+  // Compare enabled content types to the form submission.
   $disabled = _has_disabled_types($form_state);
 
   // There are disabled types and the form hasnt been confirmed
-  // Boot the user over to a confirm form
-  if($disabled
+  // Boot the user over to a confirm form.
+  if ($disabled
     && !isset($form_state['values']['confirm'])) {
     form_set_value($form['gotoconf'], "true", $form_state);
     $form_state['rebuild'] = TRUE;
     return;
-    // we are going to a cofirm form. End here so that additional submit handles
-    // do not get added
+    // We are going to a cofirm form. End here so that additional submit handles
+    // do not get added.
   }
 
-  // There are disabled types but the user has confirmed they want to process
-  if($disabled && !empty($form_state['values']['confirm'])) {
+  // There are disabled types but the user has confirmed they want to process.
+  if ($disabled && !empty($form_state['values']['confirm'])) {
     $form["#submit"][] = "stanford_subsites_admin_config_form_process_submit";
   }
 
-  // No disabled types lets process and save
-  if(!$disabled) {
+  // No disabled types lets process and save.
+  if (!$disabled) {
     $form["#submit"][] = "stanford_subsites_admin_config_form_process_submit";
   }
 
 
   // All is good with the content types. Add in the submit hanlder for the menu
-  // and block stuff
-
+  // and block stuff.
   $form["#submit"][] = "stanford_subsites_admin_config_form_process_menu_submit";
 
 }
 
 
 /**
- * settings form custom submit actions for processing the content types
- * @param $form
- * @param $form_state
+ * Settings form custom submit actions for processing the content types.
  *
+ * @param array $form
+ *   The form array
+ * @param array $form_state
+ *   The form state array.
  */
-
 function stanford_subsites_admin_config_form_process_submit($form, &$form_state) {
 
   $values = array_merge($form_state['values'], $form_state['storage']);
   $disabled_types = array_filter($values['stanford_subsite_content_types'], '_give_zero_values');
 
-  // Loop through the disabled content types and remove their field instances
-  foreach($disabled_types as $type => $nothing) {
+  // Loop through the disabled content types and remove their field instances.
+  foreach ($disabled_types as $type => $nothing) {
 
-  $ref_instance = field_read_instance('node', SUBSITE_REF_FIELD, $type);
-  $tax_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, $type);
+    $ref_instance = field_read_instance('node', SUBSITE_REF_FIELD, $type);
+    $tax_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, $type);
 
-    if($ref_instance) {
+    if ($ref_instance) {
       $instance = _get_ref_field_instance($type);
       field_delete_instance($instance, FALSE);
     }
 
-    if($tax_instance) {
+    if ($tax_instance) {
       $instance = _get_tax_field_instance($type);
       field_delete_instance($instance, FALSE);
     }
 
-    // Get all the nids of the disabled content type and update the alias
+    // Get all the nids of the disabled content type and update the alias.
     $q = db_select('node', "n")
         ->fields("n", array('nid'))
         ->condition("type", $type)
         ->execute();
 
     $nids = array();
-    while($result = $q->fetchAssoc()) {
+    while ($result = $q->fetchAssoc()) {
       $nids[] = $result['nid'];
     }
 
@@ -196,67 +196,72 @@ function stanford_subsites_admin_config_form_process_submit($form, &$form_state)
     $alias_action = variable_get('pathauto_update_action', 0);
     variable_set('pathauto_update_action', 1);
 
-    // add a bulk update operation
+    // Add a bulk update operation.
     pathauto_node_update_alias_multiple($nids, 'bulkupdate');
 
-    // Restore original setting
+    // Restore original setting.
     variable_set('pathauto_update_action', $alias_action);
 
   }
 
   // Remove content types from the list that arent enabled and then
-  // store the values of the form
+  // store the values of the form.
   $filtered = array_filter($values['stanford_subsite_content_types'], '_remove_zero_values');
   $keys = array_keys($filtered);
   variable_set('stanford_subsite_content_types', $keys);
 
 
   // We now have a list of content types (bundles) that we need to attach an
-  // instance of the fields to. Loop through them and attach them
+  // instance of the fields to. Loop through them and attach them.
   $ref_field = field_info_field(SUBSITE_TAGS_FIELD);
   $ref_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, 'page');
 
-  foreach($keys as $k => $v) {
+  foreach ($keys as $k => $v) {
 
-  $ref_instance = field_read_instance('node', SUBSITE_REF_FIELD, $v);
-  $tax_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, $v);
+    $ref_instance = field_read_instance('node', SUBSITE_REF_FIELD, $v);
+    $tax_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, $v);
 
-    if(!$ref_instance) {
-      // Create it
+    if (!$ref_instance) {
+      // Create it.
       $instance = _get_ref_field_instance($v);
       field_create_instance($instance);
     }
 
-    if(!$tax_instance) {
-      // Create it
+    if (!$tax_instance) {
+      // Create it.
       $instance = _get_tax_field_instance($v);
       field_create_instance($instance);
     }
 
   }
 
-  // Clear all the caches
+  // Clear all the caches.
   drupal_flush_all_caches();
 }
 
 /**
- * submit handler for the configuration page menu and menu block options
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
+ * Submit handler for the configuration page menu and menu block options.
+ *
+ * @param array $form
+ *   The form array
+ * @param array $form_state
+ *   The form state array
  */
 function stanford_subsites_admin_config_form_process_menu_submit($form, &$form_state) {
 
   $values = array_merge($form_state['values'], $form_state['storage']);
 
-  // Enable / Disable checkbox
+  // Enable / Disable checkbox.
   variable_set('stanford_subsite_enabled_menus', $values['stanford_subsite_menu_block_enabled']);
 
 
-  // Save the theme/region configuration
+  // Save the theme/region configuration.
   $mbtr = array();
   $themes = list_themes();
-  foreach($themes as $k => $theme) {
-    if(!$theme->status) { continue; }
+  foreach ($themes as $k => $theme) {
+    if (!$theme->status) {
+      continue;
+    }
     $mbtr[$k] = $values['stanford_subsite_mbtr_' . $k];
   }
 
@@ -270,14 +275,18 @@ function stanford_subsites_admin_config_form_process_menu_submit($form, &$form_s
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * _remove_zero_values
+ * Revove zero values from an array callback.
+ *
  * Helper function to remove items from an assoc array with value == 0
- * @param  $input the input array
- * @return  boolean true if value is valid | false if value is 0
+ *
+ * @param array $input
+ *   The input array
+ *
+ * @return bool
+ *   True if value is valid | false if value is 0
  */
-
 function _remove_zero_values($input) {
-  if($input === 0 ||
+  if ($input === 0 ||
      $input === FALSE ||
      strlen($input) == 0 ||
      $input === "0")
@@ -289,14 +298,17 @@ function _remove_zero_values($input) {
 
 
 /**
- * _give_zero_values
+ * Return the values that are == 0 callback function.
+ *
  * Helper function to remove items from an assoc array with value == 0
- * @param  $input the input array
- * @return  boolean true if value is valid | false if value is 0
+ *
+ * @param array $input
+ *   The input array
+ * @return bool
+ *   True if value is valid | false if value is 0
  */
-
 function _give_zero_values($input) {
-  if($input === 0 ||
+  if ($input === 0 ||
      $input === FALSE ||
      strlen($input) == 0 ||
      $input === "0")
@@ -308,10 +320,16 @@ function _give_zero_values($input) {
 
 
 /**
+ * Checks the form_state array.
+ *
  * Checks the form_state array against the saved enabled content types
- * for disabled types
- * @param  array  $form_state | The form state_array
- * @return boolean             false if there are no disabled types
+ * for disabled types.
+ *
+ * @param array $form_state
+ *   The form state_array
+ *
+ * @return bool
+ *   False if there are no disabled types
  */
 function _has_disabled_types($form_state) {
 
@@ -321,14 +339,14 @@ function _has_disabled_types($form_state) {
   $keys = array_keys($filtered);
 
   // Loop through current enabled types and check for it being enabled in the
-  // submitted values
-  foreach($enabled_types as $k => $name) {
-    if(!in_array($name, $keys)) {
-      return true;
+  // submitted values.
+  foreach ($enabled_types as $k => $name) {
+    if (!in_array($name, $keys)) {
+      return TRUE;
     }
   }
 
   // Nothing disabled :)
-  return false;
+  return FALSE;
 }
 

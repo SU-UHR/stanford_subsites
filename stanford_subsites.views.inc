@@ -5,8 +5,10 @@
 //  ////////////////////////////////////////////////////////////////////////////
 
 /**
- * Add active subsite plugin option for views default argument handlers
- * @return $plugins An array of plugin information for use in views
+ * Add active subsite plugin option for views default argument handlers.
+ *
+ * @return array
+ *   An array of plugin information for use in views
  */
 function stanford_subsites_views_plugins() {
   $plugins = array();
@@ -14,7 +16,6 @@ function stanford_subsites_views_plugins() {
     'subsite' => array(
       'title' => t('Active Subsite'),
       'handler' => 'views_plugin_argument_validate_subsite',
-      //'path' => drupal_get_path('module', 'stanford_subsite') . '/plugins',
     ),
   );
 
@@ -22,7 +23,6 @@ function stanford_subsites_views_plugins() {
     'subsite' => array(
       'title' => t('Active Subsite'),
       'handler' => 'views_plugin_argument_default_subsite',
-      //'path' => drupal_get_path('module', 'stanford_subsite') . '/plugins',
     ),
   );
 

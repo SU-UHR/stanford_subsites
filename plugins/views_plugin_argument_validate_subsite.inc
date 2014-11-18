@@ -10,52 +10,52 @@
  * @ingroup views_argument_validate_plugins
  */
 class views_plugin_argument_validate_subsite extends views_plugin_argument_validate {
-  function option_definition() {
-    $options = parent::option_definition();
-   // $options['subsite'] = array('default' => '0');
 
+  /**
+   * [option_definition description]
+   * @return [type] [description]
+   */
+  public function option_definition() {
+    $options = parent::option_definition();
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * [options_form description]
+   * @param  [type] $form       [description]
+   * @param  [type] $form_state [description]
+   * @return [type]             [description]
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
-    // $form['subsite'] = array(
-    //   '#type' => 'textarea',
-    //   '#title' => t('Subsite'),
-    //   '#default_value' => $this->options['subsite'],
-    //   '#description' => t('Use the active subsite'),
-    // );
-
-    // $this->check_access($form, 'subsite');
   }
 
   /**
-   * Only let users with PHP block visibility permissions set/modify this
-   * validate plugin.
+   * Only let users with PHP block visibility permissions set/modify this.
    */
-  function access() {
+  public function access() {
     return user_access('administer sws');
   }
 
-  // function convert_options(&$options) {
-  //   if (!isset($options['subsite']) && isset($this->argument->options['validate_argument_subsite'])) {
-  //     $options['subsite'] = $this->argument->options['validate_argument_subsite'];
-  //   }
-  // }
-
-  function validate_argument($argument) {
-    // set up variables to make it easier to reference during the argument.
+  /**
+   * [validate_argument description]
+   * @param  [type] $argument [description]
+   * @return [type]           [description]
+   */
+  public function validate_argument($argument) {
+    // Set up variables to make it easier to reference during the argument.
     $view = &$this->view;
     $handler = &$this->argument;
     $subsite = _get_active_subsite();
 
     ob_start();
-    if(isset($subsite->nid)) {
+    if (isset($subsite->nid)) {
       $result = $subsite->nid;
     }
     else {
       $result = 0;
     }
+
     ob_end_clean();
     return $result;
   }

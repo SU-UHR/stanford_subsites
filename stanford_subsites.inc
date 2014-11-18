@@ -7,8 +7,10 @@
 
 
 /**
- * Gets the active subsite node based on node page and on path
- * @return $node [subsite]  or   false
+ * Gets the active subsite node based on node page and on path.
+ *
+ * @return object
+ *   $node [subsite]  or   false
  */
 function _get_active_subsite() {
   global $subsite;
@@ -48,9 +50,9 @@ function _get_active_subsite() {
 
 /**
  * Get all subsite nodes.
- * @return  array() an array of subsite nodes
+ * @return array
+ *   An array of subsite nodes
  */
-
 function _get_subsite_nodes() {
   $query = db_select("node", "n")
             ->fields("n", array("nid"))
@@ -67,11 +69,16 @@ function _get_subsite_nodes() {
 }
 
 /**
+ * Lookup function for nodes by entity reference.
+ *
  * _lookup_subsite_reference_by_node()
- * @param $node - The currently being viewed node object
- * @return  boolen - True if this node has a subsite / False if none
+ *
+ * @param object $node
+ *   The currently being viewed node object.
+ *
+ * @return bool
+ *   True if this node has a subsite / False if none.
  */
-
 function _lookup_subsite_reference_by_node($node) {
 
   // If the node that is being viewed is the subsite node then just return it!
@@ -97,9 +104,15 @@ function _lookup_subsite_reference_by_node($node) {
 }
 
 /**
- * _lookup_subsite_reference_by_path
- * @param  $path - String - The currently viewed url path
- * @return Mixed - A node object of the subsite node or false if none
+ * Lookup function for nodes by subsite path.
+ *
+ * _lookup_subsite_reference_by_path.
+ *
+ * @param string $path
+ *   The currently viewed url path.
+ *
+ * @return mixed
+ *   A node object of the subsite node or false if none.
  */
 
 function _lookup_subsite_reference_by_path($path) {
@@ -118,8 +131,10 @@ function _lookup_subsite_reference_by_path($path) {
 }
 
 /**
- *_get_subsite_paths
- * @return  Array | an array of subsite paths
+ * Get the subsite base paths.
+ *
+ * @return array
+ *   An array of subsite paths.
  */
 function _get_subsite_paths() {
 
@@ -145,9 +160,13 @@ function _get_subsite_paths() {
 }
 
 /**
- * Generate a term for the subsite vocabulary
- * @param  object $node the subsite node
- * @return Object   the new term object or false if failed
+ * Generate a term for the subsite vocabulary.
+ *
+ * @param object $node
+ *   The subsite node.
+ *
+ * @return object
+ *   The new term object or false if failed.
  */
 function _insert_subsite_term($node) {
   $term = new stdClass();
@@ -171,9 +190,12 @@ function _insert_subsite_term($node) {
 }
 
 /**
- * Looks to update the term name in the subsite vocabulary if the node title
- * Changes on update
- * @param  object $node The original Node Object
+ * Looks to update the term name in the subsite vocabulary...
+ *
+ * ... if the node title changes on update
+ *
+ * @param object $node
+ *   The original Node Object.
  */
 function _update_subsite_node_term_name($node) {
 
@@ -206,13 +228,17 @@ function _update_subsite_node_term_name($node) {
 }
 
 /**
- * Returns the term object associated with a subsite node
- * @param  $node  The subsite node object
- * @return  object | The term object or false
+ * Returns the term object associated with a subsite node.
+ *
+ * @param object $node
+ *   The subsite node object.
+ *
+ * @return object
+ *   The term object or false.
  */
 function _get_subsite_term($node) {
 
-  // The title is different. Load up term by term name
+  // The title is different. Load up term by term name.
   $terms = taxonomy_get_term_by_name($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], SUBSITE_VOCAB);
 
   // Failed to get a term. Lets insert a new one.
@@ -224,10 +250,14 @@ function _get_subsite_term($node) {
 }
 
 /**
- * @param  $bundle  The bundle this instance belongs to
- * @return  Array - an array describing the instance of the reference field
+ * Get the reference field instance.
+ *
+ * @param $bundle
+ *   The bundle this instance belongs to.
+ *
+ * @return array
+ *   An array describing the instance of the reference field.
  */
-
 function _get_ref_field_instance($bundle) {
 
   if (!$bundle) {
@@ -248,8 +278,13 @@ function _get_ref_field_instance($bundle) {
 
 
 /**
- * @param  $bundle  The bundle this instance belongs to
- * @return  Array - an array describing the instance of the reference field
+ * Get taxonomy field instance.
+ *
+ * @param string $bundle
+ *   The bundle this instance belongs to.
+ *
+ * @return array
+ *   An array describing the instance of the reference field.
  */
 
 function _get_tax_field_instance($bundle) {
@@ -273,50 +308,49 @@ function _get_tax_field_instance($bundle) {
 }
 
 /**
- * _set_subsite_workingspace
- * Sets the active working space for subsites. Right now only sets the default
- * subsite on node/add
- * @param  $nid  The nid of the new active subsite for the working space
+ * Sets the active working space for subsites.
+ *
+ * Right now only sets the default subsite on node/add.
+ *
+ * @param int $nid
+ *   The nid of the new active subsite for the working space.
  */
-
 function _set_subsite_workingspace($nid) {
-
-  // Set it
-  $lifetime = time() + (60 * 60 * 24 * 7); // One week lifetime
-  setcookie('stanford_subsite_workspace', $nid, $lifetime, "/"); // <--need path
-
+  // Set it.
+  // One week lifetime.
+  $lifetime = time() + (60 * 60 * 24 * 7);
+  setcookie('stanford_subsite_workspace', $nid, $lifetime, "/");
 }
 
 /**
- * Removes the active subsite working space
- * @return [type] [description]
+ * Removes the active subsite working space.
  */
-
 function _clear_subsite_workingspace() {
-  $lifetime = time() - (60 * 60 * 24 * 7); // One week lifetime
-  setcookie('stanford_subsite_workspace', 0, $lifetime, "/"); // <--need path
+  setcookie('stanford_subsite_workspace', 0, 1, "/");
 }
 
 
 /**
- * _get_subsite_workingspace
+ * Get the active working space.
+ *
  * Gets the active working space for subsites. \
- * @return  $nid  The nid of the active subsite for the working space or false
+ *
+ * @return int
+ *   The nid of the active subsite for the working space or false.
  */
-
 function _get_subsite_workingspace() {
-
   // If a cookie is available.
   if (isset($_COOKIE['stanford_subsite_workspace']) &&
     is_numeric($_COOKIE['stanford_subsite_workspace'])) {
     return check_plain($_COOKIE['stanford_subsite_workspace']);
   }
-
   // Not available.
   return FALSE;
 }
 
 /**
+ * Creates and places a new menu and menu block.
+ *
  * Creates and places a new menu and menu block specifically for this subsite
  * In the new menu a 'home' link is created to the subsite
  * menu block theme/region placement is controlled by the settings page
@@ -326,8 +360,12 @@ function _get_subsite_workingspace() {
  *  3. Create menu block from new menu
  *  4. Place menu block via context into region
  *
- * @param  object $node the newly created subsite node (node_insert hook)
- * @return array | menu => the menu, menu_block => the menu block object
+ * @param object $node
+ *   The newly created subsite node (node_insert hook)
+ *
+ * @return array
+ *   menu => the menu,
+ *   menu_block => the menu block object
  */
 function _create_subsite_menu_and_menublock($node) {
 
@@ -348,7 +386,7 @@ function _create_subsite_menu_and_menublock($node) {
 
   // Add a link to this subsite in the new menu.
   $menu_link = array(
-    "link_path" => drupal_get_normal_path('node/'.$node->nid),
+    "link_path" => drupal_get_normal_path('node/' . $node->nid),
     "link_title" => t("Home"),
     "menu_name" => $menu_name,
   );
@@ -357,7 +395,7 @@ function _create_subsite_menu_and_menublock($node) {
   menu_link_save($menu_link);
 
   // Let the user know with a nice message.
-  drupal_set_message("A Menu for this subsite was successfully created. " . l("Edit the menu here »", "admin/structure/menu/manage/".$menu_name));
+  drupal_set_message("A Menu for this subsite was successfully created. " . l(t("Edit the menu here »"), "admin/structure/menu/manage/" . $menu_name));
 
   // Create menu block ---------------------------------------------------------
 
@@ -451,9 +489,10 @@ function _create_subsite_menu_and_menublock($node) {
 
 }
 /**
- * Enable the menu for use on all subsite enabled content types
- * @param  $menu - a fully loaded menu object
+ * Enable the menu for use on all subsite enabled content types.
  *
+ * @param object $menu
+ *   A fully loaded menu object
  */
 function _enable_menu_for_subsite_content_types($menu) {
 
@@ -476,13 +515,15 @@ function _enable_menu_for_subsite_content_types($menu) {
 
 
 /**
- * Create subsite context
- * @param   $node the fully saved and/or loaded subsite node object
- * @param   $args a misc array of arguments to pass in
- *           menu => (optional) the menu associated with the subsite
- *           menu_block => (optional) the menu_block associated with the subsite
+ * Create subsite context.
+ *
+ * @param object $node
+ *   The fully saved and/or loaded subsite node object.
+ * @param array $args
+ *   A misc array of arguments to pass in.
+ *     menu => (optional) the menu associated with the subsite
+ *     menu_block => (optional) the menu_block associated with the subsite
  */
-
 function _create_subsite_context($node, $args) {
 
   $menu = isset($args['menu']) ? $args['menu'] : FALSE;
@@ -509,7 +550,6 @@ function _create_subsite_context($node, $args) {
   if (isset($settings[$the_theme]) && $settings[$the_theme] !== "stanford_subsites_dnp") {
     $theme_region = $settings[$the_theme];
   }
-
 
   $context = new stdClass();
   $context->name = $context_name;
@@ -550,9 +590,13 @@ function _create_subsite_context($node, $args) {
 }
 
 /**
- * Generates the machine name for the drupal menu for a subsite node
- * @param  $node A subsite node
- * @return string | The machine name of the menu for the subsite
+ * Generates the machine name for the drupal menu for a subsite node.
+ *
+ * @param object $node
+ *   A subsite node.
+ *
+ * @return string
+ *   The machine name of the menu for the subsite
  */
 function _get_subsite_menu_name($node) {
   $filter = array(' ' => '-', '/' => '-', '[' => '-', ']' => '-');
