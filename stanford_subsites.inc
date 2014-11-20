@@ -14,10 +14,11 @@
  */
 function stanford_subsites_get_active_subsite() {
   global $subsite;
+  $static_subsite = &drupal_static(__FUNCTION__);
 
   // Grab from global object first.
-  if ($subsite) {
-    return $subsite;
+  if ($static_subsite) {
+    return $static_subsite;
   }
 
   // Not found or set yet. Carry on.
@@ -42,6 +43,8 @@ function stanford_subsites_get_active_subsite() {
 
   // Assign the global subsite variable and return the result.
   $subsite = $subsite_node;
+  $static_subsite = $subsite_node;
+
   return $subsite_node;
 }
 
@@ -83,9 +86,18 @@ function _lookup_subsite_reference_by_node($node) {
     return $node;
   }
 
-  // @todo: Taxonomy reference.
+  $term = FALSE;
+  // Check for the field.
+  if (isset($node->{SUBSITE_TAGS_FIELD})) {
+    $term = _get_subsite_term_from_node($node);
+  }
 
-  return $subsite_node;
+  // Check for the term.
+  if (!$term) {
+    return FALSE;
+  }
+
+  return _get_subsite_node_by_term($term);
 }
 
 /**
@@ -99,7 +111,6 @@ function _lookup_subsite_reference_by_node($node) {
  * @return mixed
  *   A node object of the subsite node or false if none.
  */
-
 function _lookup_subsite_reference_by_path($path) {
 
   // First get all of the subsite paths.
@@ -473,4 +484,45 @@ function _get_subsite_menu_name($node) {
   $menu_name = substr($menu_name, 0, 32);
 
   return $menu_name;
+}
+
+/**
+ * Returns a fully loaded subsite term.
+ * @param  [type] $node [description]
+ * @return [type]       [description]
+ */
+function _get_subsite_term_from_node($node) {
+  $lang = $node->language;
+  $tid = $node->{SUBSITE_TAGS_FIELD}[$lang][0]['tid'];
+
+  if (!$tid) {
+    return FALSE;
+  }
+
+  return taxonomy_term_load($tid);
+}
+
+/**
+ * [_get_subsite_node_by_term description]
+ * @param  [type] $term [description]
+ * @return [type]       [description]
+ */
+function _get_subsite_node_by_term($term) {
+  // Find a node by joining the taxonomy_index table to node and filtering on
+  // node type and tid.
+  $select = db_select("node", "n")
+    ->fields("n", array("nid"))
+    ->condition("ti.tid", $term->tid)
+    ->condition("n.type", SUBSITE_CONTENT_TYPE)
+    ->range(0, 1);
+
+  $select->join("taxonomy_index", "ti", "n.nid = ti.nid");
+  $nid = $select->execute()->fetchField();
+
+  // If through all that we get one node. Load and return it.
+  if (is_numeric($nid)) {
+    return node_load($nid);
+  }
+
+  return FALSE;
 }
