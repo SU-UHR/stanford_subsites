@@ -13,7 +13,7 @@
  *
  * @todo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  *  remove all 'Features' and have this whole thing as one module using
- *  field api more.
+ *  field api.
  *
  * :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  */
@@ -21,10 +21,6 @@
 
 // The content type that defines a subsite.
 define('SUBSITE_CONTENT_TYPE', "stanford_subsite");
-// The reference field that connects a child node to a subsite.
-define('SUBSITE_REF_FIELD', 'field_stanford_subsite_subsite');
-// The reference field that connects a user to a subsite.
-define('SUBSITE_USER_REF_FIELD', 'field_stanford_subsite_usr_sub');
 // The field that changes the site title.
 define("SUBSITE_NAME_FIELD", "field_stanford_subsite_sname");
 // The field that changes the site slogan.
@@ -104,19 +100,11 @@ function stanford_subsites_menu() {
 }
 
 /**
- * Implements hook_menu_alter.
- */
-function stanford_subsites_menu_alter(&$menu) {
-  $menu['entityreference/autocomplete/single/%/%/%']['page callback'] = "stanford_subsites_entityreference_autocomplete_callback";
-}
-
-
-/**
  * Implements hook_init().
  */
 function stanford_subsites_init() {
   // Set the global $subsite var for use elsewhere.
-  _get_active_subsite();
+  stanford_subsites_get_active_subsite();
 }
 
 
@@ -142,7 +130,7 @@ function stanford_subsites_permission() {
 function stanford_subsites_custom_theme() {
 
   // Check to see if this page is a node. If so apply subtheme by node reference.
-  $subsite_node = _get_active_subsite();
+  $subsite_node = stanford_subsites_get_active_subsite();
 
   // Apply the field values.
   if ($subsite_node &&
@@ -171,7 +159,7 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
   $vars['subsite_site_name_html'] = FALSE;
 
   // Check to see if this page is a node. If so apply subtheme by node reference.
-  $subsite_node = _get_active_subsite();
+  $subsite_node = stanford_subsites_get_active_subsite();
 
   if ($subsite_node) {
     $vars['subsite_site_name_text'] = $subsite_node->{SUBSITE_NAME_FIELD}[$subsite_node->language][0]["safe_value"];
@@ -207,7 +195,7 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
   }
 
   // Apply the subsite.
-  $subsite_node = _get_active_subsite();
+  $subsite_node = stanford_subsites_get_active_subsite();
 
   if ($subsite_node) {
     stanford_subsites_apply_subsite($subsite_node, $vars);
@@ -372,7 +360,6 @@ function stanford_subsites_apply_subsite($node, &$vars) {
  *
  * Utiltity tasks for saving nodes of various types
  * 1. Clear path caches for subsites
- * 2. Check for missing subsite field on non subsite nodes
  */
 function stanford_subsites_node_submit($node, $form, &$form_state) {
 
@@ -381,70 +368,6 @@ function stanford_subsites_node_submit($node, $form, &$form_state) {
   if ($node->type == SUBSITE_CONTENT_TYPE) {
     // Clear all path caches.
     cache_clear_all('stanford_subsites_subsite_paths', 'cache', TRUE);
-  }
-
-
-  // If the user did not have access to the subsite selector then we need to add
-  // the users subsite setting to the node.
-  global $user;
-  $account = user_load($user->uid);
-  $values = &$form_state['values'];
-  $language = $form['language']['#value'];
-
-  // Check to see if the reference field is in the form and if it was submitted.
-  if (isset($form[SUBSITE_REF_FIELD]) && !isset($values[SUBSITE_REF_FIELD])) {
-
-    // Field exists on this form but was not submitted. User did not have access.
-    if (isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
-      is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'])) {
-      // User has a subsite setting.
-      $ref_id = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
-      form_set_value($form[SUBSITE_REF_FIELD], $ref_id, $form_state);
-      $node->{SUBSITE_REF_FIELD}[$language][0]['target_id'] = $ref_id;
-    }
-
-  }
-
-  // Check to see if the submitted node has a subsite_tags field and a reference
-  // the the subsite that is selected in the ref field.
-  if (isset($form[SUBSITE_TAGS_FIELD])) {
-
-    // Check to see that there is a subsite NID available.
-    if (isset($values[SUBSITE_REF_FIELD])
-      && is_numeric($values[SUBSITE_REF_FIELD][$language][0]['target_id'])) {
-
-      $subsite_node = node_load($values[SUBSITE_REF_FIELD][$language][0]['target_id']);
-      $subsite_term = _get_subsite_term($subsite_node);
-      $found_term = FALSE; // Boolean switch for finding the term.
-
-      if ($subsite_term) {
-        // Check to see that tags field has reference.
-        foreach ($values[SUBSITE_TAGS_FIELD][$language] as $k => $term) {
-          if ($term['tid'] == $subsite_term->tid) {
-            $found_term = TRUE;
-            break;
-          }
-        }
-      }
-      else {
-        // For some reason or another there is no subsite term. Create one.
-        $subsite_term = _insert_subsite_term($subsite_node);
-      }
-
-      // Did not find the subsite term in the subsite tags field. Add it!
-      if (!$found_term) {
-        $tags = $values[SUBSITE_TAGS_FIELD][$language];
-        // Ensure no null values...
-        if (!is_numeric($tags[0]['tid'])) {
-          unset($tags[0]);
-        }
-        $tags[] = (array) $subsite_term;
-        form_set_value($form[SUBSITE_TAGS_FIELD], $tags, $form_state);
-        $node->{SUBSITE_TAGS_FIELD}[$language] = $tags;
-      }
-
-    }
-
   }
 
 }
@@ -463,7 +386,6 @@ function stanford_subsites_node_insert($node) {
 
   // We have a new subsite content type. Lets add it to the subsite vocabulary.
   if ($node->type == SUBSITE_CONTENT_TYPE) {
-    _insert_subsite_term($node);
 
     // Storage for passing arguments to subsequential functions.
     $args = array();
@@ -477,15 +399,6 @@ function stanford_subsites_node_insert($node) {
     // Create a subsite context for this subsite.
     _create_subsite_context($node, $args);
 
-  }
-
-  // Set the cookie for active subite working space if subsite ref was provided.
-  if (isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
-    is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
-    _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
-  }
-  else {
-    _clear_subsite_workingspace();
   }
 
 }
@@ -506,16 +419,6 @@ function stanford_subsites_node_update($node) {
   if ($node->type == SUBSITE_CONTENT_TYPE) {
     // Clear all path caches.
     cache_clear_all('stanford_subsites_subsite_paths', 'cache', TRUE);
-    _update_subsite_node_term_name($node);
-  }
-
-  // Set the cookie for active subite working space if subsite ref was provided.
-  if (isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
-    is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
-    _set_subsite_workingspace($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
-  }
-  else {
-    _clear_subsite_workingspace();
   }
 
 }
@@ -541,11 +444,11 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
   }
 
   // If there is a reference to a subsite then alter the pathauto_alias
-  if (isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
-  is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
-    $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
-    $alias = drupal_get_path_alias("node/" . $subsite_node->nid) . "/" . $original_alias;
-  }
+  // if (isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
+  // is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
+  //   $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
+  //   $alias = drupal_get_path_alias("node/" . $subsite_node->nid) . "/" . $original_alias;
+  // }
 
 }
 
@@ -556,95 +459,14 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
  */
 function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) {
 
+  // ONLY Subsite content types.
   // ---------------------------------------------------------------------------
-  // ONLY Subsite content types
-  // ---------------------------------------------------------------------------
-
   if ($form_id == SUBSITE_CONTENT_TYPE . "_node_form") {
     stanford_subsites_form_node_form_alter_subsite_node($form, $form_state, $form_id);
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // The rest of the node forms..
-  // ---------------------------------------------------------------------------
-
-  if ($form['#node_edit_form']) {
-
-    $language = $form['language']['#value'];
-    // Global user object.
-    global $user;
-    $account = user_load($user->uid);
-
-    // Check for site theme field.
-    if (isset($form[SUBSITE_REF_FIELD])) {
-
-      // If default subsite is not selected and this is the node create form
-      // then set to users current workspace
-      // or default account setting.
-
-      if (empty($form[SUBSITE_REF_FIELD][$language]['#default_value'][0]) ||
-        !is_numeric($form[SUBSITE_REF_FIELD][$language]['#default_value'][0])) {
-
-        if (isset($form['nid']['#value'])) {
-          // Node exists already. Carry on.
-        }
-        // Check to see if the user has an active working space for the default.
-        elseif ($niid = _get_subsite_workingspace()) {
-          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $niid;
-        }
-        // Check to see if the user has a subsite account setting.
-        elseif (isset($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id']) &&
-          is_numeric($account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'])) {
-          $form[SUBSITE_REF_FIELD][$language]['#default_value'][0] = $account->{SUBSITE_USER_REF_FIELD}[$language][0]['target_id'];
-        }
-
-      }
-
-      $subsite_nodes = node_load_multiple(array_keys($form[SUBSITE_REF_FIELD][$language]['#options']));
-      // Fix the rendering of the options as they dont handle html entities right.
-      foreach ($subsite_nodes as $k => $snode) {
-        $form[SUBSITE_REF_FIELD][$language]["#options"][$snode->nid] = decode_entities($snode->{SUBSITE_NAME_FIELD}[$language][0]['value']);
-
-      }
-    }
-  }
 }
-
-/**
-  * Implements hook_form_FORM_ID_alter().
-  */
-function stanford_subsites_user_settings_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
-  $description = '<p>' . t('Choose the subsite(s) to associate with your account. The first listed subsite will be your default when creating new nodes.') . '</p>';
-  $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE]['#description'] = $description;
-
-  // Update the labels :)
-  foreach ($form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE] as $k => $value) {
-
-    // Check for empty field.. @todo: clean this check up.
-    if (!is_array($value) ||
-     !isset($value['target_id']) ||
-     !is_object($value['target_id']['#entity']) ||
-     !isset($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k])
-     ) {
-      continue;
-    }
-
-    // Load up the node from cache.
-    $node = node_load($value['target_id']['#entity']->{SUBSITE_USER_REF_FIELD}[LANGUAGE_NONE][$k]['target_id']);
-
-    // If node was deleted or something skip.
-    if (!$node) {
-      continue;
-    }
-
-    // Get and set the new site name.
-    $site_name = $node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'];
-    $form['field_stanford_subsite_usr_sub'][LANGUAGE_NONE][$k]['target_id']["#default_value"] = $site_name . " (" . $node->nid . ")";
-  }
-
-}
-
 
 /**
  * Alter the subsite node on form submit.
@@ -686,209 +508,14 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
 function stanford_subsites_field_access($op, $field, $entity_type, $entity, $account) {
 
   // Check to see if user can edit the subsite selection field.
-  if ($field['field_name'] == SUBSITE_REF_FIELD && $op == 'edit') {
+  if ($field['field_name'] == SUBSITE_TAGS_FIELD && $op == 'edit') {
     return user_access('administer subsite selection', $account);
   }
 
   return TRUE;
 }
 
-/**
- * Menu callback: autocomplete the label of an entity.
- *
- * @param string $type
- *   The widget type (i.e. 'single' or 'tags').
- * @param array  $field_name
- *   The name of the entity-reference field.
- * @param string $entity_type
- *   The entity type.
- * @param string $bundle_name
- *   The bundle name.
- * @param int $entity_id
- *   Optional; The entity ID the entity-reference field is attached to.
- *   Defaults to ''.
- * @param string $string
- *   The label of the entity to query by.
- */
-function stanford_subsites_entityreference_autocomplete_callback($type, $field_name, $entity_type, $bundle_name, $entity_id = '', $string = '') {
-  $field = field_info_field($field_name);
-  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
-
-  return stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id, $string);
-}
-
-
-/**
- * Return JSON based on given field, instance and string.
- *
- * This function can be used by other modules that wish to pass a mocked
- * definition of the field on instance.
- *
- * @param string $type
- *   The widget type (i.e. 'single' or 'tags').
- * @param array $field
- *   The field array defintion.
- * @param array $instance
- *   The instance array defintion.
- * @param string $entity_type
- *   The entity type.
- * @param int $entity_id
- *   Optional; The entity ID the entity-reference field is attached to.
- *   Defaults to ''.
- * @param string $string
- *   The label of the entity to query by.
- */
-function stanford_subsites_entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id = '', $string = '') {
-  $matches = array();
-
-  $entity = NULL;
-  if ($entity_id !== 'NULL') {
-    $entity = entity_load_single($entity_type, $entity_id);
-    if (!$entity || !entity_access('view', $entity_type, $entity)) {
-      return MENU_ACCESS_DENIED;
-    }
-  }
-
-  $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
-
-  if ($type == 'tags') {
-    // The user enters a comma-separated list of tags. We only autocomplete the last tag.
-    $tags_typed = drupal_explode_tags($string);
-    $tag_last = drupal_strtolower(array_pop($tags_typed));
-    if (!empty($tag_last)) {
-      $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
-    }
-  }
-  else {
-    // The user enters a single tag.
-    $prefix = '';
-    $tag_last = $string;
-  }
-
-  if (isset($tag_last)) {
-    // Get an array of matching entities.
-    $entity_labels = $handler->getReferencableEntities($tag_last, $instance['widget']['settings']['match_operator'], 10);
-
-    // Loop through the products and convert them into autocomplete output.
-    foreach ($entity_labels as $values) {
-      foreach ($values as $entity_id => $label) {
-        $key = "$label ($entity_id)";
-        // Strip things like starting/trailing white spaces, line breaks and tags.
-        $key = preg_replace('/\s\s+/', ' ', str_replace("\n", '', trim(decode_entities(strip_tags($key)))));
-        // Names containing commas or quotes must be wrapped in quotes.
-        if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
-          $key = '"' . str_replace('"', '""', $key) . '"';
-        }
-        $matches[$prefix . $key] = '<div class="reference-autocomplete">' . $label . '</div>';
-      }
-    }
-  }
-
-  // Implment a hook to futz with autocomplete results :)
-  foreach (module_implements('entityreference_alter_results') as $module) {
-    $function = $module . '_entityreference_alter_results';
-    $function($matches, $field, $instance, $entity_type, $entity_id, $string);
-  }
-
-  drupal_json_output($matches);
-}
-
-
-/**
- * Implements a hook alter for augmenting the entityreference autocomplete call.
- *
- * @param array $matches
- *   The matches already found by autocomplete. Just before it is sent to json.
- * @param array $field
- *   The field array defintion.
- * @param array $instance
- *   The instance array defintion.
- * @param string $entity_type
- *   The entity type.
- * @param int $entity_id
- *   Optional; The entity ID the entity-reference field is attached to.
- *   Defaults to ''.
- * @param string $string
- *   The label of the entity to query by.
- */
-function stanford_subsites_entityreference_alter_results(&$matches, $field, $instance, $entity_type, $entity_id = '', $string = '') {
-  // Override the labels if the ref field is the subsite ref fields.
-  if ($field['field_name'] == SUBSITE_REF_FIELD ||
-    $field['field_name'] == SUBSITE_USER_REF_FIELD) {
-
-    // Add additional Matches Here and overwrite keys with new matches and label.
-    $my_query = db_select("field_data_" . SUBSITE_NAME_FIELD, 'sf')
-              ->fields('sf', array(SUBSITE_NAME_FIELD . '_value', 'entity_id'))
-              ->condition(SUBSITE_NAME_FIELD . '_value', "%" . $string . "%", 'LIKE')
-              ->range(0, 10)
-              ->execute();
-
-    while ($o = $my_query->fetchAssoc()) {
-      // Its cached :).
-      $node = node_load($o['entity_id']);
-      // Remove old match.
-      unset($matches[$node->title . " (" . $node->nid . ")"]);
-      $site_name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
-      $matches[$site_name . " (" . $node->nid . ")"] = '<div class="reference-autocomplete">' . $site_name . '</div>';
-    }
-  }
-
-}
-
-/**
- * Override the output of the reference field.
- *
- * by default so that it does site_name instead of $title.
- *
- */
-function stanford_subsites_preprocess_field(&$vars, $hook) {
-  $field = &$vars['element'];
-  if (isset($field['#field_name']) && $field['#field_name'] == SUBSITE_USER_REF_FIELD) {
-    foreach ($field['#items'] as $k => $v) {
-      $site_name = $v['entity']->field_stanford_subsite_sname[$v['entity']->language][0]['safe_value'];
-      $field[$k]['#markup'] = $site_name;
-      $vars['items'][$k]["#markup"] = $site_name;
-    }
-  }
-
-}
-
-
-/**
- * Schtoopid views messing with my preprocessed output...
- *
- * Alter the output of the user_sub_target_id autocomplete field on all views.
- */
-
-function stanford_subsites_preprocess_views_view_field(&$vars) {
-
-  $field = $vars['field'];
-  if ($field->real_field == "field_stanford_subsite_usr_sub_target_id") {
-    // Fix the field output.
-
-    $row = &$vars['row'];
-    $items = array();
-    foreach ($row->field_field_stanford_subsite_usr_sub as $k => $v) {
-      $raw = $v['raw'];
-      $site_name = $raw['entity']->{SUBSITE_NAME_FIELD}[$raw['entity']->language][0]['safe_value'];
-
-      // Add to items.
-      $items[] = l($site_name, 'node/' . $raw['entity']->nid);
-    }
-
-    $vars['output'] = theme_item_list(array(
-      'items' => $items,
-      'title' => '',
-      'type' => 'ul',
-      'attributes' => array()
-      )
-    );
-  }
-
-}
-
-// ////////////////////////////////////////////////////////////////////////////
-// TOKENS //
+// Tokens.
 // ////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -939,7 +566,7 @@ function stanford_subsites_token_info() {
  * Implements hook_tokens().
  */
 function stanford_subsites_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
-  $subsite = _get_active_subsite();
+  $subsite = stanford_subsites_get_active_subsite();
 
   // If there is no active subsite do not return anything.
   if (!$subsite) {

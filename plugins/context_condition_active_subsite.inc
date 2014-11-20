@@ -33,7 +33,7 @@ class context_condition_active_subsite extends context_condition {
   public function execute() {
 
     // Grab subsites array.
-    $subsite = _get_active_subsite();
+    $subsite = stanford_subsites_get_active_subsite();
     if (!$subsite) {
       return;
     }

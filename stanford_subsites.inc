@@ -12,7 +12,7 @@
  * @return object
  *   $node [subsite]  or   false
  */
-function _get_active_subsite() {
+function stanford_subsites_get_active_subsite() {
   global $subsite;
 
   // Grab from global object first.
@@ -28,14 +28,11 @@ function _get_active_subsite() {
   $a1 = arg(1);
 
   if ($a0 == "node" && is_numeric($a1)) {
-
     $node = node_load($a1);
     if (is_object($node)) {
       $subsite_node = _lookup_subsite_reference_by_node($node);
     }
-
   }
-
 
   // If the page being viewed is not a node then check the path.
   if (!$subsite_node) {
@@ -86,19 +83,7 @@ function _lookup_subsite_reference_by_node($node) {
     return $node;
   }
 
-  // Node is of another type... Get parent.
-  if (!isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) ||
-  !is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
-    return FALSE;
-  }
-
-  // This should always be a subsite content type based on field settings.
-  $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
-
-  // But just in case someone mucked with them.
-  if ($subsite_node->type !== SUBSITE_CONTENT_TYPE) {
-    return FALSE;
-  }
+  // @todo: Taxonomy reference.
 
   return $subsite_node;
 }
@@ -159,123 +144,6 @@ function _get_subsite_paths() {
   return $paths->data;
 }
 
-/**
- * Generate a term for the subsite vocabulary.
- *
- * @param object $node
- *   The subsite node.
- *
- * @return object
- *   The new term object or false if failed.
- */
-function _insert_subsite_term($node) {
-  $term = new stdClass();
-  $term->name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
-  $term->description = "Vocabulary term for " . $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] .  " subsite";
-  $term->vocabulary_machine_name = SUBSITE_VOCAB;
-  $term->format = "filtered_html";
-
-  $vocabulary = taxonomy_vocabulary_machine_name_load(SUBSITE_VOCAB);
-  $term->vid = $vocabulary->vid;
-
-
-  $status = taxonomy_term_save($term, SUBSITE_VOCAB);
-  if ($status) {
-    return $term;
-  }
-  else {
-    drupal_set_message("FAILED TO INSERT NEW SUBSITE TERM", 'error');
-  }
-
-}
-
-/**
- * Looks to update the term name in the subsite vocabulary...
- *
- * ... if the node title changes on update
- *
- * @param object $node
- *   The original Node Object.
- */
-function _update_subsite_node_term_name($node) {
-
-  // New node has been saved but we can still get the old node from cache.
-  $old_node = node_load($node->nid);
-
-  // Check if the title of the node changed.
-  if ($old_node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'] == $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']) {
-    // They are the same. Nothing to do here.
-    return;
-  }
-
-  // The title is different. Load up term by term name.
-  $terms = taxonomy_get_term_by_name($old_node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], SUBSITE_VOCAB);
-
-  // Failed to get a term. Lets insert a new one.
-  if (!$terms) {
-    $term = _insert_subsite_term($node);
-    return;
-  }
-
-  // Change the name and save it.
-  $old_term = array_pop($terms);
-  $term = clone($old_term);
-  $term->name = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
-  $term->original = $old_term;
-
-  $term = taxonomy_term_save($term, SUBSITE_VOCAB);
-  return $term;
-}
-
-/**
- * Returns the term object associated with a subsite node.
- *
- * @param object $node
- *   The subsite node object.
- *
- * @return object
- *   The term object or false.
- */
-function _get_subsite_term($node) {
-
-  // The title is different. Load up term by term name.
-  $terms = taxonomy_get_term_by_name($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], SUBSITE_VOCAB);
-
-  // Failed to get a term. Lets insert a new one.
-  if (!$terms) {
-    return FALSE;
-  }
-
-  return array_pop($terms);
-}
-
-/**
- * Get the reference field instance.
- *
- * @param $bundle
- *   The bundle this instance belongs to.
- *
- * @return array
- *   An array describing the instance of the reference field.
- */
-function _get_ref_field_instance($bundle) {
-
-  if (!$bundle) {
-    return FALSE;
-  }
-
-  $ret = array();
-  $ret['entity_type'] = "node";
-  $ret['bundle'] = $bundle;
-  $ret['field_name'] = SUBSITE_REF_FIELD;
-  $ret['label'] = t('Subsite');
-  $ret['widget']['type'] = "options_select";
-  $ret['display']['default']['type'] = "hidden";
-  $ret['display']['teaser']['type'] = "hidden";
-
-  return $ret;
-}
-
 
 /**
  * Get taxonomy field instance.
@@ -286,7 +154,6 @@ function _get_ref_field_instance($bundle) {
  * @return array
  *   An array describing the instance of the reference field.
  */
-
 function _get_tax_field_instance($bundle) {
 
   if (!$bundle) {

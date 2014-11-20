@@ -30,7 +30,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     '#value' => "false"
   );
 
-  // Content Types
+  // Content Types.
   // ---------------------------------------------------------------------------
 
   $form['sws'] = array(
@@ -54,7 +54,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     '#default_value' => $enabled_types,
   );
 
-  // Menu Block Placement
+  // Menu Block Placement.
   // ---------------------------------------------------------------------------
 
   $form['sws_menu'] = array(
@@ -93,8 +93,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
 
   }
 
-
-  // Final bits
+  // Final bits.
   // ---------------------------------------------------------------------------
 
   drupal_set_message(t("WARNING: Any unchecked content types will have their Subsite fields removed from them. This will delete all subsite data for that content type."), 'warning', FALSE);
@@ -167,13 +166,7 @@ function stanford_subsites_admin_config_form_process_submit($form, &$form_state)
   // Loop through the disabled content types and remove their field instances.
   foreach ($disabled_types as $type => $nothing) {
 
-    $ref_instance = field_read_instance('node', SUBSITE_REF_FIELD, $type);
     $tax_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, $type);
-
-    if ($ref_instance) {
-      $instance = _get_ref_field_instance($type);
-      field_delete_instance($instance, FALSE);
-    }
 
     if ($tax_instance) {
       $instance = _get_tax_field_instance($type);
@@ -210,22 +203,11 @@ function stanford_subsites_admin_config_form_process_submit($form, &$form_state)
   $keys = array_keys($filtered);
   variable_set('stanford_subsite_content_types', $keys);
 
-
   // We now have a list of content types (bundles) that we need to attach an
   // instance of the fields to. Loop through them and attach them.
-  $ref_field = field_info_field(SUBSITE_TAGS_FIELD);
-  $ref_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, 'page');
-
   foreach ($keys as $k => $v) {
 
-    $ref_instance = field_read_instance('node', SUBSITE_REF_FIELD, $v);
     $tax_instance = field_read_instance('node', SUBSITE_TAGS_FIELD, $v);
-
-    if (!$ref_instance) {
-      // Create it.
-      $instance = _get_ref_field_instance($v);
-      field_create_instance($instance);
-    }
 
     if (!$tax_instance) {
       // Create it.

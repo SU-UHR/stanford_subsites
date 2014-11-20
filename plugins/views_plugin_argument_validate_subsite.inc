@@ -46,7 +46,7 @@ class views_plugin_argument_validate_subsite extends views_plugin_argument_valid
     // Set up variables to make it easier to reference during the argument.
     $view = &$this->view;
     $handler = &$this->argument;
-    $subsite = _get_active_subsite();
+    $subsite = stanford_subsites_get_active_subsite();
 
     ob_start();
     if (isset($subsite->nid)) {

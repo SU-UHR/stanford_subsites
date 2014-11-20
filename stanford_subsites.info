@@ -16,10 +16,8 @@ files[] = "plugins/views_plugin_argument_validate_subsite.inc"
 
 ; DEPENDENCIES
 dependencies[] = pathauto
-dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = strongarm
 dependencies[] = context
 dependencies[] = stanford_subsites_content_types
-dependencies[] = stanford_subsites_user_settings
 dependencies[] = stanford_subsites_vocabularies_and_terms

@@ -45,7 +45,7 @@ class views_plugin_argument_default_subsite extends views_plugin_argument_defaul
     $view = &$this->view;
     $argument = &$this->argument;
     ob_start();
-    $subsite = _get_active_subsite();
+    $subsite = stanford_subsites_get_active_subsite();
 
     if (isset($subsite->nid)) {
       $result = $subsite->nid;
