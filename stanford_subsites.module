@@ -427,12 +427,26 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
     return;
   }
 
-  // If there is a reference to a subsite then alter the pathauto_alias
-  // if (isset($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']) &&
-  // is_numeric($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id'])) {
-  //   $subsite_node = node_load($node->{SUBSITE_REF_FIELD}[$node->language][0]['target_id']);
-  //   $alias = drupal_get_path_alias("node/" . $subsite_node->nid) . "/" . $original_alias;
-  // }
+  // If there is a reference to a subsite then alter the pathauto_alias.
+  if (isset($node->{SUBSITE_TAGS_FIELD}[$node->language][0]["tid"])) {
+
+    $tid = $node->{SUBSITE_TAGS_FIELD}[$node->language][0]["tid"];
+    $term = taxonomy_term_load($tid);
+
+    // Not a valid term. Die.
+    if (!$term) {
+      return;
+    }
+
+    $subsite = _get_subsite_node_by_term($term);
+    // Not a valid subsite. Die.
+    if (!$subsite) {
+      return;
+    }
+
+    // Wrap the subsite's alias into this node's alias.
+    $alias = drupal_get_path_alias("node/" . $subsite->nid) . "/" . $original_alias;
+  }
 
 }
 
@@ -450,10 +464,73 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
     return;
   }
 
+  // Move the subsite's tags field to a vertical tab.
+  if (isset($form[SUBSITE_TAGS_FIELD])) {
+    $form['menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
+    $form['menu'][SUBSITE_TAGS_FIELD]['#weight'] = -10;
+    if (empty($form['menu'][SUBSITE_TAGS_FIELD]["#description"])) {
+      $form['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]]["#description"] = t("Please select the subsite that this node belongs to by adding the appropriate tag. The menu options and url alias will be effected by your subsite choice.");
+    }
+    unset($form[SUBSITE_TAGS_FIELD]);
+    $form["#submit"][] = "stanford_subsites_form_node_submit_save_tags_field";
+  }
+
+  // Add ajax handling to the tags field that is not just the select.
+  $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]['#ajax'] = array(
+    'callback' => 'stanford_subsites_menu_change_callback',
+    'event' => "change",
+    'wrapper' => "edit-menu-parent",
+  );
+
 }
 
 /**
- * Alter the subsite node on form submit.
+ * [stanford_subsites_menu_change_callback description]
+ * @return [type] [description]
+ */
+function stanford_subsites_menu_change_callback() {
+  $menus = menu_get_menus();
+  $item = 0; // or bundle type name
+  $type = ''; // bundle type name
+  $default = "";
+
+  $type = $form['#node']->type;
+  // menu_parent_options() is goofy and can actually handle either a menu link
+  // or a node type both as second argument. Pick based on whether there is
+  // a link already (menu_node_prepare() sets mlid default to 0).
+  $options = menu_parent_options(menu_get_menus(), $item, $type);
+
+  $form['menu']['link']['parent'] = array(
+    '#type' => 'select',
+    '#title' => t('Parent item'),
+    '#default_value' => $default,
+    '#options' => $options,
+    '#attributes' => array('class' => array('menu-parent-select')),
+  );
+
+  return $form;
+}
+
+/**
+ * Form alter moves the tags field to somewhere it does not belong. We need to
+ * move those values back so that they get saved.
+ * @param  [type] $form        [description]
+ * @param  [type] $form_values [description]
+ * @return [type]              [description]
+ */
+function stanford_subsites_form_node_submit_save_tags_field($form, &$form_values) {
+
+  // Move the values for the subsite tags back where they belong.
+  if (isset($form_values['values']["menu"][SUBSITE_TAGS_FIELD])) {
+    $form_values['values'][SUBSITE_TAGS_FIELD] = $form_values['values']["menu"][SUBSITE_TAGS_FIELD];
+    unset($form_values['values']["menu"][SUBSITE_TAGS_FIELD]);
+  }
+
+}
+
+
+/**
+ * Alter the subsite node on form.
  *
  * @param array $form
  *   The form array

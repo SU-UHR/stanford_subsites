@@ -135,7 +135,6 @@ function _lookup_subsite_reference_by_path($path) {
 function _get_subsite_paths() {
 
   $paths = cache_get('stanford_subsites_subsite_paths');
-
   // If cache isnt set then we need to generate it.
   if (!$paths) {
     $paths = array();
@@ -176,9 +175,10 @@ function _get_tax_field_instance($bundle) {
   $ret['bundle'] = $bundle;
   $ret['field_name'] = SUBSITE_TAGS_FIELD;
   $ret['label'] = t('Subsite Tags');
-  $ret['widget']['type'] = "taxonomy_autocomplete";
+  $ret['description'] = t("Enter the value of the subsite.");
+  $ret['widget']['type'] = "taxonomy_select";
   $ret['widget']['settings']['size'] = 60;
-  $ret['widget']['settings']['autocomplete_path'] = "taxonomy/autocomplete";
+  // $ret['widget']['settings']['autocomplete_path'] = "taxonomy/autocomplete";
   $ret['display']['default']['type'] = "hidden";
   $ret['display']['teaser']['type'] = "hidden";
 
