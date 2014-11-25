@@ -542,16 +542,27 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
     return;
   }
 
+  // All other content types.
+  // ---------------------------------------------------------------------------
+
   // Move the subsite's tags field to a vertical tab.
-  if (isset($form[SUBSITE_TAGS_FIELD])) {
-    $form['menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
-    $form['menu'][SUBSITE_TAGS_FIELD]['#weight'] = -10;
-    if (empty($form['menu'][SUBSITE_TAGS_FIELD]["#description"])) {
-      $form['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]]["#description"] = t("Please select the subsite that this node belongs to by adding the appropriate tag. The menu options and url alias will be effected by your subsite choice.");
-    }
-    unset($form[SUBSITE_TAGS_FIELD]);
-    $form["#submit"][] = "stanford_subsites_form_node_submit_save_tags_field";
+  if (!isset($form[SUBSITE_TAGS_FIELD])) {
+    return;
   }
+
+  // Copy field over to menu VT.
+  $form['menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
+  $form['menu'][SUBSITE_TAGS_FIELD]['#weight'] = -10;
+
+  // Add a description.
+  if (empty($form['menu'][SUBSITE_TAGS_FIELD]["#description"])) {
+    $form['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]]["#description"] = t("Please select the subsite that this node belongs to by adding the appropriate tag. The menu options and url alias will be effected by your subsite choice.");
+  }
+
+  // Remove the original so we do not show duplicates.
+  unset($form[SUBSITE_TAGS_FIELD]);
+  $form["#submit"][] = "stanford_subsites_form_node_submit_save_tags_field";
+
 
   // Add ajax handling to the tags field that is not just the select.
   $form['menu']['link']['parent']['#prefix'] = "<div id=\"parent-ajaxy-replacy-div\" >";
@@ -563,6 +574,10 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
     'wrapper' => "parent-ajaxy-replacy-div",
   );
 
+  // Alter menu link field values to only show the main menu and the subsite
+  // that this node belongs to.
+  $form['menu']['link']['parent'] = stanford_subsites_menu_change_callback($form, $form_state);
+
 }
 
 /**
@@ -570,11 +585,16 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
  * @return [type] [description]
  */
 function stanford_subsites_menu_change_callback($form, $form_state) {
+
   $menus = menu_get_menus();
   $item = 0; // or bundle type name
   $type = ''; // bundle type name
   $default = "";
-  $subsite_tid = $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'];
+
+  // This function is called on the initial form alter and on the ajax callback
+  // so the subsite tid may be a form_state value or it will be the default_val
+  // from the form array.
+  $subsite_tid = isset($form_state['values']) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][$form['language']['#value']]["#default_value"][0];
   $record = stanford_subsite_index_get("tid", $subsite_tid);
 
   if (isset($record->menu)) {
@@ -583,7 +603,8 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
     $menus[$record->menu] = $menu['title'];
   }
 
-  $type = $form['#node']->type;
+  $type = $item = $form['#node']->type;
+
   // menu_parent_options() is goofy and can actually handle either a menu link
   // or a node type both as second argument. Pick based on whether there is
   // a link already (menu_node_prepare() sets mlid default to 0).
