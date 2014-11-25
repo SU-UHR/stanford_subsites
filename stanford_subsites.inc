@@ -402,7 +402,7 @@ function _enable_menu_for_subsite_content_types($menu) {
  *     menu => (optional) the menu associated with the subsite
  *     menu_block => (optional) the menu_block associated with the subsite
  */
-function _create_subsite_context($node, $args) {
+function _create_subsite_context($node, &$args) {
 
   $menu = isset($args['menu']) ? $args['menu'] : FALSE;
   $menu_block = isset($args['menu_block']) ? $args['menu_block'] : FALSE;
@@ -464,7 +464,8 @@ function _create_subsite_context($node, $args) {
   cache_clear_all();
 
   drupal_set_message("A subsite context was created for you. " . l(t("Edit it here") . " »", "admin/structure/context/list/" . $context_name . "/edit"));
-
+  $args['context'] = $context;
+  return TRUE;
 }
 
 /**

@@ -383,10 +383,88 @@ function stanford_subsites_node_insert($node) {
     // Create a subsite context for this subsite.
     _create_subsite_context($node, $args);
 
+    $tid = $node->{SUBSITE_TAGS_FIELD}[$node->language][0]['tid'];
+    $menu = $args['menu']['menu_name'];
+    $context = $args['context'];
+
+    // Log all of this info
+    stanford_subsite_index_insert($node->nid, $tid, $menu, $context->name);
   }
 
 }
 
+/**
+ * [stanford_subsite_index_insert description]
+ * @param  [type] $nid     [description]
+ * @param  [type] $tid     [description]
+ * @param  string $menu    [description]
+ * @param  string $context [description]
+ * @return [type]          [description]
+ */
+function stanford_subsite_index_insert($nid, $tid, $menu = "", $context = "") {
+  $record = array(
+    'nid' => $nid,
+    'tid' => $tid,
+    'menu' => $menu,
+    'context' => $context,
+  );
+  return drupal_write_record('subsite_index', $record);
+}
+
+/**
+ * [stanford_subsite_index_update description]
+ * @param  [type] $nid     [description]
+ * @param  [type] $tid     [description]
+ * @param  [type] $menu    [description]
+ * @param  [type] $context [description]
+ * @return [type]          [description]
+ */
+function stanford_subsite_index_update($nid, $tid = NULL, $menu = NULL, $context = NULL) {
+  $record = array(
+    'nid' => $nid,
+  );
+
+  if (!is_null($tid)) {
+    $record['tid'] = $tid;
+  }
+
+  if (!is_null($menu)) {
+    $record['menu'] = $menu;
+  }
+
+  if (!is_null($context)) {
+    $record['context'] = $context;
+  }
+
+  $keys = array('nid');
+  return drupal_write_record('subsite_index', $record, $keys);
+}
+
+/**
+ * Get a subsite index recored from one of the many keys.
+ * @param  string $type  [description]
+ * @param  [type] $value [description]
+ * @return [type]        [description]
+ */
+function stanford_subsite_index_get($type = "nid", $value = NULL) {
+
+  if (is_null($value)) {
+    return FALSE;
+  }
+
+  try {
+    $result = db_select("subsite_index", 'si')
+      ->fields("si")
+      ->condition($type, $value)
+      ->range(0, 1)
+      ->execute()
+      ->fetchObject();
+  } catch (Exception $e) {
+    return FALSE;
+  }
+
+  return $result;
+}
 
 /**
  * Implements hook_node_update().
@@ -476,10 +554,13 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   }
 
   // Add ajax handling to the tags field that is not just the select.
+  $form['menu']['link']['parent']['#prefix'] = "<div id=\"parent-ajaxy-replacy-div\" >";
+  $form['menu']['link']['parent']['#suffix'] = "</div>";
+
   $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]['#ajax'] = array(
     'callback' => 'stanford_subsites_menu_change_callback',
     'event' => "change",
-    'wrapper' => "edit-menu-parent",
+    'wrapper' => "parent-ajaxy-replacy-div",
   );
 
 }
@@ -488,27 +569,27 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
  * [stanford_subsites_menu_change_callback description]
  * @return [type] [description]
  */
-function stanford_subsites_menu_change_callback() {
-  $menus = menu_get_menus();
+function stanford_subsites_menu_change_callback($form, $form_state) {
+  $menus = array("main-menu" => t("Main menu"));
   $item = 0; // or bundle type name
   $type = ''; // bundle type name
   $default = "";
+  $subsite_tid = $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'];
+  $record = stanford_subsite_index_get("tid", $subsite_tid);
+
+  if (isset($record->menu)) {
+    $menu = menu_load($record->menu);
+    $menus[$record->menu] = $menu['title'];
+  }
 
   $type = $form['#node']->type;
   // menu_parent_options() is goofy and can actually handle either a menu link
   // or a node type both as second argument. Pick based on whether there is
   // a link already (menu_node_prepare() sets mlid default to 0).
-  $options = menu_parent_options(menu_get_menus(), $item, $type);
+  $options = menu_parent_options($menus, $item, $type);
 
-  $form['menu']['link']['parent'] = array(
-    '#type' => 'select',
-    '#title' => t('Parent item'),
-    '#default_value' => $default,
-    '#options' => $options,
-    '#attributes' => array('class' => array('menu-parent-select')),
-  );
-
-  return $form;
+  $form['menu']['link']['parent']['#options'] = $options;
+  return $form['menu']['link']['parent'];
 }
 
 /**
