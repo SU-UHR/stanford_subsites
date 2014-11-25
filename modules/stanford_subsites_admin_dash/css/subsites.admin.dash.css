@@ -1,73 +1,59 @@
-.main-column-66 {
-  display: inline-block;
-  width: 66%;
+/******** TEXT ************************************************************** */
+
+.sooper-dooper-big-heading {
+  font-size: 3em;
 }
 
-.sidebar-column-33 {
-  vertical-align: top;
-  display: inline-block;
-  width: 32%;
-  margin-left: 2%;
-  padding:0;
-  border:0;
-}
+/******** REGIONS *********************************************************** */
 
-.main-column-66 > div,
-.sidebar-column-33 > div,
-.sidebar-column-33 > form {
-  border: solid 1px #CCC;
-  padding: 10px;
-  margin-bottom: 15px;
-}
-
-.main-column-66 div.form-type-textfield input,
-.sidebar-column-33 div.form-type-textfield input {
-  width: 100%;
-  height: 24px;
-  line-height: 24px;
-  margin: 0;
+.main-top-region,
+.sidebar-second-region,
+.main-content-region {
+  margin: 20px 0;
   padding: 0;
-}
-
-.sidebar-column-33 div.form-type-select select {
+  display: inline-block;
   width: 100%;
-  height: 24px;
-  line-height: 24px;
+  vertical-align: top;
 }
 
-ul.inline-list {
+.main-top-region {
   display: block;
-  margin: 10px 0px;
-  padding: 10px;
-  border: solid 1px #CCC;
 }
 
-ul.inline-list li {
-  display:-moz-inline-stack;
-  display:inline-block;
-  zoom:1;
-  *display:inline;
-  list-style-type: none;
-  list-style: none;
-  list-style-image: none;
+.main-content-region {
+  display: inline-block;
 }
 
-ul.inline-list li a,
-ul.inline-list li a:link,
-ul.inline-list li a:visited {
-  display:-moz-inline-stack;
-  display:inline-block;
-  zoom:1;
-  *display:inline;
-  padding: 2px 5px;
+.main-content-region.sidebar-second {
+  width: auto;
 }
 
+.sidebar-second-region {
+  width: 260px;
+}
 
-@media screen and (max-width: 960px) {
-  .main-column-66 {
+/******** MEDIA QUERIES ***************************************************** */
+
+@media screen and (min-width: 1200px) {
+   .main-content-region.sidebar-second {
+    width: 66%;
+  }
+  .sidebar-second-region {
+    width: 33%;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+   .main-content-region.sidebar-second {
+    width: 555px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+   .main-content-region.sidebar-second {
     width: 100%;
   }
-  .sidebar-column-33 {
+  .sidebar-second-region {
     width: 100%;
   }
 }

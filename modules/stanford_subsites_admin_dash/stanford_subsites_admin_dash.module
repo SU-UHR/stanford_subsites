@@ -63,6 +63,19 @@ function stanford_subsites_admin_dash_views_api() {
   return array("version" => "3.0");
 }
 
+/**
+ * Implements hook_theme().
+ */
+function stanford_subsites_admin_dash_theme($existing, $type, $theme, $path) {
+  $theme = array();
+  $theme['page_subsite_dashboard'] = array(
+    'render element' => 'content',
+    'base hook' => 'page',
+    'template' => 'page--admin--config--subsites--dashboard',
+    'path' => drupal_get_path('module', 'stanford_subsites_admin_dash') . '/templates',
+   );
+  return $theme;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // BLOCKS       ////////////////////////////////////////////////////////////////
@@ -73,13 +86,8 @@ function stanford_subsites_admin_dash_views_api() {
  */
 function stanford_subsites_admin_dash_block_info() {
 
-  $blocks['stanford_subsites_jump_block'] = array(
-    'info' => t('Manage Subsites'),
-    'cache' => DRUPAL_NO_CACHE,
-  );
-
-  $blocks['stanford_subsites_quick_create'] = array(
-    'info' => t('Create Content'),
+  $blocks['stanford_subsites_dashboard_banner'] = array(
+    'info' => t('Subsite dashboard banner'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
@@ -91,325 +99,76 @@ function stanford_subsites_admin_dash_block_info() {
  */
 function stanford_subsites_admin_dash_block_view($delta = '') {
   $block = array();
+  $subsite = node_load(stanford_subsites_get_subsite_workingspace());
 
   switch ($delta) {
-    case 'stanford_subsites_jump_block':
-      $block['subject'] = t('Manage Subsites');
-      $block['content'] = drupal_get_form('stanford_subsites_admin_dash_jump_block_form');
+    case 'stanford_subsites_dashboard_banner':
+      $block['subject'] = check_plain($subsite->title);
+      $block['title'] = "<none>";
+      $block['content'] = stanford_subsites_dashboard_banner_block($subsite);
       break;
 
-    case 'stanford_subsites_quick_create':
-      $block['subject'] = t('Create Content');
-      $block['content'] = drupal_get_form('stanford_subsites_admin_dash_create_content_form');
-      break;
 
   }
   return $block;
 }
 
+
 /**
- * Stanford_subsites_admin_dash_jump_block_form.
- *
- * The administration dashboard jump block form callback function.
- *
- * @return array
- *   the jump block form array
+ * [stanford_subsites_dashboard_banner_block description]
+ * @return [type] [description]
  */
-function stanford_subsites_admin_dash_jump_block_form() {
+function stanford_subsites_dashboard_banner_block($subsite) {
+
+  $title = isset($subsite->title) ? check_plain($subsite->title) : t("All subsites");
+
+  $content = "<h2 class=\"sooper-dooper-big-heading\">" . $title . "</h2>";
+  $content .= "<p>" . t("You are currently managing %subsite_name. Change to", array("%subsite_name" => $title)) . ": </p>";
+
+  $content .= drupal_render(drupal_get_form('stanford_subsite_working_space_jump_select_form'));
+
+  return $content;
+}
+
+/**
+ * Returns a select box with an option to select all the jumpstart blocks
+ * @return [type] [description]
+ */
+function stanford_subsite_working_space_jump_select_form($form, $form_state, $subsite = NULL) {
   $form = array();
+  $subsite = (!is_null($subsite)) ? $subsite : node_load(stanford_subsites_get_subsite_workingspace());
 
-  $options = array();
-  $subsites = _get_subsite_nodes();
-  foreach ($subsites as $k => $node) {
-    $options[$node->nid] = decode_entities($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']);
+  $active_subsites = stanford_subsites_get_subsite_nodes();
+  $options = array(0 => "-- " . t("All subsites") . " --");
+
+  foreach ($active_subsites as $node) {
+    $options[$node->nid] = $node->title;
   }
 
-  $form['subsites'] = array(
+  $form['subsite_workingspace'] = array(
     '#type' => 'select',
-    '#title' => t("Subsites"),
     '#options' => $options,
-  );
-
-  $operations = _get_jumpbox_operations();
-
-  $form['operations'] = array(
-    '#type' => 'select',
-    '#title' => t("Actions"),
-    '#options' => $operations,
+    '#default_value' => isset($subsite->nid) ? $subsite->nid : 0,
   );
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Go'),
+    '#value' => t('change'),
   );
 
   return $form;
 }
 
 /**
- * Get a list of dropdown options for the jumpbox functionality.
- *
- * @return array
- *   An associative array of fapi selection options
+ * [stanford_subsite_working_space_jump_select_form_submit description]
+ * @param  [type] $form       [description]
+ * @param  [type] $form_state [description]
+ * @return [type]             [description]
  */
-function _get_jumpbox_operations() {
-  return array(
-    'edit_info' => t('Edit Info'),
-    'view_users' => t('View Users'),
-    'view_content' => t('View Content'),
-    'edit_menu' => t('Edit Menu'),
-    'goto' => t('Go To Subsite'),
-  );
+function stanford_subsite_working_space_jump_select_form_submit($form, $form_state) {
+  $new_nid = check_plain($form_state['values']['subsite_workingspace']);
+  stanford_subsites_set_subsite_workingspace($new_nid);
+  drupal_set_message(t("Subsite working space has been changed"), "status");
 }
-
-
-/**
- * Validate function for stanford_subsites_admin_dash_jump_block_form.
- */
-function stanford_subsites_admin_dash_jump_block_form_validate($form, &$form_state) {
-  $values = $form_state['values'];
-  if (!is_numeric($values['subsites'])) {
-    form_set_error('subsites', 'Invalid Subsite Selection');
-  }
-
-  $keys = _get_jumpbox_operations();
-  if (!array_key_exists($values['operations'], $keys)) {
-    form_set_error('operations', 'Invalid Action Selection');
-  }
-}
-
-/**
- * Submit function for stanford_subsites_admin_dash_jump_block_form.
- */
-function stanford_subsites_admin_dash_jump_block_form_submit($form, &$form_state) {
-
-  $values = $form_state['values'];
-  switch ($values['operations']) {
-    case "edit_info":
-      drupal_goto("node/" . $values['subsites'] . "/edit");
-      break;
-
-    case "view_users":
-      drupal_goto("admin/subsites/users/" . $values['subsites']);
-      break;
-
-    case "view_content":
-      drupal_goto("admin/subsites/content/" . $values['subsites']);
-      break;
-
-    case "edit_menu":
-      $node = node_load($values['subsites']);
-      $menu_name = _get_subsite_menu_name($node);
-      drupal_goto("admin/structure/menu/manage/" . $menu_name);
-      break;
-
-    case "goto":
-      drupal_goto("node/" . $values['subsites']);
-      break;
-  }
-
-}
-
-/**
- * The quick create content block for the admin dashboard page.
- *
- * @param array $form
- *   The form array
- * @param array $form_state
- *   The form state array
- *
- * @return array
- *   The form array for the content block
- */
-function stanford_subsites_admin_dash_create_content_form($form, &$form_state) {
-
-  $type_names = node_type_get_names();
-  $enabled_types = variable_get('stanford_subsite_content_types', array());
-
-  $type_options = array();
-  foreach ($enabled_types as $k => $v) {
-    $type_options[$v] = $type_names[$v];
-  }
-
-  $form['content_type'] = array(
-    '#type' => 'select',
-    '#title' => t('Create a new'),
-    '#description' => t(''),
-    '#options' => $type_options,
-  );
-
-  $subsites = _get_subsite_nodes();
-  $subsite_options = array();
-
-  foreach ($subsites as $k => $node) {
-    $subsite_options[$node->nid] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'];
-  }
-
-  $form['subsite'] = array(
-    '#type' => 'select',
-    '#title' => t("In this subsite"),
-    '#description' => t(''),
-    '#options' => $subsite_options,
-  );
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#title' => t('Create'),
-    '#value' => 'Create',
-  );
-
-  return $form;
-}
-
-/**
- * Submit function for the create content block.
- *
- * This function redirects the user to the node add form of enabled subsite
- * content types as well as sets the subsite active working space.
- *
- * @param array $form
- *   The form array
- * @param array $form_state
- *   The form state array
- */
-function stanford_subsites_admin_dash_create_content_form_submit($form, &$form_state) {
-
-  $values = $form_state['values'];
-  _set_subsite_workingspace($values['subsite']);
-  $goto = url('node/add/' . str_replace("_", "-", $values['content_type']), array('absolute' => TRUE));
-
-  drupal_goto($goto);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// VIEWS ALTERS      ///////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Implements hook_form_alter() on $form_id == "views_exposed_form".
- *
- * Changes the subsite text field into a drop down
- * Also handles a page redirect to support both arguments and filters on subsite
- *
- */
-function stanford_subsites_admin_dash_form_views_exposed_form_alter(&$form, &$form_state) {
-
-  // Manage Content/Users Blocks & Pages.
-
-  if ($form['#id'] == "views-exposed-form-stanford-subsites-admin-dash-content-stanford-subsite-admin-dash-content-block" ||
-    $form['#id'] == "views-exposed-form-stanford-subsites-admin-dash-content-sws-admin-dash-content-page" ||
-    $form['#id'] == "views-exposed-form-stanford-subsites-admin-dash-content-admin-dash-content-page-1" ||
-    $form['#id'] == "views-exposed-form-stanford-subsites-admin-dash-users-stanford-subsites-admin-dash-user-block" ||
-    $form['#id'] == "views-exposed-form-stanford-subsites-admin-dash-users-stanford-subsites-admin-dash-user-page" ||
-    $form['#id'] == "views-exposed-form-stanford-subsites-admin-dash-users-page-1") {
-
-    $a3 = arg(3);
-
-    $subsite_nodes = _get_subsite_nodes();
-    // This needs to be blank or illegal.
-    $options = array('' => t('All'));
-    foreach ($subsite_nodes as $k => $node) {
-      $options[$node->nid] = decode_entities($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value']);
-    }
-
-    // Change the text input for subsite into a drop down select [CONTENT]
-    if (isset($form['field_stanford_subsite_subsite_target_id'])) {
-      $form['field_stanford_subsite_subsite_target_id']['#type'] = "select";
-      $form['field_stanford_subsite_subsite_target_id']['#size'] = NULL;
-      $form['field_stanford_subsite_subsite_target_id']['#options'] = $options;
-
-      if (is_numeric($a3)) {
-        $form['field_stanford_subsite_subsite_target_id']['#value'] = $a3;
-      }
-
-    }
-
-    // Change the text input for subsite into a drop down select [USERS]
-    if (isset($form['field_stanford_subsite_usr_sub_target_id'])) {
-      $form['field_stanford_subsite_usr_sub_target_id']['#type'] = "select";
-      $form['field_stanford_subsite_usr_sub_target_id']['#size'] = NULL;
-      $form['field_stanford_subsite_usr_sub_target_id']['#options'] = $options;
-
-      // If $a3 is numeric it is a nid. Set the value.
-      if (is_numeric($a3)) {
-        $form['field_stanford_subsite_usr_sub_target_id']['#value'] = $a3;
-      }
-
-    }
-
-    // If arg3 is numeric then redirect to base page.
-    if (is_numeric($a3)) {
-      $form['#action'] = base_path() . arg(0) . "/" . arg(1) . "/" . arg(2);
-    }
-
-  }
-
-}
-
-/**
- * Hooks into the post-render loop of a view.
- *
- * In order to add additional content. In this case add links to the footer of
- * the view.
- *
- * @param object $view
- *   The view object
- */
-function stanford_subsites_admin_dash_views_pre_render(&$view) {
-
-  // ADD User Links to the Dashboard Block.
-  if ($view->name == 'stanford_subsites_admin_dash_users' &&
-    $view->current_display == "stanford_subsites_admin_dash_user_block") {
-
-    $links = array(
-      l(t("View full page"), 'admin/subsites/users'),
-      l(t("Add new user"), 'admin/people/create'),
-    );
-
-    $links_html = theme_item_list(array(
-      'items' => $links,
-      'title' => '',
-      'type' => 'ul',
-      'attributes' => array('class' => 'inline-list')
-      )
-    );
-
-    // Manipulate the view with a new footer.
-    $view->footer['area']->options["content"] = $links_html;
-    $view->footer['area']->options["format"] = "full_html";
-    $view->footer['area']->options["tokenize"] = 0;
-
-  }
-
-
-  // ADD Content Links to the Dashboard Block.
-  if ($view->name == 'stanford_subsites_admin_dash_content' &&
-    $view->current_display == "stanford_subsite_admin_dash_content_block") {
-
-    $links = array(
-      l(t("View full page"), 'admin/subsites/content'),
-      l(t("Add new Subsite"), 'node/add/stanford-subsite'),
-    );
-
-    $links_html = theme_item_list(array(
-      'items' => $links,
-      'title' => '',
-      'type' => 'ul',
-      'attributes' => array('class' => 'inline-list')
-      )
-    );
-
-    // Manipulate the view with a new footer.
-    $view->footer['area']->options["content"] = $links_html;
-    $view->footer['area']->options["format"] = "full_html";
-    $view->footer['area']->options["tokenize"] = 0;
-
-  }
-
-
-
-
-}
-
 
 

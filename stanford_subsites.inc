@@ -50,18 +50,24 @@ function stanford_subsites_get_active_subsite() {
 
 /**
  * Get all subsite nodes.
+ * $published = TRUE / FALSE / "ALL"
  * @return array
  *   An array of subsite nodes
  */
-function _get_subsite_nodes() {
+function stanford_subsites_get_subsite_nodes($published = "all") {
   $query = db_select("node", "n")
             ->fields("n", array("nid"))
             ->condition("type", SUBSITE_CONTENT_TYPE)
-            ->orderBy('title')
-            ->execute();
+            ->orderBy('title');
+
+  if ($published !== "all") {
+    $query->condition("status", $published);
+  }
+
+  $results = $query->execute();
 
   $nids = array();
-  while ($result = $query->fetchAssoc()) {
+  while ($result = $results->fetchAssoc()) {
     $nids[] = $result['nid'];
   }
 
@@ -193,7 +199,7 @@ function _get_tax_field_instance($bundle) {
  * @param int $nid
  *   The nid of the new active subsite for the working space.
  */
-function _set_subsite_workingspace($nid) {
+function stanford_subsites_set_subsite_workingspace($nid) {
   // Set it.
   // One week lifetime.
   $lifetime = time() + (60 * 60 * 24 * 7);
@@ -216,7 +222,7 @@ function _clear_subsite_workingspace() {
  * @return int
  *   The nid of the active subsite for the working space or false.
  */
-function _get_subsite_workingspace() {
+function stanford_subsites_get_subsite_workingspace() {
   // If a cookie is available.
   if (isset($_COOKIE['stanford_subsite_workspace']) &&
     is_numeric($_COOKIE['stanford_subsite_workspace'])) {

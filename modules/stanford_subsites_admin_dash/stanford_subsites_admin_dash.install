@@ -7,53 +7,10 @@
  * Implements hook_install().
  */
 function stanford_subsites_admin_dash_install() {
-  // Create a menu and a few links.
-
-  $menu = array(
-    "menu_name" => "menu-admin-dashboard-admin-tasks",
-    "title" => t("Admin Dashboard Admin Tasks"),
-    "description" => t("Common Tasks for Administrators"),
-  );
-
-  menu_save($menu);
-
-  $links = array(
-    'admin/people/create' => t('New user'),
-    'admin/structure/block/add-menu-block' => t('New menu block'),
-    'admin/structure/context' => t('Edit contexts'),
-    'admin/subsites/subsites' => t('Edit subsites'),
-    'node/add/stanford-subsite' => t('New subsite'),
-    'admin/subsites/content' => t('Content bulk operations'),
-  );
-
-  // Loop through and save all links.
-  $i = 0;
-  foreach ($links as $url => $title) {
-    $item = array(
-      "link_path" => $url,
-      "link_title" => $title,
-      "menu_name" => $menu['menu_name'],
-      'weight' => ++$i,
-    );
-    menu_link_save($item);
-  }
-
-  // Translatables
-  // Included for use with string extractors like potx.
-  t('Admin Dashboard Admin Tasks');
-  t('Common Tasks for Administrators');
-
 }
 
 /**
  * Implements hook_uninstall().
  */
 function stanford_subsites_admin_dash_uninstall() {
-  // Remove the administration menu.
-  $menu = array(
-    "menu_name" => "menu-admin-dashboard-admin-tasks",
-    "title" => t("Admin Dashboard Admin Tasks"),
-    "description" => t("Common Tasks for Administrators"),
-  );
-  menu_delete($menu);
 }
