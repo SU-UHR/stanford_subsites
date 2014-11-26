@@ -53,17 +53,21 @@ function stanford_subsites_admin_dash_dashboard() {
   // ---------------------------------------------------------------------------
 
   // Main top region.
-  $block = block_load('stanford_subsites_admin_dash', 'stanford_subsites_dashboard_banner');
+  $block = block_load('stanford_subsites_admin_dash', 'subsites_dashboard_banner');
   $output['main_top']['subsite_banner'] = _block_get_renderable_array(_block_render_blocks(array($block)));
 
   // Content region.
-  $output['content']['manage_content'] = array("#markup" => "<h2>Manage content to go here<h2>");
-  $output['content']['manage_blocks'] = array("#markup" => "<h2>Manage blocks to go here<h2>");
-  $output['content']['manage_contexts'] = array("#markup" => "<h2>Manage contexts to go here<h2>");
+  $output['content']['manage_content'] = array("#markup" => "<h2>Manage content to go here</h2>");
+
+  $block = block_load('stanford_subsites_admin_dash', 'subsites_dashboard_blocks');
+  $output['content']['manage_blocks'] = _block_get_renderable_array(_block_render_blocks(array($block)));
+
+  $block = block_load('stanford_subsites_admin_dash', 'subsites_dashboard_contexts');
+  $output['content']['manage_contexts'] = _block_get_renderable_array(_block_render_blocks(array($block)));
 
   // Sidebar right region.
-  $output['sidebar_second']['new_stuff'] = array("#markup" => "<h2>Create new content menu<h2>");
-  $output['sidebar_second']['edit_stuff'] = array("#markup" => "<h2>Edit stuff menu<h2>");
+  $output['sidebar_second']['new_stuff'] = array("#markup" => "<h2>Create new content menu</h2>");
+  $output['sidebar_second']['edit_stuff'] = array("#markup" => "<h2>Edit stuff menu</h2>");
 
   $output['#theme'] = "page_subsite_dashboard";
 

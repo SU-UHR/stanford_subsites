@@ -86,8 +86,18 @@ function stanford_subsites_admin_dash_theme($existing, $type, $theme, $path) {
  */
 function stanford_subsites_admin_dash_block_info() {
 
-  $blocks['stanford_subsites_dashboard_banner'] = array(
+  $blocks['subsites_dashboard_banner'] = array(
     'info' => t('Subsite dashboard banner'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  $blocks['subsites_dashboard_contexts'] = array(
+    'info' => t('Subsite dashboard contexts'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  $blocks['subsites_dashboard_blocks'] = array(
+    'info' => t('Subsite dashboard blocks'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
@@ -102,12 +112,23 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
   $subsite = node_load(stanford_subsites_get_subsite_workingspace());
 
   switch ($delta) {
-    case 'stanford_subsites_dashboard_banner':
+    case 'subsites_dashboard_banner':
       $block['subject'] = check_plain($subsite->title);
       $block['title'] = "<none>";
       $block['content'] = stanford_subsites_dashboard_banner_block($subsite);
       break;
 
+    case 'subsites_dashboard_contexts':
+      $block['subject'] = t("Contexts");
+      $block['title'] = t("Contexts");
+      $block['content'] = stanford_subsites_dashboard_contexts_block($subsite);
+      break;
+
+    case 'subsites_dashboard_blocks':
+      $block['subject'] = t("Blocks");
+      $block['title'] = t("Blocks");
+      $block['content'] = stanford_subsites_dashboard_blocks_block($subsite);
+      break;
 
   }
   return $block;
@@ -129,6 +150,168 @@ function stanford_subsites_dashboard_banner_block($subsite) {
 
   return $content;
 }
+
+/**
+ * [stanford_subsites_dashboard_contexts_block description]
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_dashboard_contexts_block($subsite) {
+  $content = "";
+  $contexts = stanford_subsites_admin_dash_get_subsite_contexts($subsite);
+  $index = stanford_subsite_index_get('nid', $subsite->nid);
+  $alias = drupal_get_path_alias("node/" . $subsite->nid);
+  $header = array(t("Name"), t("Description"), t("Paths"), t("Actions"));
+  $rows = array();
+
+  foreach ($contexts as $context_name => $context) {
+    $paths = array();
+
+    // If we have matching name and context then path up!
+    if ($context->name == $index->context) {
+      $paths[] = l($alias, $alias);
+    }
+
+    // Loop through the path conditions to gather paths.
+    if (isset($context->conditions['path']['values'])) {
+      foreach ($context->conditions['path']['values'] as $path) {
+        if (stripos($path, $alias . "/") !== FALSE) {
+          $paths[] = l($path, $path);
+        }
+      }
+    }
+
+    $list = array("items" => $paths, "type" => "ul");
+    $path_list = theme('item_list', $list);
+    $edit = l(t("Edit"), "admin/structure/context/list/" . $context->name . "/edit");
+    $rows[]["data"] = array($context->name, $context->description, $path_list, $edit);
+  }
+
+  $table = array("header" => $header, "rows" => $rows);
+  $content .= theme("table", $table);
+
+  return $content;
+}
+
+/**
+ * [stanford_subsites_dashboard_blocks_block description]
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_dashboard_blocks_block($subsite) {
+  $content = "";
+  $contexts = stanford_subsites_admin_dash_get_subsite_contexts($subsite);
+  $index = stanford_subsite_index_get('nid', $subsite->nid);
+  $alias = drupal_get_path_alias("node/" . $subsite->nid);
+  $header = array(
+    'title' => array('data' => t("Title"), 'type' => 'property', 'specifier' => 'name', 'sort' => 'desc'),
+    'type' => array('data' => t("Type"), 'sort' => 'asc'),
+    'context' => array('data' => t("Context")),
+    'updated' => array('data' => t("Last Updated"), 'sort' => 'asc'),
+    'author' => array('data' => t("Author"), 'sort' => 'asc'),
+    'actions' => array('data' => t("Actions")),
+  );
+  $rows = array();
+
+  global $theme;
+  module_load_include("inc", "block", "block.admin");
+  $blocks = block_admin_display_prepare_blocks($theme);
+
+  foreach ($contexts as $context_name => $context) {
+
+    // Only continue if we have blocks.
+    if (!isset($context->reactions['block']['blocks'])) {
+      continue;
+    }
+
+    foreach ($context->reactions['block']['blocks'] as $delta => $info) {
+      $bean = NULL;
+      $block = block_load($info['module'], $info['delta']);
+      if (isset($block->bid) && function_exists("bean_load_delta")) {
+        $bean = bean_load_delta($info['delta']);
+      }
+
+      // Ok, titles are funky. Need to run through all this to get em.
+      $title = isset($bean->label) ? $bean->label : FALSE;
+      if ($title == FALSE) {
+        $i = 0;
+        while ($blocks[$i]) {
+          if ($blocks[$i]['bid'] = $block->bid) {
+            $title = check_plain($blocks[$i]['info']);
+            break;
+          }
+          $i++;
+        }
+      }
+
+      $edit = isset($bean->type) ? l(t("Edit"), 'block/' . $bean->delta . '/edit') : l(t("Configure"), "admin/structure/block/manage/" . $info['module'] . "/" . $info['delta'] . "/configure");
+      $configure = isset($bean->type) ? l(t("Configure"), "admin/structure/block/manage/" . $info['module'] . "/" . $info['delta'] . "/configure") : "";
+
+
+      $rows[$delta]['title'] = $title;
+      $rows[$delta]['type'] = isset($bean->type) ? $bean->type : "block";
+      $rows[$delta]['context'][] = l(t($context->name), "admin/structure/context/list/" . $context->name . "/edit");
+      $rows[$delta]['updated'] = isset($bean->changed) ? format_date($bean->changed, "small") : t("Not available");
+      $rows[$delta]['author'] = isset($bean->changed) ? user_load($bean->uid)->name : t("Not available");
+      $rows[$delta]['actions'] = $edit;
+
+      if (!empty($configure)) {
+        $rows[$delta]["actions"] .=  " | " . $configure;
+      }
+
+    }
+
+  }
+
+  // Formatting again...
+  foreach ($rows as $delta => &$info) {
+    $info['context'] = theme("item_list", array("items" => $info["context"]));
+  }
+
+  $table = array("header" => $header, "rows" => $rows, 'empty' => t('Sorry, no results found'),);
+  $content .= theme("table", $table);
+
+  return $content;
+}
+
+/**
+ * Returns a list of contexts filtered by the subsite of choice.
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
+  $contexts = context_load();
+  $nid = $subsite->nid;
+  $alias = drupal_get_path_alias("node/" . $subsite->nid);
+  // $index = stanford_subsite_index_get("nid", $subsite->nid);
+  // $tid = $index->tid;
+
+  foreach ($contexts as $context_name => $context) {
+    $valid = FALSE;
+
+    if (isset($context->conditions['active_subsite'])) {
+      if (in_array($nid, $context->conditions['active_subsite']['values'])) {
+        $valid = TRUE;
+      }
+    }
+
+    if (isset($context->conditions['path'])) {
+      foreach ($context->conditions['path']['values'] as $path) {
+        if (strpos($path, $alias . "/") !== FALSE) {
+          $valid = TRUE;
+        }
+      }
+    }
+
+    if (!$valid) {
+      unset($contexts[$context_name]);
+    }
+
+  }
+
+  return $contexts;
+}
+
 
 /**
  * Returns a select box with an option to select all the jumpstart blocks

@@ -11,3 +11,6 @@ dependencies[] = "stanford_subsites"
 dependencies[] = "views_bulk_operations"
 dependencies[] = "views"
 dependencies[] = "menu"
+dependencies[] = "context"
+dependencies[] = "block"
+
