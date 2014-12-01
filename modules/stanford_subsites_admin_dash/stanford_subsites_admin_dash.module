@@ -125,6 +125,9 @@ function stanford_subsites_admin_dash_block_info() {
 function stanford_subsites_admin_dash_block_view($delta = '') {
   $block = array();
   $subsite = node_load(stanford_subsites_get_subsite_workingspace());
+  if (!$subsite) {
+    $subsite = "all";
+  }
 
   switch ($delta) {
     case 'subsites_dashboard_banner':
@@ -192,13 +195,27 @@ function stanford_subsites_dashboard_banner_block($subsite) {
 function stanford_subsites_dashboard_contexts_block($subsite) {
   $content = "";
   $contexts = stanford_subsites_admin_dash_get_subsite_contexts($subsite);
-  $index = stanford_subsite_index_get('nid', $subsite->nid);
-  $alias = drupal_get_path_alias("node/" . $subsite->nid);
   $header = array(t("Name"), t("Description"), t("Paths"), t("Actions"));
   $rows = array();
 
+  // In case we get "all" option.
+  if (isset($subsite->nid)) {
+    $index = stanford_subsite_index_get('nid', $subsite->nid);
+    $alias = drupal_get_path_alias("node/" . $subsite->nid);
+  }
+
+
   foreach ($contexts as $context_name => $context) {
     $paths = array();
+
+    if (!isset($subsite->nid)) {
+      $index = stanford_subsite_index_get('context', drupal_clean_css_identifier($context_name));
+      $alias = drupal_get_path_alias("node/" . $index->nid);
+    }
+
+    if (empty($index->nid)) {
+      continue;
+    }
 
     // If we have matching name and context then path up!
     if ($context->name == $index->context) {
@@ -214,7 +231,7 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
       }
     }
 
-    $list = array("items" => $paths, "type" => "ul");
+    $list = array("items" => $paths);
     $path_list = theme('item_list', $list);
     $edit = l(t("Edit"), "admin/structure/context/list/" . $context->name . "/edit");
     $rows[]["data"] = array($context->name, $context->description, $path_list, $edit);
@@ -234,8 +251,13 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
 function stanford_subsites_dashboard_blocks_block($subsite) {
   $content = "";
   $contexts = stanford_subsites_admin_dash_get_subsite_contexts($subsite);
-  $index = stanford_subsite_index_get('nid', $subsite->nid);
-  $alias = drupal_get_path_alias("node/" . $subsite->nid);
+
+  // In case we get "all" option.
+  if (isset($subsite->nid)) {
+    $index = stanford_subsite_index_get('nid', $subsite->nid);
+    $alias = drupal_get_path_alias("node/" . $subsite->nid);
+  }
+
   $header = array(
     'title' => array('data' => t("Title"), 'type' => 'property', 'specifier' => 'name', 'sort' => 'desc'),
     'type' => array('data' => t("Type"), 'sort' => 'asc'),
@@ -254,6 +276,15 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
 
     // Only continue if we have blocks.
     if (!isset($context->reactions['block']['blocks'])) {
+      continue;
+    }
+
+    if (!isset($subsite->nid)) {
+      $index = stanford_subsite_index_get('context', drupal_clean_css_identifier($context_name));
+      $alias = drupal_get_path_alias("node/" . $index->nid);
+    }
+
+    if (empty($index->nid)) {
       continue;
     }
 
@@ -360,7 +391,7 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
   // List out the available types of content that can/should go into a subsite.
   $enabled_types = variable_get('stanford_subsite_content_types', array());
   foreach ($enabled_types as $type) {
-    if (isset($term)) {
+    if (!empty($term)) {
       $items[] = l(t($types[$type]->name), "node/add/" . drupal_clean_css_identifier($type), array("query" => array(SUBSITE_TAGS_FIELD => $term->tid)));
     }
     else {
@@ -382,14 +413,15 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
  */
 function stanford_subsites_dashboard_edit_subs_block($subsite) {
 
-  if (!isset($subsite)) {
+  if (empty($subsite) || $subsite == "all") {
     return "";
   }
 
   $content = "";
-  $menu_name = _get_subsite_menu_name($subsite);
+  $index = stanford_subsite_index_get('nid', $subsite->nid);
+  $menu_name = $index->menu;
   $menu_url = "admin/structure/menu/manage/" . $menu_name;
-  $edit_url = "node/edit/" . $subsite->nid;
+  $edit_url = "node/" . $subsite->nid . "/edit";
   $vars = array();
   $items = array();
 
@@ -408,10 +440,13 @@ function stanford_subsites_dashboard_edit_subs_block($subsite) {
  */
 function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
   $contexts = context_load();
+
+  if (!isset($subsite->nid) && $subsite == "all") {
+    return $contexts;
+  }
+
   $nid = $subsite->nid;
   $alias = drupal_get_path_alias("node/" . $subsite->nid);
-  // $index = stanford_subsite_index_get("nid", $subsite->nid);
-  // $tid = $index->tid;
 
   foreach ($contexts as $context_name => $context) {
     $valid = FALSE;

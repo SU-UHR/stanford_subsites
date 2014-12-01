@@ -18,6 +18,7 @@ $view->disabled = FALSE; /* Edit this to true to make a default view disabled in
 /* Display: Master */
 $handler = $view->new_display('default', 'Master', 'default');
 $handler->display->display_options['title'] = 'Content';
+$handler->display->display_options['use_ajax'] = TRUE;
 $handler->display->display_options['use_more_always'] = FALSE;
 $handler->display->display_options['access']['type'] = 'perm';
 $handler->display->display_options['access']['perm'] = 'administer nodes';
@@ -108,10 +109,9 @@ $handler->display->display_options['fields']['title']['field'] = 'title';
 $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
 $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
 /* Field: Content: Type */
-$handler->display->display_options['fields']['field_s_pub_type']['id'] = 'field_s_pub_type';
-$handler->display->display_options['fields']['field_s_pub_type']['table'] = 'field_data_field_s_pub_type';
-$handler->display->display_options['fields']['field_s_pub_type']['field'] = 'field_s_pub_type';
-$handler->display->display_options['fields']['field_s_pub_type']['type'] = 'taxonomy_term_reference_plain';
+$handler->display->display_options['fields']['type']['id'] = 'type';
+$handler->display->display_options['fields']['type']['table'] = 'node';
+$handler->display->display_options['fields']['type']['field'] = 'type';
 /* Field: Content: Updated date */
 $handler->display->display_options['fields']['changed']['id'] = 'changed';
 $handler->display->display_options['fields']['changed']['table'] = 'node';
@@ -156,7 +156,6 @@ $handler->display->display_options['sorts']['changed']['field'] = 'changed';
 $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['id'] = 'field_stanford_subsite_sub_tags_tid';
 $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['table'] = 'field_data_field_stanford_subsite_sub_tags';
 $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['field'] = 'field_stanford_subsite_sub_tags_tid';
-$handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['default_action'] = 'default';
 $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['default_argument_type'] = 'subsite';
 $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['summary']['number_of_records'] = '0';
 $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['summary']['format'] = 'default_summary';
@@ -210,22 +209,6 @@ $handler->display->display_options['filters']['uid']['expose']['remember_roles']
 $handler->display->display_options['filters']['type']['id'] = 'type';
 $handler->display->display_options['filters']['type']['table'] = 'node';
 $handler->display->display_options['filters']['type']['field'] = 'type';
-$handler->display->display_options['filters']['type']['value'] = array(
-  'all' => 'all',
-  'article' => 'article',
-  'page' => 'page',
-  'stanford_course' => 'stanford_course',
-  'stanford_course_importer' => 'stanford_course_importer',
-  'stanford_landing_page' => 'stanford_landing_page',
-  'stanford_news_item' => 'stanford_news_item',
-  'stanford_person' => 'stanford_person',
-  'stanford_program_service' => 'stanford_program_service',
-  'stanford_publication' => 'stanford_publication',
-  'stanford_event' => 'stanford_event',
-  'stanford_event_importer' => 'stanford_event_importer',
-  'stanford_page' => 'stanford_page',
-  'stanford_subsite' => 'stanford_subsite',
-);
 $handler->display->display_options['filters']['type']['group'] = 1;
 $handler->display->display_options['filters']['type']['exposed'] = TRUE;
 $handler->display->display_options['filters']['type']['expose']['operator_id'] = 'type_op';
@@ -243,6 +226,13 @@ $handler->display->display_options['filters']['type']['expose']['remember_roles'
   13 => 0,
   15 => 0,
 );
+/* Filter criterion: Content: Subsite Tags (field_stanford_subsite_sub_tags) */
+$handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['id'] = 'field_stanford_subsite_sub_tags_tid';
+$handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['table'] = 'field_data_field_stanford_subsite_sub_tags';
+$handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['field'] = 'field_stanford_subsite_sub_tags_tid';
+$handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['operator'] = 'not empty';
+$handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['value'] = '';
+$handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['vocabulary'] = 'stanford_subsites_sites';
 
 /* Display: Block */
 $handler = $view->new_display('block', 'Block', 'block');
