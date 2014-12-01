@@ -546,9 +546,14 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   // All other content types.
   // ---------------------------------------------------------------------------
 
-  // Move the subsite's tags field to a vertical tab.
+  // Move the subsite's tags field to a vertical tab if available.
   if (!isset($form[SUBSITE_TAGS_FIELD])) {
     return;
+  }
+
+  // Get a default value from the url.
+  if (arg(1) == "add" && is_numeric($_GET[SUBSITE_TAGS_FIELD])) {
+    $form[SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"] = check_plain($_GET[SUBSITE_TAGS_FIELD]);
   }
 
   // Copy field over to menu VT.
@@ -599,7 +604,7 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   $record = stanford_subsite_index_get("tid", $subsite_tid);
 
   if (isset($record->menu)) {
-    $menus = array("main-menu" => t("Main menu"));
+    $menus = array();
     $menu = menu_load($record->menu);
     $menus[$record->menu] = $menu['title'];
   }

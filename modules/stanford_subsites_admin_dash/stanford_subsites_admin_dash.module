@@ -101,6 +101,21 @@ function stanford_subsites_admin_dash_block_info() {
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  $blocks['subsites_dashboard_content'] = array(
+    'info' => t('Subsite dashboard content'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  $blocks['subsites_dashboard_create_new'] = array(
+    'info' => t('Subsite dashboard create new'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  $blocks['subsites_dashboard_edit_subs'] = array(
+    'info' => t('Subsite dashboard edit subsite'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
   return $blocks;
 }
 
@@ -128,6 +143,24 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
       $block['subject'] = t("Blocks");
       $block['title'] = t("Blocks");
       $block['content'] = stanford_subsites_dashboard_blocks_block($subsite);
+      break;
+
+    case 'subsites_dashboard_content':
+      $block['subject'] = t("Content");
+      $block['title'] = t("Content");
+      $block['content'] = stanford_subsites_dashboard_content_block($subsite);
+      break;
+
+    case 'subsites_dashboard_create_new':
+      $block['subject'] = t("New");
+      $block['title'] = t("New");
+      $block['content'] = stanford_subsites_dashboard_create_new_block($subsite);
+      break;
+
+    case 'subsites_dashboard_edit_subs':
+      $block['subject'] = t("Edit");
+      $block['title'] = t("Edit");
+      $block['content'] = stanford_subsites_dashboard_edit_subs_block($subsite);
       break;
 
   }
@@ -227,7 +260,7 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
     foreach ($context->reactions['block']['blocks'] as $delta => $info) {
       $bean = NULL;
       $block = block_load($info['module'], $info['delta']);
-      if (isset($block->bid) && function_exists("bean_load_delta")) {
+      if ($info['module'] == "bean" && function_exists("bean_load_delta")) {
         $bean = bean_load_delta($info['delta']);
       }
 
@@ -236,9 +269,12 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
       if ($title == FALSE) {
         $i = 0;
         while ($blocks[$i]) {
-          if ($blocks[$i]['bid'] = $block->bid) {
+          if ($blocks[$i]['delta'] == $block->delta && $blocks[$i]['module'] == $block->module) {
             $title = check_plain($blocks[$i]['info']);
             break;
+          }
+          else {
+            $title = t("Missing label");
           }
           $i++;
         }
@@ -271,6 +307,97 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
   $table = array("header" => $header, "rows" => $rows, 'empty' => t('Sorry, no results found'),);
   $content .= theme("table", $table);
 
+  return $content;
+}
+
+/**
+ * Stanford manage content block.
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_dashboard_content_block($subsite) {
+  $view = views_get_view('subsite_dashboard_manage_content');
+  $content = "";
+
+  // The $exposed_filters keys must correctly correspond with the actual keys of your view's exposed filters.
+  $exposed_filters = array(
+    'type' => 'All',
+  );
+
+  // Pass in exposed filter values. array_merge() order prioritizes user input.
+  $view->exposed_input = array_merge($exposed_filters, (array) $view->exposed_input);
+  $view->exposed_raw_input = array_merge($exposed_filters, (array) $view->exposed_raw_input);
+  $view->exposed_data = array_merge($exposed_filters, (array) $view->exposed_data);
+
+  // Only if we have a subsite.
+  if (isset($subsite->nid)) {
+    $tid = $subsite->{SUBSITE_TAGS_FIELD}[$subsite->language][0]['tid'];
+    $view->set_arguments(array($tid));
+    $view->set_display("block");
+  }
+
+  $content .= $view->preview();
+  $view->destroy();
+
+  return $content;
+}
+
+/**
+ * Create new options block
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_dashboard_create_new_block($subsite) {
+  $content = "";
+  $vars = array();
+  $items = array();
+  $types = node_type_get_types();
+
+  if ($subsite) {
+    $term = _get_subsite_term_from_node($subsite);
+  }
+
+  // List out the available types of content that can/should go into a subsite.
+  $enabled_types = variable_get('stanford_subsite_content_types', array());
+  foreach ($enabled_types as $type) {
+    if (isset($term)) {
+      $items[] = l(t($types[$type]->name), "node/add/" . drupal_clean_css_identifier($type), array("query" => array(SUBSITE_TAGS_FIELD => $term->tid)));
+    }
+    else {
+      $items[] = l(t($types[$type]->name), "node/add/" . drupal_clean_css_identifier($type));
+    }
+  }
+
+  $vars['items'] = $items;
+  $content = theme("item_list", $vars);
+
+  return $content;
+}
+
+
+/**
+ * Subsite options
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_dashboard_edit_subs_block($subsite) {
+
+  if (!isset($subsite)) {
+    return "";
+  }
+
+  $content = "";
+  $menu_name = _get_subsite_menu_name($subsite);
+  $menu_url = "admin/structure/menu/manage/" . $menu_name;
+  $edit_url = "node/edit/" . $subsite->nid;
+  $vars = array();
+  $items = array();
+
+  $items[] = l(t("Menu"), $menu_url);
+  $items[] = l(t("Settings"), $edit_url);
+
+  $vars['items'] = $items;
+  $content = theme("item_list", $vars);
   return $content;
 }
 
