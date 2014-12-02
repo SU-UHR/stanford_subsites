@@ -328,7 +328,7 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
       $title = isset($bean->label) ? $bean->label : FALSE;
       if ($title == FALSE) {
         $i = 0;
-        while ($blocks[$i]) {
+        while (isset($blocks[$i])) {
           if ($blocks[$i]['delta'] == $block->delta && $blocks[$i]['module'] == $block->module) {
             $title = check_plain($blocks[$i]['info']);
             break;

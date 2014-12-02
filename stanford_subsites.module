@@ -407,6 +407,10 @@ function stanford_subsites_node_delete($node) {
 
   $index = stanford_subsite_index_get("nid", $node->nid);
 
+  // Clear out the working space. Just cuz.
+  module_load_include("inc", "stanford_subsites", "stanford_subsites");
+  _clear_subsite_workingspace();
+
   // Remove all of the things.
   if ($index) {
 
@@ -417,6 +421,7 @@ function stanford_subsites_node_delete($node) {
         $length = strlen($index->menu);
         $length *= -1;
         if (substr($menu_block['info'], $length) == $index->menu) {
+
           variable_del("menu_block_" . $delta . "_admin_title");
           variable_del("menu_block_" . $delta . "_depth");
           variable_del("menu_block_" . $delta . "_expanded");
