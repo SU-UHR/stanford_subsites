@@ -394,10 +394,63 @@ function stanford_subsites_node_insert($node) {
     $menu = $args['menu']['menu_name'];
     $context = $args['context'];
 
-    // Log all of this info
+    // Log all of this info.
     stanford_subsite_index_insert($node->nid, $tid, $menu, $context->name);
   }
 
+}
+
+/**
+ * Implements hook_node_delete()
+ */
+function stanford_subsites_node_delete($node) {
+
+  $index = stanford_subsite_index_get("nid", $node->nid);
+
+  // Remove all of the things.
+  if ($index) {
+
+    if ($index->menu) {
+      // Kill the menu & menu block.
+      $menu_block_info = menu_block_block_info();
+      foreach ($menu_block_info as $delta => $menu_block) {
+        $length = strlen($index->menu);
+        $length *= -1;
+        if (substr($menu_block['info'], $length) == $index->menu) {
+          variable_del("menu_block_" . $delta . "_admin_title");
+          variable_del("menu_block_" . $delta . "_depth");
+          variable_del("menu_block_" . $delta . "_expanded");
+          variable_del("menu_block_" . $delta . "_follow");
+          variable_del("menu_block_" . $delta . "_level");
+          variable_del("menu_block_" . $delta . "_parent");
+          variable_del("menu_block_" . $delta . "_sort");
+          variable_del("menu_block_" . $delta . "_title_link");
+
+          db_delete("block")
+            ->condition("module", "menu_block")
+            ->condition("delta", $delta)
+            ->execute();
+
+          $menu_block_ids = variable_get('menu_block_ids', array());
+          unset($menu_block_ids[($delta--)]);
+          variable_set("menu_block_ids", $menu_block_ids);
+        }
+      }
+
+      menu_delete(array("menu_name" => $index->menu));
+    }
+
+    // Kill the context with fire.
+    $context = context_load($index->context);
+    context_delete($context);
+
+    // Remove the taxonomy term.
+    taxonomy_term_delete($index->tid);
+  }
+
+  db_delete("subsite_index")
+  ->condition("nid", $node->nid)
+  ->execute();
 }
 
 /**
