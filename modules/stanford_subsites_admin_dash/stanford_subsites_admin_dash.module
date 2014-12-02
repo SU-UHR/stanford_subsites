@@ -139,10 +139,10 @@ function stanford_subsites_admin_dash_block_info() {
  */
 function stanford_subsites_admin_dash_block_view($delta = '') {
   $block = array();
-
-  $subsite = node_load(stanford_subsites_get_subsite_workingspace());
-  if (!$subsite) {
-    $subsite = "all";
+  $subsite = "all";
+  $nid = stanford_subsites_get_subsite_workingspace();
+  if (is_numeric($nid)) {
+    $subsite = node_load($nid);
   }
 
   switch ($delta) {
@@ -504,7 +504,7 @@ function stanford_subsites_dashboard_edit_subs_block($subsite) {
 function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
   $contexts = context_load();
 
-  if (!isset($subsite->nid) && $subsite == "all") {
+  if (!isset($subsite->nid) || $subsite == "all") {
     return $contexts;
   }
 
@@ -544,7 +544,16 @@ function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
  */
 function stanford_subsite_working_space_jump_select_form($form, $form_state, $subsite = NULL) {
   $form = array();
-  $subsite = (!is_null($subsite)) ? $subsite : node_load(stanford_subsites_get_subsite_workingspace());
+  $nid = stanford_subsites_get_subsite_workingspace();
+  $subsite = (is_null($subsite) && is_numeric($nid)) ? node_load($nid) : $subsite;
+
+  if (isset($subsite->nid)) {
+    $key = $subsite->nid;
+  }
+  else {
+    $key = 0;
+  }
+
 
   $active_subsites = stanford_subsites_get_subsite_nodes();
   $options = array(0 => "-- " . t("All subsites") . " --");
@@ -556,7 +565,7 @@ function stanford_subsite_working_space_jump_select_form($form, $form_state, $su
   $form['subsite_workingspace'] = array(
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => isset($subsite->nid) ? $subsite->nid : 0,
+    '#default_value' => $key,
   );
 
   $form['submit'] = array(

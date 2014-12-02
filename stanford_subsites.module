@@ -421,24 +421,15 @@ function stanford_subsites_node_delete($node) {
         $length = strlen($index->menu);
         $length *= -1;
         if (substr($menu_block['info'], $length) == $index->menu) {
+          module_load_include("inc", "menu_block", "menu_block.admin");
 
-          variable_del("menu_block_" . $delta . "_admin_title");
-          variable_del("menu_block_" . $delta . "_depth");
-          variable_del("menu_block_" . $delta . "_expanded");
-          variable_del("menu_block_" . $delta . "_follow");
-          variable_del("menu_block_" . $delta . "_level");
-          variable_del("menu_block_" . $delta . "_parent");
-          variable_del("menu_block_" . $delta . "_sort");
-          variable_del("menu_block_" . $delta . "_title_link");
+          $form = array();
+          $form_state = array();
+          $form_state['values']['delta'] = $delta;
+          $form_state['values']['block_title'] =  _menu_block_format_title(menu_block_get_config($delta));
 
-          db_delete("block")
-            ->condition("module", "menu_block")
-            ->condition("delta", $delta)
-            ->execute();
+          menu_block_delete_submit($form, $form_state);
 
-          $menu_block_ids = variable_get('menu_block_ids', array());
-          unset($menu_block_ids[($delta--)]);
-          variable_set("menu_block_ids", $menu_block_ids);
         }
       }
 
@@ -665,7 +656,10 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   // This function is called on the initial form alter and on the ajax callback
   // so the subsite tid may be a form_state value or it will be the default_val
   // from the form array.
-  $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'] : array_pop($form['menu'][SUBSITE_TAGS_FIELD][$form['language']['#value']]["#default_value"]);
+  $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][$form['language']['#value']]["#default_value"];
+  if (is_array($subsite_tid)) {
+    $subsite_tid = array_pop($subsite_tid);
+  }
   $record = stanford_subsite_index_get("tid", $subsite_tid);
 
   if (isset($record->menu)) {
