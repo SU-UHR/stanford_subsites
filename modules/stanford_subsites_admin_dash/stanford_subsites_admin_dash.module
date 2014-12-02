@@ -53,6 +53,15 @@ function stanford_subsites_admin_dash_menu($items = array()) {
     'type' => MENU_NORMAL_ITEM,
     'file' => "stanford_subsites_admin_dash.pages.inc",
   );
+
+  $items['admin/config/subsites/dashboard/toggle/%'] = array(
+    'title' => 'Subsite administration quick select toggle',
+    'page callback' => 'stanford_subsites_admin_dash_dashboard_toggle',
+    'page arguments' => array(5),
+    'description' => 'An administration page for toggling between active subsites.',
+    'access arguments' => array('access sws admin dash'),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -116,6 +125,12 @@ function stanford_subsites_admin_dash_block_info() {
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  $blocks['subsites_dashboard_ws_toggle'] = array(
+    'info' => t('Subsite working space quick toggle'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+
   return $blocks;
 }
 
@@ -166,6 +181,13 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
       $block['content'] = stanford_subsites_dashboard_edit_subs_block($subsite);
       break;
 
+    case "subsites_dashboard_ws_toggle":
+      $block['subject'] = t("Subsite Quick Toggle");
+      $block['title'] = "<none>";
+      $block['content'] = stanford_subsites_dashboard_working_space_quick_toggle($subsite);
+      break;
+
+
   }
   return $block;
 }
@@ -179,9 +201,10 @@ function stanford_subsites_dashboard_banner_block($subsite) {
 
   $title = isset($subsite->title) ? check_plain($subsite->title) : t("All subsites");
 
-  $content = "<h2 class=\"sooper-dooper-big-heading\">" . $title . "</h2>";
-  $content .= "<p>" . t("You are currently managing %subsite_name. Change to", array("%subsite_name" => $title)) . ": </p>";
-
+  $content .= "<div class=\"inner-left\">";
+    $content .= "<h2 class=\"sooper-dooper-big-heading\">" . $title . "</h2>";
+    $content .= "<p>" . t("You are currently managing %subsite_name. Change to", array("%subsite_name" => $title)) . ": </p>";
+  $content .= "</div>";
   $content .= drupal_render(drupal_get_form('stanford_subsite_working_space_jump_select_form'));
 
   return $content;
@@ -405,6 +428,29 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
   return $content;
 }
 
+/**
+ * [stanford_subsites_dashboard_working_space_quick_toggle description]
+ * @param  [type] $subsite [description]
+ * @return [type]          [description]
+ */
+function stanford_subsites_dashboard_working_space_quick_toggle($subsite) {
+  $content = "";
+
+  // Get and make some changes...
+  $form = drupal_get_form('stanford_subsite_working_space_jump_select_form');
+  unset($form['submit']);
+  $form['subsite_workingspace']['#title'] = t("Subsite toggle");
+  $form["#attached"]["js"][] = drupal_get_path("module", "stanford_subsites_admin_dash") . "/js/ws.quick.toggle.js";
+  $content .= drupal_render($form);
+
+  $css = "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle .form-item {
+    margin: 0;
+    padding: 0;
+  }";
+  drupal_add_css($css, "inline");
+
+  return $content;
+}
 
 /**
  * Subsite options
@@ -517,3 +563,27 @@ function stanford_subsite_working_space_jump_select_form_submit($form, $form_sta
 }
 
 
+/**
+ * Implements hook_context_load_alter().
+ */
+function stanford_subsites_admin_dash_context_load_alter(&$context) {
+  $key = "stanford_jumpstart_admin_shortcuts";
+  if ($context->name == $key && strpos(current_path(), "subsites/dashboard") === FALSE) {
+    $context->reactions["block"]['blocks']['subsites_dashboard_ws_toggle'] = array(
+      "module" => "stanford_subsites_admin_dash",
+      "delta" => "subsites_dashboard_ws_toggle",
+      "region" => "admin_shortcuts",
+      "weight" => -5,
+    );
+  }
+}
+
+/**
+ * [stanford_subsites_admin_dash_dashboard_toggle description]
+ * @param  [type] $nid [description]
+ * @return [type]      [description]
+ */
+function stanford_subsites_admin_dash_dashboard_toggle($nid) {
+  stanford_subsites_set_subsite_workingspace(check_plain($nid));
+  drupal_goto("admin/config/subsites/dashboard");
+}

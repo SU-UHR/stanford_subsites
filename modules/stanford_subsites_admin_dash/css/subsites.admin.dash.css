@@ -9,7 +9,7 @@
 .main-top-region,
 .sidebar-second-region,
 .main-content-region {
-  margin: 20px 0;
+  margin: 0;
   padding: 0;
   display: inline-block;
   width: 100%;
@@ -56,4 +56,27 @@
   .sidebar-second-region {
     width: 100%;
   }
+}
+
+/******** BLOCKS ************************************************************ */
+
+#page .block {
+  padding-bottom: 20px;
+}
+
+.inner-left {
+  display: inline-block;
+}
+
+#block-stanford-subsites-admin-dash-subsites-dashboard-banner form {
+  padding-left: 20px;
+  display: inline-block;
+}
+
+.form-item-subsite-workingspace {
+  display: inline-block;
+}
+
+#block-stanford-subsites-admin-dash-subsites-dashboard-banner .form-submit {
+  display: inline-block;
 }
