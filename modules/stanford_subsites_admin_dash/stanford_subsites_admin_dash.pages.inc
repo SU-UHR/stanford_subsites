@@ -14,6 +14,8 @@
 function stanford_subsites_admin_dash_dashboard() {
 
   $output = array();
+  $output['#show_messages'] = TRUE;
+  $output['#theme'] = "page_subsite_dashboard";
   $output["#attached"] = array(
     'css' => array(
       drupal_get_path('module', "stanford_subsites_admin_dash") . "/css/subsites.admin.dash.css",
@@ -51,7 +53,5 @@ function stanford_subsites_admin_dash_dashboard() {
   $block = block_load('stanford_subsites_admin_dash', 'subsites_dashboard_edit_subs');
   $output['sidebar_second']['edit_stuff'] = _block_get_renderable_array(_block_render_blocks(array($block)));
 
-
-  $output['#theme'] = "page_subsite_dashboard";
   return $output;
 }

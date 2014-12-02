@@ -499,8 +499,13 @@ function _get_subsite_menu_name($node) {
  * @return [type]       [description]
  */
 function _get_subsite_term_from_node($node) {
+
+  if (!is_object($node)) {
+    return FALSE;
+  }
+
   $lang = $node->language;
-  $tid = $node->{SUBSITE_TAGS_FIELD}[$lang][0]['tid'];
+  $tid = @$node->{SUBSITE_TAGS_FIELD}[$lang][0]['tid'];
 
   if (!$tid) {
     return FALSE;

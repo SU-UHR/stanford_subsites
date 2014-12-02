@@ -68,8 +68,8 @@ function stanford_subsites_admin_dash_menu($items = array()) {
 /**
  * Implements hook_views_api().
  */
-function stanford_subsites_admin_dash_views_api() {
-  return array("version" => "3.0");
+function stanford_subsites_admin_dash_views_api($module = NULL, $api = NULL) {
+  return array("api" => "3.0");
 }
 
 /**
@@ -78,11 +78,11 @@ function stanford_subsites_admin_dash_views_api() {
 function stanford_subsites_admin_dash_theme($existing, $type, $theme, $path) {
   $theme = array();
   $theme['page_subsite_dashboard'] = array(
-    'render element' => 'content',
+    'render element' => 'page',
     'base hook' => 'page',
     'template' => 'page--admin--config--subsites--dashboard',
     'path' => drupal_get_path('module', 'stanford_subsites_admin_dash') . '/templates',
-   );
+  );
   return $theme;
 }
 
@@ -139,6 +139,7 @@ function stanford_subsites_admin_dash_block_info() {
  */
 function stanford_subsites_admin_dash_block_view($delta = '') {
   $block = array();
+
   $subsite = node_load(stanford_subsites_get_subsite_workingspace());
   if (!$subsite) {
     $subsite = "all";
@@ -146,7 +147,7 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
 
   switch ($delta) {
     case 'subsites_dashboard_banner':
-      $block['subject'] = check_plain($subsite->title);
+      $block['subject'] = isset($subsite->title) ? check_plain($subsite->title) : $subsite;
       $block['title'] = "<none>";
       $block['content'] = stanford_subsites_dashboard_banner_block($subsite);
       break;
@@ -198,14 +199,15 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
  * @return [type] [description]
  */
 function stanford_subsites_dashboard_banner_block($subsite) {
-
+  $content = "";
   $title = isset($subsite->title) ? check_plain($subsite->title) : t("All subsites");
 
   $content .= "<div class=\"inner-left\">";
     $content .= "<h2 class=\"sooper-dooper-big-heading\">" . $title . "</h2>";
     $content .= "<p>" . t("You are currently managing %subsite_name. Change to", array("%subsite_name" => $title)) . ": </p>";
   $content .= "</div>";
-  $content .= drupal_render(drupal_get_form('stanford_subsite_working_space_jump_select_form'));
+  $form = drupal_get_form('stanford_subsite_working_space_jump_select_form');
+  $content .= drupal_render($form);
 
   return $content;
 }
@@ -233,7 +235,9 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
 
     if (!isset($subsite->nid)) {
       $index = stanford_subsite_index_get('context', drupal_clean_css_identifier($context_name));
-      $alias = drupal_get_path_alias("node/" . $index->nid);
+      if (isset($index->nid)) {
+        $alias = drupal_get_path_alias("node/" . $index->nid);
+      }
     }
 
     if (empty($index->nid)) {
@@ -304,7 +308,9 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
 
     if (!isset($subsite->nid)) {
       $index = stanford_subsite_index_get('context', drupal_clean_css_identifier($context_name));
-      $alias = drupal_get_path_alias("node/" . $index->nid);
+      if (isset($index->nid)) {
+        $alias = drupal_get_path_alias("node/" . $index->nid);
+      }
     }
 
     if (empty($index->nid)) {
@@ -379,9 +385,11 @@ function stanford_subsites_dashboard_content_block($subsite) {
   );
 
   // Pass in exposed filter values. array_merge() order prioritizes user input.
-  $view->exposed_input = array_merge($exposed_filters, (array) $view->exposed_input);
-  $view->exposed_raw_input = array_merge($exposed_filters, (array) $view->exposed_raw_input);
-  $view->exposed_data = array_merge($exposed_filters, (array) $view->exposed_data);
+  if (isset($view->exposed_input)) {
+    $view->exposed_input = array_merge($exposed_filters, (array) $view->exposed_input);
+    $view->exposed_raw_input = array_merge($exposed_filters, (array) $view->exposed_raw_input);
+    $view->exposed_data = array_merge($exposed_filters, (array) $view->exposed_data);
+  }
 
   // Only if we have a subsite.
   if (isset($subsite->nid)) {
@@ -414,12 +422,19 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
   // List out the available types of content that can/should go into a subsite.
   $enabled_types = variable_get('stanford_subsite_content_types', array());
   foreach ($enabled_types as $type) {
+
+    if (!isset($types[$type])) {
+      continue;
+    }
+
     if (!empty($term)) {
       $items[] = l(t($types[$type]->name), "node/add/" . drupal_clean_css_identifier($type), array("query" => array(SUBSITE_TAGS_FIELD => $term->tid)));
     }
     else {
       $items[] = l(t($types[$type]->name), "node/add/" . drupal_clean_css_identifier($type));
     }
+
+
   }
 
   $vars['items'] = $items;

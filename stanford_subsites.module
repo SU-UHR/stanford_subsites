@@ -266,6 +266,8 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   // Handle the linkage to the subsite logo and title.
   if (isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])) {
 
+    $vars['subsite_front_page'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"];
+
     // Support default themes
     // Change the front page variable to link to the subsite.
     if ($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"] == "subsite") {
@@ -557,7 +559,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   }
 
   // Get a default value from the url.
-  if (arg(1) == "add" && is_numeric($_GET[SUBSITE_TAGS_FIELD])) {
+  if (arg(1) == "add" && isset($_GET[SUBSITE_TAGS_FIELD]) && is_numeric($_GET[SUBSITE_TAGS_FIELD])) {
     $form[SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"] = check_plain($_GET[SUBSITE_TAGS_FIELD]);
   }
 
@@ -605,7 +607,7 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   // This function is called on the initial form alter and on the ajax callback
   // so the subsite tid may be a form_state value or it will be the default_val
   // from the form array.
-  $subsite_tid = isset($form_state['values']) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][$form['language']['#value']]["#default_value"][0];
+  $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'] : array_pop($form['menu'][SUBSITE_TAGS_FIELD][$form['language']['#value']]["#default_value"]);
   $record = stanford_subsite_index_get("tid", $subsite_tid);
 
   if (isset($record->menu)) {
