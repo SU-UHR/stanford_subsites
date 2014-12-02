@@ -443,10 +443,12 @@ function stanford_subsites_dashboard_working_space_quick_toggle($subsite) {
   $form["#attached"]["js"][] = drupal_get_path("module", "stanford_subsites_admin_dash") . "/js/ws.quick.toggle.js";
   $content .= drupal_render($form);
 
-  $css = "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle .form-item {
-    margin: 0;
-    padding: 0;
-  }";
+  $css = "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle { display: inline-block; position: relative; vertical-align: bottom; }";
+  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form { padding: 0; margin: 0; }";
+  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle .form-item { padding: 0; margin: 0; }";
+  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form label { font-size: 1em; margin: 0; padding: 0; }";
+  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form select { font-size: 1em; height: 1.5em; line-height: 1.5em; }";
+
   drupal_add_css($css, "inline");
 
   return $content;
