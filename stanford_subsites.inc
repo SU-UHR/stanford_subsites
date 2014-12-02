@@ -437,8 +437,8 @@ function _create_subsite_context($node, &$args) {
 
   $context = new stdClass();
   $context->name = $context_name;
-  $context->description = "Subsite Context for " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 210);
-  $context->tag = "Stanford Subsites";
+  $context->description = "Subsite wide context for " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 210);
+  $context->tag = drupal_clean_css_identifier(substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 32));
   $context->conditions = array(
     'active_subsite' => array(
       'values' => array(

@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ */
+
+
+/**
+ * [stanford_subsites_page_template_theme_registry_alter description]
+ * @param  [type] $theme_registry [description]
+ * @return [type]                 [description]
+ */
+function stanford_subsites_page_template_theme_registry_alter(&$theme_registry) {
+  global $theme;
+
+  if ($theme == "stanford_seven" || $theme == "seven") {
+    return;
+  }
+
+  $module_path = drupal_get_path('module', 'stanford_subsites_page_template');
+  $templates_path = $module_path . "/templates";
+  $theme_registry['page']['path'] = $templates_path;
+}

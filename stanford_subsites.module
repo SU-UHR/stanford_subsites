@@ -171,6 +171,7 @@ function stanford_subsites_preprocess_page(&$vars, $hook) {
   $vars['logo_title'] = $vars['site_name']; // The title text for the logo image
   $vars['subsite_is_front'] = FALSE; // boolean value if current type is subsite
   $vars['subsite_front'] = FALSE; // string of the path to the active subsite
+  $vars['site_title_second_line'] = "";
 
   // Check to see if this page is a subsite node type. If it is then we are at
   // a subsite 'front'.
@@ -228,9 +229,13 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   if (isset($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])
     && !empty($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])) {
     $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"];
-    $vars['subsite_site_name_text'] = $vars['site_name'];
+    $vars['my_site_title'] = $vars['site_title_first_line'] = $vars['site_name'];
   }
 
+  if (isset($node->field_stanford_subsite_2nd_line[$node->language][0]["safe_value"])
+    && !empty($node->field_stanford_subsite_2nd_line[$node->language][0]["safe_value"])) {
+    $vars['site_title_second_line'] = $node->field_stanford_subsite_2nd_line[$node->language][0]["safe_value"];
+  }
 
 
   // Create new $logo_title and $alt variables for use in the page.tpl.php
