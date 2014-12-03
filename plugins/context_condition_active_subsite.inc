@@ -13,7 +13,7 @@ class context_condition_active_subsite extends context_condition {
    */
   public function condition_values() {
     $values = array();
-
+    $values['any'] = "-- " . t("Any Subsite") . " --";
     // Get all subsite nodes.
     $query = db_select('node', 'n')
               ->fields('n', array('nid', 'title'))
@@ -41,6 +41,13 @@ class context_condition_active_subsite extends context_condition {
     // Loop through contexts with nid value and assert condition met.
     foreach ($this->get_contexts($subsite->nid) as $context) {
       $this->condition_met($context, $subsite->nid);
+    }
+
+    // Grab all the contexts.
+    foreach ($this->get_contexts("any") as $context) {
+      if (isset($subsite->nid)) {
+        $this->condition_met($context, "any");
+      }
     }
 
   }
