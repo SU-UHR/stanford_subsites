@@ -72,7 +72,7 @@ function stanford_subsites_admin_dash_menu($items = array()) {
   foreach ($subsites as $subsite) {
     $path = drupal_get_path_alias("node/" . $subsite->nid);
     $items['admin/config/subsites/dashboard/' . $path] = array(
-      'title' => check_plain($subsite->{SUBSITE_NAME_FIELD}[$subsite->language][0]['value']),
+      'title' => $subsite->{SUBSITE_NAME_FIELD}[$subsite->language][0]['value'],
       'page callback' => 'stanford_subsites_admin_dash_dashboard',
       'page arguments' => array($path),
       'description' => 'An administration page for managing subsites and subsite content.',
@@ -569,7 +569,7 @@ function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
  */
 function stanford_subsites_admin_dash_context_load_alter(&$context) {
   $key = "stanford_jumpstart_admin_shortcuts";
-  if ($context->name == $key && strpos(current_path(), "subsites/dashboard") === FALSE) {
+  if ($context->name == $key) {
     $context->reactions["block"]['blocks']['menu-subsite-dashboards'] = array(
       "module" => "menu",
       "delta" => "menu-subsite-dashboards",
