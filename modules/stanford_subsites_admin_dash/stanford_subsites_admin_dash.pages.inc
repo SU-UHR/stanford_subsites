@@ -11,7 +11,25 @@
  * @return array
  *   A render array of page content.
  */
-function stanford_subsites_admin_dash_dashboard() {
+function stanford_subsites_admin_dash_dashboard($subsite_path_alias = NULL) {
+  $subsite = null;
+
+  // Set the wokring space.
+  if (!is_null($subsite_path_alias) && $subsite_path_alias !== "all") {
+    $path = drupal_lookup_path("source", $subsite_path_alias);
+    $parts = explode("/", $path);
+    if ($parts[0] == "node" && is_numeric($parts[1])) {
+      $subsite = node_load($parts[1]);
+    }
+  }
+  else {
+    stanford_subsites_clear_subsite_workingspace();
+  }
+
+  // If subsite node exists.
+  if (!empty($subsite->nid)) {
+    stanford_subsites_set_subsite_workingspace($subsite->nid);
+  }
 
   $output = array();
   $output['#show_messages'] = TRUE;

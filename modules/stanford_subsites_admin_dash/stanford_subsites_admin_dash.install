@@ -7,10 +7,19 @@
  * Implements hook_install().
  */
 function stanford_subsites_admin_dash_install() {
+  // Exported menu: menu-admin-shortcuts.
+  $menu = array(
+    'menu_name' => 'menu-subsite-dashboards',
+    'title' => 'Manage Subsites',
+    'description' => 'A list of subsite dashboards',
+  );
+  menu_save($menu);
 }
 
 /**
  * Implements hook_uninstall().
  */
 function stanford_subsites_admin_dash_uninstall() {
+  $menu = menu_load("menu-subsite-dashboards");
+  menu_delete($menu);
 }

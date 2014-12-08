@@ -200,17 +200,20 @@ function _get_tax_field_instance($bundle) {
  *   The nid of the new active subsite for the working space.
  */
 function stanford_subsites_set_subsite_workingspace($nid) {
-  // Set it.
-  // One week lifetime.
-  $lifetime = time() + (60 * 60 * 24 * 7);
-  setcookie('stanford_subsite_workspace', $nid, $lifetime, "/");
+  // // Set it.
+  // stanford_subsites_clear_subsite_workingspace();
+  // // One week lifetime.
+  // $lifetime = time() + (60 * 60 * 24 * 7);
+  // setcookie('stanford_subsite_workspace', $nid, $lifetime, "/");
+  $_SESSION['active_subsite'] = $nid;
 }
 
 /**
  * Removes the active subsite working space.
  */
-function _clear_subsite_workingspace() {
-  setcookie('stanford_subsite_workspace', 0, 1, "/");
+function stanford_subsites_clear_subsite_workingspace() {
+  // setcookie('stanford_subsite_workspace', 0, 1, "/");
+  unset($_SESSION['active_subsite']);
 }
 
 
@@ -224,10 +227,15 @@ function _clear_subsite_workingspace() {
  */
 function stanford_subsites_get_subsite_workingspace() {
   // If a cookie is available.
-  if (isset($_COOKIE['stanford_subsite_workspace']) &&
-    is_numeric($_COOKIE['stanford_subsite_workspace'])) {
-    return check_plain($_COOKIE['stanford_subsite_workspace']);
+  // if (isset($_COOKIE['stanford_subsite_workspace']) &&
+  //   is_numeric($_COOKIE['stanford_subsite_workspace'])) {
+  //   return check_plain($_COOKIE['stanford_subsite_workspace']);
+  // }
+
+  if (isset($_SESSION['active_subsite']) && is_numeric($_SESSION['active_subsite'])) {
+    return check_plain($_SESSION['active_subsite']);
   }
+
   // Not available.
   return FALSE;
 }

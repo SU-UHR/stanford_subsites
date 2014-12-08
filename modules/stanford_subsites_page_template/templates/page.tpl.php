@@ -31,7 +31,7 @@
 
             <?php if (($site_name) && !($site_title_first_line)): ?>
               <?php if ($subsite_name_logo_setting == "split") : ?>
-              <div id="site-name" class="site-name"><a href="<?php print $subsite_front; ?>" title="<?php print t($subsite_site_name_text); ?>" rel="<?php print check_plain($subsite_site_name_text); ?>"><?php print $site_name; ?></a></div>
+              <div id="site-name" class="site-name"><a href="<?php print $subsite_front_page; ?>" title="<?php print t($subsite_site_name_text); ?>" rel="<?php print check_plain($subsite_site_name_text); ?>"><?php print $site_name; ?></a></div>
               <?php else: ?>
               <div id="site-name" class="site-name"><a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home"><?php print $site_name; ?></a></div>
               <?php endif; ?>

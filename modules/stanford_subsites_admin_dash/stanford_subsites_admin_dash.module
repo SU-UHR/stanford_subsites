@@ -45,23 +45,44 @@ function stanford_subsites_admin_dash_permission() {
  * Implements hook_menu().
  */
 function stanford_subsites_admin_dash_menu($items = array()) {
+
   $items['admin/config/subsites/dashboard'] = array(
-    'title' => 'Subsite administration dashboard',
+    'title' => 'Manage Subsites',
     'page callback' => 'stanford_subsites_admin_dash_dashboard',
     'description' => 'An administration page for managing subsites and subsite content.',
     'access arguments' => array('access sws admin dash'),
     'type' => MENU_NORMAL_ITEM,
     'file' => "stanford_subsites_admin_dash.pages.inc",
+    'menu_name' => "menu-subsite-dashboards",
+    'expanded' => TRUE,
   );
 
-  $items['admin/config/subsites/dashboard/toggle/%'] = array(
-    'title' => 'Subsite administration quick select toggle',
-    'page callback' => 'stanford_subsites_admin_dash_dashboard_toggle',
-    'page arguments' => array(5),
-    'description' => 'An administration page for toggling between active subsites.',
+  $items['admin/config/subsites/dashboard/all'] = array(
+    'title' => 'All subsites',
+    'page callback' => 'stanford_subsites_admin_dash_dashboard',
+    'page arguments' => array("all"),
+    'description' => 'An administration page for managing subsites and subsite content.',
     'access arguments' => array('access sws admin dash'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
+    'file' => "stanford_subsites_admin_dash.pages.inc",
+    'menu_name' => "menu-subsite-dashboards",
   );
+
+  $subsites = stanford_subsites_get_subsite_nodes();
+  foreach ($subsites as $subsite) {
+    $path = drupal_get_path_alias("node/" . $subsite->nid);
+    $items['admin/config/subsites/dashboard/' . $path] = array(
+      'title' => check_plain($subsite->{SUBSITE_NAME_FIELD}[$subsite->language][0]['value']),
+      'page callback' => 'stanford_subsites_admin_dash_dashboard',
+      'page arguments' => array($path),
+      'description' => 'An administration page for managing subsites and subsite content.',
+      'access arguments' => array('access sws admin dash'),
+      'type' => MENU_NORMAL_ITEM,
+      'file' => "stanford_subsites_admin_dash.pages.inc",
+      'menu_name' => "menu-subsite-dashboards",
+    );
+  }
+
   return $items;
 }
 
@@ -125,12 +146,6 @@ function stanford_subsites_admin_dash_block_info() {
     'cache' => DRUPAL_NO_CACHE,
   );
 
-  $blocks['subsites_dashboard_ws_toggle'] = array(
-    'info' => t('Subsite working space quick toggle'),
-    'cache' => DRUPAL_NO_CACHE,
-  );
-
-
   return $blocks;
 }
 
@@ -182,13 +197,6 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
       $block['content'] = stanford_subsites_dashboard_edit_subs_block($subsite);
       break;
 
-    case "subsites_dashboard_ws_toggle":
-      $block['subject'] = t("Subsite Quick Toggle");
-      $block['title'] = "<none>";
-      $block['content'] = stanford_subsites_dashboard_working_space_quick_toggle($subsite);
-      break;
-
-
   }
   return $block;
 }
@@ -204,10 +212,8 @@ function stanford_subsites_dashboard_banner_block($subsite) {
 
   $content .= "<div class=\"inner-left\">";
     $content .= "<h2 class=\"sooper-dooper-big-heading\">" . $title . "</h2>";
-    $content .= "<p>" . t("You are currently managing %subsite_name. Change to", array("%subsite_name" => $title)) . ": </p>";
+    $content .= "<p>" . t("Subsite Dashboard") . "</p>";
   $content .= "</div>";
-  $form = drupal_get_form('stanford_subsite_working_space_jump_select_form');
-  $content .= drupal_render($form);
 
   return $content;
 }
@@ -463,31 +469,31 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
   return $content;
 }
 
-/**
- * [stanford_subsites_dashboard_working_space_quick_toggle description]
- * @param  [type] $subsite [description]
- * @return [type]          [description]
- */
-function stanford_subsites_dashboard_working_space_quick_toggle($subsite) {
-  $content = "";
+// /**
+//  * [stanford_subsites_dashboard_working_space_quick_toggle description]
+//  * @param  [type] $subsite [description]
+//  * @return [type]          [description]
+//  */
+// function stanford_subsites_dashboard_working_space_quick_toggle($subsite) {
+//   $content = "";
 
-  // Get and make some changes...
-  $form = drupal_get_form('stanford_subsite_working_space_jump_select_form');
-  unset($form['submit']);
-  $form['subsite_workingspace']['#title'] = t("Subsite toggle");
-  $form["#attached"]["js"][] = drupal_get_path("module", "stanford_subsites_admin_dash") . "/js/ws.quick.toggle.js";
-  $content .= drupal_render($form);
+//   // Get and make some changes...
+//   $form = drupal_get_form('stanford_subsite_working_space_jump_select_form');
+//   unset($form['submit']);
+//   $form['subsite_workingspace']['#title'] = t("Subsite toggle");
+//   $form["#attached"]["js"][] = drupal_get_path("module", "stanford_subsites_admin_dash") . "/js/ws.quick.toggle.js";
+//   $content .= drupal_render($form);
 
-  $css = "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle { display: inline-block; position: relative; vertical-align: bottom; }";
-  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form { padding: 0; margin: 0; }";
-  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle .form-item { padding: 0; margin: 0; }";
-  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form label { font-size: 1em; margin: 0; padding: 0; }";
-  $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form select { font-size: 1em; height: 1.5em; line-height: 1.5em; }";
+//   $css = "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle { display: inline-block; position: relative; vertical-align: bottom; }";
+//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form { padding: 0; margin: 0; }";
+//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle .form-item { padding: 0; margin: 0; }";
+//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form label { font-size: 1em; margin: 0; padding: 0; }";
+//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form select { font-size: 1em; height: 1.5em; line-height: 1.5em; }";
 
-  drupal_add_css($css, "inline");
+//   drupal_add_css($css, "inline");
 
-  return $content;
-}
+//   return $content;
+// }
 
 /**
  * Subsite options
@@ -559,77 +565,16 @@ function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
 
 
 /**
- * Returns a select box with an option to select all the jumpstart blocks
- * @return [type] [description]
- */
-function stanford_subsite_working_space_jump_select_form($form, $form_state, $subsite = NULL) {
-  $form = array();
-  $nid = stanford_subsites_get_subsite_workingspace();
-  $subsite = (is_null($subsite) && is_numeric($nid)) ? node_load($nid) : $subsite;
-
-  if (isset($subsite->nid)) {
-    $key = $subsite->nid;
-  }
-  else {
-    $key = 0;
-  }
-
-
-  $active_subsites = stanford_subsites_get_subsite_nodes();
-  $options = array(0 => "-- " . t("All subsites") . " --");
-
-  foreach ($active_subsites as $node) {
-    $options[$node->nid] = $node->title;
-  }
-
-  $form['subsite_workingspace'] = array(
-    '#type' => 'select',
-    '#options' => $options,
-    '#default_value' => $key,
-  );
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('change'),
-  );
-
-  return $form;
-}
-
-/**
- * [stanford_subsite_working_space_jump_select_form_submit description]
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
- * @return [type]             [description]
- */
-function stanford_subsite_working_space_jump_select_form_submit($form, $form_state) {
-  $new_nid = check_plain($form_state['values']['subsite_workingspace']);
-  stanford_subsites_set_subsite_workingspace($new_nid);
-  drupal_set_message(t("Subsite working space has been changed"), "status");
-}
-
-
-/**
  * Implements hook_context_load_alter().
  */
 function stanford_subsites_admin_dash_context_load_alter(&$context) {
   $key = "stanford_jumpstart_admin_shortcuts";
   if ($context->name == $key && strpos(current_path(), "subsites/dashboard") === FALSE) {
-    $context->reactions["block"]['blocks']['subsites_dashboard_ws_toggle'] = array(
-      "module" => "stanford_subsites_admin_dash",
-      "delta" => "subsites_dashboard_ws_toggle",
+    $context->reactions["block"]['blocks']['menu-subsite-dashboards'] = array(
+      "module" => "menu",
+      "delta" => "menu-subsite-dashboards",
       "region" => "admin_shortcuts",
       "weight" => -5,
     );
   }
-}
-
-/**
- * [stanford_subsites_admin_dash_dashboard_toggle description]
- * @param  [type] $nid [description]
- * @return [type]      [description]
- */
-function stanford_subsites_admin_dash_dashboard_toggle($nid) {
-  stanford_subsites_set_subsite_workingspace(check_plain($nid));
-  drupal_goto("admin/config/subsites/dashboard");
 }

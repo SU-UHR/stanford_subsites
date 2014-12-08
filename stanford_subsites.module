@@ -266,7 +266,9 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   // Handle the linkage to the subsite logo and title.
   if (isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])) {
 
+    // Set the link setting as a variable for page.tpl.php
     $vars['subsite_front_page'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"];
+    $vars['subsite_name_logo_setting'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"];
 
     // Support default themes
     // Change the front page variable to link to the subsite.
@@ -287,8 +289,6 @@ function stanford_subsites_apply_subsite($node, &$vars) {
       );
     }
 
-    // Set the link setting as a variable for page.tpl.php
-    $vars['subsite_name_logo_setting'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"];
 
     // What the active subsite setting is.
     switch ($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"]) {
@@ -309,6 +309,8 @@ function stanford_subsites_apply_subsite($node, &$vars) {
           $vars['subsite_logo_html'] = l($img, "<front>", array('html' => TRUE));
         }
         $vars['subsite_site_name_html'] = l($vars['site_name'], "node/" . $node->nid);
+        $vars['subsite_front'] = url('node/' . $node->nid, array('absolute' => TRUE));
+        $vars['subsite_front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
         break;
 
       // Link both to main site.
@@ -409,7 +411,7 @@ function stanford_subsites_node_delete($node) {
 
   // Clear out the working space. Just cuz.
   module_load_include("inc", "stanford_subsites", "stanford_subsites");
-  _clear_subsite_workingspace();
+  stanford_subsites_clear_subsite_workingspace();
 
   // Remove all of the things.
   if ($index) {
