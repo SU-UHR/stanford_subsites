@@ -307,10 +307,10 @@ function _create_subsite_menu_and_menublock($node) {
   $menu_block['title_link'] = 0;
   $menu_block['admin_title'] = t('Subsite Menu Block: ') . $menu_name;
   $menu_block['menu_name'] = $menu_name;
-  $menu_block['level'] = 1;
+  $menu_block['level'] = variable_get('stanford_subsite_menu_block_level', "1");
   $menu_block['follow'] = 0;
   $menu_block['follow_parent'] = "active";
-  $menu_block['depth'] = "1";
+  $menu_block['depth'] = variable_get('stanford_subsite_menu_block_depth', "1");
   $menu_block['expanded'] = 0;
   $menu_block['sort'] = 0;
   $menu_block['parent_mlid'] = $menu_name . ":0";

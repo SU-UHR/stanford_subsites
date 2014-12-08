@@ -72,6 +72,43 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     '#default_value' => variable_get('stanford_subsite_enabled_menus', FALSE),
   );
 
+  $form['sws_menu']['stanford_subsite_menu_block_level'] = array(
+    '#title' => t("Menu block menu starting level"),
+    '#default_value' => variable_get('stanford_subsite_menu_block_level', "1"),
+    '#type' => 'select',
+    '#options' => array(
+      '1'  => t('1st level (primary)'),
+      '2'  => t('2nd level (secondary)'),
+      '3'  => t('3rd level (tertiary)'),
+      '4'  => t('4th level'),
+      '5'  => t('5th level'),
+      '6'  => t('6th level'),
+      '7'  => t('7th level'),
+      '8'  => t('8th level'),
+      '9'  => t('9th level'),
+    ),
+    '#description' => t('Blocks that start with the 1st level will always be visible. Blocks that start with the 2nd level or deeper will only be visible when the trail to the active menu item passes though the block’s starting level.'),
+  );
+
+  $form['sws_menu']['stanford_subsite_menu_block_depth'] = array(
+    '#type' => 'select',
+    '#title' => t('Maximum depth'),
+    '#options' => array(
+      '1'  => '1',
+      '2'  => '2',
+      '3'  => '3',
+      '4'  => '4',
+      '5'  => '5',
+      '6'  => '6',
+      '7'  => '7',
+      '8'  => '8',
+      '9'  => '9',
+      '0'  => t('Unlimited'),
+    ),
+    '#description' => t('From the starting level, specify the maximum depth of the menu tree.'),
+    '#default_value' => variable_get('stanford_subsite_menu_block_depth', "1"),
+  );
+
   $mbtr = variable_get('stanford_subsite_mbtr', array());
 
   // We want to list out all enabled themes and provide their regions as options.
