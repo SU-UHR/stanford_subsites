@@ -64,19 +64,4 @@
   padding-bottom: 20px;
 }
 
-.inner-left {
-  display: inline-block;
-}
 
-#block-stanford-subsites-admin-dash-subsites-dashboard-banner form {
-  padding-left: 20px;
-  display: inline-block;
-}
-
-.form-item-subsite-workingspace {
-  display: inline-block;
-}
-
-#block-stanford-subsites-admin-dash-subsites-dashboard-banner .form-submit {
-  display: inline-block;
-}
