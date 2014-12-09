@@ -14,6 +14,7 @@ class context_condition_active_subsite extends context_condition {
   public function condition_values() {
     $values = array();
     $values['any'] = "-- " . t("Any Subsite") . " --";
+    $values['none'] = "-- " . t("No Active Subsite") . " --";
     // Get all subsite nodes.
     $query = db_select('node', 'n')
               ->fields('n', array('nid', 'title'))
@@ -34,7 +35,12 @@ class context_condition_active_subsite extends context_condition {
 
     // Grab subsites array.
     $subsite = stanford_subsites_get_active_subsite();
+
     if (!$subsite) {
+      // Grab all the contexts.
+      foreach ($this->get_contexts("none") as $context) {
+        $this->condition_met($context, "none");
+      }
       return;
     }
 
