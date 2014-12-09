@@ -80,33 +80,36 @@
     </div>
   </div>
   <!-- /#header -->
-  <?php if (($main_menu) || ($page['search_box'])): ?>
+
+  <?php if (!empty($primary_nav) || !empty($page['search_box']) || !empty($page['navigation'])): ?>
   <div id="main-menu" class="clearfix site-main-menu">
     <div class="container">
       <div class="navbar">
-        <?php if ($main_menu): ?>
+        <?php if ($primary_nav): ?>
         <div class="navbar-inner">
-          <?php endif; ?>
+        <?php endif; // end $main_menu ?>
+
           <?php if ($page['search_box']): ?>
           <div id="nav-search" class="nav-search"> <?php print render($page['search_box']); ?> </div>
-          <?php endif; ?>
-          <?php if ($main_menu): ?>
+          <?php endif; // end $page['search_box'] ?>
+
+          <?php if (!empty($primary_nav) || !empty($page['navigation'])): ?>
           <button aria-label="Navigation menu" class="btn btn-navbar collapsed" data-toggle="collapse" data-target=".nav-collapse"> <span class="hide">Navigation menu</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
-          <?php if ($primary_nav || !empty($page['navigation'])): ?>
           <div class="nav-collapse collapse">
             <nav id="main-nav" role="navigation">
-              <?php if (($primary_nav) && empty($page['navigation'])): ?>
-              <?php print render($primary_nav); ?>
-              <!-- /#primary-menu -->
-              <?php endif; ?>
-              <?php if (!empty($page['navigation'])): ?>
-              <?php print render($page['navigation']); ?>
-              <?php endif; ?>
+              <?php
+                if (!empty($page['navigation'])) {
+                  print render($page['navigation']);
+                }
+                else if (!empty($primary_nav)) {
+                  print render($primary_nav);
+                }
+              ?>
             </nav>
           </div>
           <?php endif; ?>
-          <?php endif; ?>
-          <?php if ($main_menu): ?>
+
+        <?php if ($primary_nav): ?>
         </div>
         <?php endif; ?>
       </div>

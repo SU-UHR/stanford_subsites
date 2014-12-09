@@ -270,17 +270,21 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
     $rows[]["data"] = array($context->name, $context->description, $path_list, $edit);
   }
 
+  // Sort by title by default.
+  uasort($rows, "stanford_subsites_dash_sort_blocks_rows_data");
+
   $limit = 10;
-  pager_default_initialize(count($rows), $limit, 1);
-  $page_get = isset($_GET['page']) ? check_plain($_GET['page']) : "0,0";
+  pager_default_initialize(count($rows), $limit, 2);
+  $page_get = isset($_GET['page']) ? check_plain($_GET['page']) : "0,0,0";
   $page_xp = explode(",", $page_get);
-  $page = $page_xp[1];
+  $page = isset($page_xp[2]) ? $page_xp[2] : 0;
 
   $render_rows = array_slice($rows, $page, ($page + $limit));
-  $table = array("header" => $header, "rows" => $rows);
+
+  $table = array("header" => $header, "rows" => $render_rows);
   $content .= theme("table", $table);
 
-  $args = array('quantity' => 6,'tags' => array('<<', '<', '', '>', '>>'), "element" => 1);
+  $args = array('quantity' => 6, "element" => 2);
   $content .= theme('pager', $args);
 
   return $content;
@@ -359,7 +363,6 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
       $edit = isset($bean->type) ? l(t("Edit"), 'block/' . $bean->delta . '/edit') : l(t("Configure"), "admin/structure/block/manage/" . $info['module'] . "/" . $info['delta'] . "/configure");
       $configure = isset($bean->type) ? l(t("Configure"), "admin/structure/block/manage/" . $info['module'] . "/" . $info['delta'] . "/configure") : "";
 
-
       $rows[$delta]['title'] = $title;
       $rows[$delta]['type'] = isset($bean->type) ? $bean->type : "block";
       $rows[$delta]['context'][] = l(t($context->name), "admin/structure/context/list/" . $context->name . "/edit");
@@ -380,20 +383,39 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
     $info['context'] = theme("item_list", array("items" => $info["context"]));
   }
 
+  // Sort by title by default.
+  uasort($rows, "stanford_subsites_dash_sort_blocks_title");
+
   $limit = 10;
-  pager_default_initialize(count($rows), $limit, 0);
-  $page_get = isset($_GET['page']) ? check_plain($_GET['page']) : "0,0";
+  pager_default_initialize(count($rows), $limit, 1);
+  $page_get = isset($_GET['page']) ? check_plain($_GET['page']) : "0,0,0";
   $page_xp = explode(",", $page_get);
-  $page = $page_xp[0];
-  $render_rows = array_slice($rows, $page, ($page + $limit));
+  $page = $page_xp[1];
+  $min = ($page * $limit);
+  $max = ($page * $limit) + $limit;
+  $render_rows = array_slice($rows, $min, $max);
 
   $table = array("header" => $header, "rows" => $render_rows, 'empty' => t('Sorry, no results found'),);
   $content .= theme("table", $table);
 
-  $args = array('quantity' => 6,'tags' => array('<<', '<','', '>', '>>'), "element" => 0);
+  $args = array('quantity' => 6, "element" => 1);
   $content .= theme('pager', $args);
 
   return $content;
+}
+
+/**
+ * Sort by block title.
+ * @param  [type] $a [description]
+ * @param  [type] $b [description]
+ * @return [type]    [description]
+ */
+function stanford_subsites_dash_sort_blocks_title($a, $b) {
+ return strcmp($a['title'], $b['title']);
+}
+
+function stanford_subsites_dash_sort_blocks_rows_data($a, $b) {
+ return strcmp($a['data'][0], $b['data'][0]);
 }
 
 /**
