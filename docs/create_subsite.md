@@ -4,7 +4,7 @@ Here&#39;s how to create a subsite:
 
 2.  For **Page Title**, enter the subsite name in
 
-3.  Enter **Site Name** and **Site Name Second line**as you wish for the site name to appear on the page
+3.  Enter **Site Name** and **Site Name Second line** as you wish for the site name to appear on the page
 
 4.  Select the **Logo and Site Name Settings** using the drop-down menu. For subsites choose **Link logo to main site and site name to this subsite**.
 
