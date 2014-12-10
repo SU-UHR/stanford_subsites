@@ -10,16 +10,16 @@ Here&#39;s how to create a subsite:
 
 5.  Add the subsite to the the **Main Menu**:
 
-        1.  Under the **Menu settings** horizontal tab, select **Provide a menu link**
+  1.  Under the **Menu settings** horizontal tab, select **Provide a menu link**
 
-        2.  Optionally add a **Menu Link Title**. If one is provided, it will default to the **Subsite Page Title**
+  2.  Optionally add a **Menu Link Title**. If one is provided, it will default to the **Subsite Page Title**
 
-        3.  Optionally add a **Description**.
+  3.  Optionally add a **Description**.
 6.  Optionally provide a URL for the entire subsite. If none is set, the URL will default to /page-title-of-subsite
 
-        1.  Select the **URL path settings** horizontal tab
+  1.  Select the **URL path settings** horizontal tab
 
-        2.  De-select **Generate automatic URL alias**
+  2.  De-select **Generate automatic URL alias**
 
-        3.  Enter the desired URL
+  3.  Enter the desired URL
 7.  Scroll to the bottom and select **Save**
