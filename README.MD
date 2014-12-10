@@ -1,64 +1,22 @@
-THEME VARIABLES:
-This module introduces a couple of extra variables into your page.tpl.php
+#Subsites Documentation
 
-*$alt*                   
-The alt text provided in the image upload field on subsite
-nodes. field_stanford_subsite_logo. This can be added to
-the default page.tpl.php markup
+##Install the Stanford Subsites module on your Drupal 7 site
 
-*$logo_title*           
-The title text provided in the image upload field on
-subsite nodes. field_stanford_subsite_logo. This can be
-added to the default page.tpl.php markup
+The [Stanford Subsites module can be downloaded from GitHub »] (git@github.com:SU-SWS/stanford_subsites.git)
 
-*$subsite_logo_html*    
-A fully rendered image and link tag complete with alt and
-title text. This variable should replace the $logo
-variable in page.tpl.php. It falls back to the default
-$logo image if there is no subsite logo available. This is
-different from the regular $logo variable as it has alt,
-title text, and a link that can link to either the subsite
-page or the drupal root home.
+##Enable Stanford Subsites module using Drush
 
-*$subsite_site_name_html*
-A fully rendered link and site name heading tag. This
-is different from the regular $site_name page variable
-as it can have it's link go to either the subsite node
-or the Drupal root home.
+Run the following Drush command: % drush en stanford_subsites -y
 
-*$subsite_site_name_text*  
-A plain text string of the currently active susbsite
-site name text
+**Note:** Dependencies should be automagically handled.
 
-*$subsite_is_front*     
-A boolean value to determine if the current page that is
-being viewed is a subsite 'front' page
+##Enable Stanford Subsites module from the user interface
 
-*$subsite_front*       
-A string of the complete url to the active subsite. False
-if there is no active subsite.
-eg: http://example.com/subsite
+1. Click **Modules** and locate the Stanford Subsites module
+2. Check the box next to each of the modules to enable them
+3. Click **Save configuration**
 
-*$subsite_name_logo_setting*    
-A string of text with the setting value for the
-way the logo and site name variables should be
-linked. The values are: default (link both to site
-root), subsite (link both to subsite node), or
-split (link logo to site root and site name to the
-subsite logo)
+##Configure Stanford Subsites module
 
-
-Some additional variables are available to your html.tpl.php
-
-*$subsite_site_name_html*   
-A fully rendered link and site name heading tag. This
-is different from the regular $site_name page variable
-as it can have it's link go to either the subsite node
-or the Drupal root home.
-
-*$subsite_site_name_text*  
-A plain text string of the currently active susbsite
-site name text
-
-*$site_name*                
-The original site name.
+1. From the administration menu, hover over **Configuration**
+2. Click **Subsite Settings**
