@@ -24,5 +24,5 @@ Here&#39;s how to create a subsite:
 
   3.  Enter the desired URL
 7.  Scroll to the bottom and select **Save**
-#Add Pages to your Subsite
-#Create Subsite Contexts
+##Add Pages to your Subsite
+##Create Subsite Contexts
