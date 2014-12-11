@@ -1,4 +1,10 @@
-#Subsites Documentation
+#[Stanford Subsites](https://github.com/SU-SWS/stanford_subsites)
+##### Version 7.x-2.x
+
+Maintainers: [Caryl Westerberg](https://github.com/cjwest), [Shea McKinney](https://github.com/sherakama)
+[Changelog.txt](CHANGELOG.txt)
+
+This module provides the ability to create a site in a site, sort of. This module is unline other implementations of subsite like functionality. This subsite module allows content authors to create subsite nodes in which automatically have their own context and menu associated with it. Content editors can select a new logo, title, slogan, and/or theme to go with the subsite node and all other pages within a subsite. Other content types can be added to a subsite by placing them within the menu structure of the subsite or by tagging them with the subsite specific term. This module does not provide any sort of editorial permission strucutre. You may add your own using a contrib module such as Taxonomy Access Control, or Content Access Control.
 
 ##Install the Stanford Subsites module on your Drupal 7 site
 
@@ -16,7 +22,19 @@ Run the following Drush command: % drush en stanford_subsites -y
 2. Check the box next to each of the modules to enable them
 3. Click **Save configuration**
 
+[See Drupal Documentation](https://drupal.org/documentation/install/modules-themes/modules-7)
+
 ##Configure Stanford Subsites module
 
 1. From the administration menu, hover over **Configuration**
 2. Click **Subsite Settings**
+
+Troubleshooting
+---
+
+If you are experiencing issues with this module try reverting the feature first. If you are still experiencing issues try posting an issue on the GitHub issues page.
+
+Contribution / Collaboration
+---
+
+You are welcome to contribute functionality, bug fixes, or documentation to this module. If you would like to suggest a fix or new functionality you may add a new issue to the GitHub issue queue or you may fork this repository and submit a pull request. For more help please see [GitHub's article on fork, branch, and pull requests](https://help.github.com/articles/using-pull-requests)
