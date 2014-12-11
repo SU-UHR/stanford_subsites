@@ -1,5 +1,5 @@
 name = Stanford Subsites Administration Dashboard
-description = Adds a number of adminstrative blocks on the dashboard
+description = Creates a dashboard block at admin/config/subsites/dashboard.
 package = Stanford
 version = 1.0
 core = 7.x

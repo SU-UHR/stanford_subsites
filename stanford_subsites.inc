@@ -50,7 +50,8 @@ function stanford_subsites_get_active_subsite() {
 
 /**
  * Get all subsite nodes.
- * $published = TRUE / FALSE / "ALL"
+ * @param mixed $published
+ *   Either: TRUE / FALSE / "ALL"
  * @return array
  *   An array of subsite nodes
  */
@@ -95,7 +96,7 @@ function _lookup_subsite_reference_by_node($node) {
   $term = FALSE;
   // Check for the field.
   if (isset($node->{SUBSITE_TAGS_FIELD})) {
-    $term = _get_subsite_term_from_node($node);
+    $term = stanford_subsites_get_subsite_term_from_node($node);
   }
 
   // Check for the term.
@@ -103,7 +104,7 @@ function _lookup_subsite_reference_by_node($node) {
     return FALSE;
   }
 
-  return _get_subsite_node_by_term($term);
+  return stanford_subsites_get_subsite_node_by_term($term);
 }
 
 /**
@@ -200,11 +201,6 @@ function _get_tax_field_instance($bundle) {
  *   The nid of the new active subsite for the working space.
  */
 function stanford_subsites_set_subsite_workingspace($nid) {
-  // // Set it.
-  // stanford_subsites_clear_subsite_workingspace();
-  // // One week lifetime.
-  // $lifetime = time() + (60 * 60 * 24 * 7);
-  // setcookie('stanford_subsite_workspace', $nid, $lifetime, "/");
   $_SESSION['active_subsite'] = $nid;
 }
 
@@ -212,7 +208,6 @@ function stanford_subsites_set_subsite_workingspace($nid) {
  * Removes the active subsite working space.
  */
 function stanford_subsites_clear_subsite_workingspace() {
-  // setcookie('stanford_subsite_workspace', 0, 1, "/");
   unset($_SESSION['active_subsite']);
 }
 
@@ -220,22 +215,13 @@ function stanford_subsites_clear_subsite_workingspace() {
 /**
  * Get the active working space.
  *
- * Gets the active working space for subsites. \
- *
- * @return int
+ * @return mixed
  *   The nid of the active subsite for the working space or false.
  */
 function stanford_subsites_get_subsite_workingspace() {
-  // If a cookie is available.
-  // if (isset($_COOKIE['stanford_subsite_workspace']) &&
-  //   is_numeric($_COOKIE['stanford_subsite_workspace'])) {
-  //   return check_plain($_COOKIE['stanford_subsite_workspace']);
-  // }
-
   if (isset($_SESSION['active_subsite']) && is_numeric($_SESSION['active_subsite'])) {
     return check_plain($_SESSION['active_subsite']);
   }
-
   // Not available.
   return FALSE;
 }
@@ -259,11 +245,11 @@ function stanford_subsites_get_subsite_workingspace() {
  *   menu => the menu,
  *   menu_block => the menu block object
  */
-function _create_subsite_menu_and_menublock($node) {
+function stanford_subsites_create_subsite_menu_and_menublock($node) {
 
   // Create menu ---------------------------------------------------------------
 
-  $menu_name = _get_subsite_menu_name($node);
+  $menu_name = stanford_subsites_get_subsite_menu_name($node);
 
   $menu = array(
     'menu_name' => $menu_name,
@@ -386,7 +372,7 @@ function _create_subsite_menu_and_menublock($node) {
  * @param object $menu
  *   A fully loaded menu object
  */
-function _enable_menu_for_subsite_content_types($menu) {
+function stanford_subsites_enable_menu_for_subsite_content_types($menu) {
 
   // Get all enabled content types from the settings form array.
   $enabled_types = variable_get('stanford_subsite_content_types', array());
@@ -416,14 +402,14 @@ function _enable_menu_for_subsite_content_types($menu) {
  *     menu => (optional) the menu associated with the subsite
  *     menu_block => (optional) the menu_block associated with the subsite
  */
-function _create_subsite_context($node, &$args) {
+function stanford_subsites_create_subsite_context($node, &$args) {
 
   $menu = isset($args['menu']) ? $args['menu'] : FALSE;
   $menu_block = isset($args['menu_block']) ? $args['menu_block'] : FALSE;
   $delta = isset($args['menu_block']) ? $menu_block['delta'] : 0;
 
   // We can cheat here a bit and re-use the menu name function.
-  $context_name = _get_subsite_menu_name($node);
+  $context_name = stanford_subsites_get_subsite_menu_name($node);
 
   // Find out what region we are suspposed to be placing the menu block in by
   // getting the theme from the subsite node and comparing it to the subsite
@@ -491,9 +477,9 @@ function _create_subsite_context($node, &$args) {
  * @return string
  *   The machine name of the menu for the subsite
  */
-function _get_subsite_menu_name($node) {
+function stanford_subsites_get_subsite_menu_name($node) {
   $filter = array(' ' => '-', '/' => '-', '[' => '-', ']' => '-');
-  $term = _get_subsite_term_from_node($node);
+  $term = stanford_subsites_get_subsite_term_from_node($node);
   $menu_name = strtolower(drupal_clean_css_identifier($term->name, $filter));
 
   // Max length of menu name is 32 chars.
@@ -504,10 +490,14 @@ function _get_subsite_menu_name($node) {
 
 /**
  * Returns a fully loaded subsite term.
- * @param  [type] $node [description]
- * @return [type]       [description]
+ *
+ * @param object $node
+ *   A node object.
+ *
+ * @return object
+ *   A term object.
  */
-function _get_subsite_term_from_node($node) {
+function stanford_subsites_get_subsite_term_from_node($node) {
 
   if (!is_object($node)) {
     return FALSE;
@@ -524,11 +514,15 @@ function _get_subsite_term_from_node($node) {
 }
 
 /**
- * [_get_subsite_node_by_term description]
- * @param  [type] $term [description]
- * @return [type]       [description]
+ * Load a subsite by the term it uses and defines.
+ *
+ * @param object $term
+ *   A taxonomy term.
+ *
+ * @return mixed
+ *   A subsite node or false if something went wrong.
  */
-function _get_subsite_node_by_term($term) {
+function stanford_subsites_get_subsite_node_by_term($term) {
   // Find a node by joining the taxonomy_index table to node and filtering on
   // node type and tid.
   $select = db_select("node", "n")

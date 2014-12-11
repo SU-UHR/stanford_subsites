@@ -6,13 +6,18 @@
 /**
  * Callback function for admin/config/subsites/dashboard.
  *
- * A page callback to display the administration dashboard page.
+ * A page callback to display the administration dashboard page. Contains many
+ * blocks and some extra css. This page is themed with a special theme template.
+ *
+ * @param string $subsite_path_alias
+ *   A the path alias from the URL of the subsite node we are using. Defaults to
+ *   all.
  *
  * @return array
  *   A render array of page content.
  */
 function stanford_subsites_admin_dash_dashboard($subsite_path_alias = NULL) {
-  $subsite = null;
+  $subsite = NULL;
 
   // Set the wokring space.
   if (!is_null($subsite_path_alias) && $subsite_path_alias !== "all") {

@@ -116,31 +116,37 @@ function stanford_subsites_admin_dash_theme($existing, $type, $theme, $path) {
  */
 function stanford_subsites_admin_dash_block_info() {
 
+  // Banner block with big text heading.
   $blocks['subsites_dashboard_banner'] = array(
     'info' => t('Subsite dashboard banner'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  // A list of contexts.
   $blocks['subsites_dashboard_contexts'] = array(
     'info' => t('Subsite dashboard contexts'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  // A list of blocks
   $blocks['subsites_dashboard_blocks'] = array(
     'info' => t('Subsite dashboard blocks'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  // The content associated with a subsite. (embeds a view)
   $blocks['subsites_dashboard_content'] = array(
     'info' => t('Subsite dashboard content'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  // Create new options.
   $blocks['subsites_dashboard_create_new'] = array(
     'info' => t('Subsite dashboard create new'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  // Edit options.
   $blocks['subsites_dashboard_edit_subs'] = array(
     'info' => t('Subsite dashboard edit subsite'),
     'cache' => DRUPAL_NO_CACHE,
@@ -156,6 +162,7 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
   $block = array();
   $subsite = "all";
   $nid = stanford_subsites_get_subsite_workingspace();
+
   if (is_numeric($nid)) {
     $subsite = node_load($nid);
   }
@@ -203,8 +210,15 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
 
 
 /**
- * [stanford_subsites_dashboard_banner_block description]
- * @return [type] [description]
+ * Returns the content for the dashboard banner block.
+ *
+ * Pretty much just a large title of the subsite's name.
+ *
+ * @param mixed $subsite
+ *   Either a loaded subsite node or the keyword "all"
+ *
+ * @return string
+ *   Block html content
  */
 function stanford_subsites_dashboard_banner_block($subsite) {
   $content = "";
@@ -219,12 +233,19 @@ function stanford_subsites_dashboard_banner_block($subsite) {
 }
 
 /**
- * [stanford_subsites_dashboard_contexts_block description]
- * @param  [type] $subsite [description]
- * @return [type]          [description]
+ * Returns the content for the dashboard contexts block.
+ *
+ * Provides a list of contexts that are associated with a subsite in a table.
+ *
+ * @param mixed $subsite
+ *   Either a loaded subsite node or the keyword "all"
+ *
+ * @return string
+ *   Block html content
  */
 function stanford_subsites_dashboard_contexts_block($subsite) {
   $content = "";
+  // All contexts that are linked to a subsite.
   $contexts = stanford_subsites_admin_dash_get_subsite_contexts($subsite);
   $header = array(t("Name"), t("Description"), t("Paths"), t("Actions"));
   $rows = array();
@@ -235,10 +256,12 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
     $alias = drupal_get_path_alias("node/" . $subsite->nid);
   }
 
-
+  // Loop through the contexts and generate some values to populate the table with.
   foreach ($contexts as $context_name => $context) {
     $paths = array();
 
+    // Check for a subsite nid in case we have the all option. If we have the all
+    // option get the information about the subsite from the idex by context name.
     if (!isset($subsite->nid)) {
       $index = stanford_subsite_index_get('context', drupal_clean_css_identifier($context_name));
       if (isset($index->nid)) {
@@ -246,6 +269,7 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
       }
     }
 
+    // Context does not match. End this loop.
     if (empty($index->nid)) {
       continue;
     }
@@ -264,6 +288,7 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
       }
     }
 
+    // Generate the list of items and rows for the table.
     $list = array("items" => $paths);
     $path_list = theme('item_list', $list);
     $edit = l(t("Edit"), "admin/structure/context/list/" . $context->name . "/edit");
@@ -273,17 +298,21 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
   // Sort by title by default.
   uasort($rows, "stanford_subsites_dash_sort_blocks_rows_data");
 
+  // Create the pager.
   $limit = 10;
   pager_default_initialize(count($rows), $limit, 2);
   $page_get = isset($_GET['page']) ? check_plain($_GET['page']) : "0,0,0";
   $page_xp = explode(",", $page_get);
   $page = isset($page_xp[2]) ? $page_xp[2] : 0;
 
+  // Cut out the right portion of the rows by where the pager is at.
   $render_rows = array_slice($rows, $page, ($page + $limit));
 
+  // Create the table html.
   $table = array("header" => $header, "rows" => $render_rows);
   $content .= theme("table", $table);
 
+  // Create the pager html.
   $args = array('quantity' => 6, "element" => 2);
   $content .= theme('pager', $args);
 
@@ -291,12 +320,20 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
 }
 
 /**
- * [stanford_subsites_dashboard_blocks_block description]
- * @param  [type] $subsite [description]
- * @return [type]          [description]
+ * Returns the content for the dashboard blocks block.
+ *
+ * Provides a table of block information of blocks that are related to the
+ * chosen active subsite.
+ *
+ * @param mixed $subsite
+ *   Either a loaded subsite node or the keyword "all"
+ *
+ * @return string
+ *   Block html content
  */
 function stanford_subsites_dashboard_blocks_block($subsite) {
   $content = "";
+  // Get all contexts that are associated with subsites.
   $contexts = stanford_subsites_admin_dash_get_subsite_contexts($subsite);
 
   // In case we get "all" option.
@@ -305,6 +342,8 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
     $alias = drupal_get_path_alias("node/" . $subsite->nid);
   }
 
+  // Header options.
+  // @todo: The sort does not do anything right now.
   $header = array(
     'title' => array('data' => t("Title"), 'type' => 'property', 'specifier' => 'name', 'sort' => 'desc'),
     'type' => array('data' => t("Type"), 'sort' => 'asc'),
@@ -315,10 +354,13 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
   );
   $rows = array();
 
+  // Block information is limited. Lets use the blocks overview page to help us.
   global $theme;
   module_load_include("inc", "block", "block.admin");
+  // Lots of block informatin.
   $blocks = block_admin_display_prepare_blocks($theme);
 
+  // Loop through the contexts to generate information to populate the table with.
   foreach ($contexts as $context_name => $context) {
 
     // Only continue if we have blocks.
@@ -326,6 +368,8 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
       continue;
     }
 
+    // If we don't have a subsite (all option). We can look up information by
+    // the context name.
     if (!isset($subsite->nid)) {
       $index = stanford_subsite_index_get('context', drupal_clean_css_identifier($context_name));
       if (isset($index->nid)) {
@@ -333,11 +377,18 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
       }
     }
 
+    // If we still do not have index information here the context is not a match
+    // to a subsite and we can carry on.
     if (empty($index->nid)) {
       continue;
     }
 
+    // Loop through the blocks as they have been identified as part of a subsite.
     foreach ($context->reactions['block']['blocks'] as $delta => $info) {
+
+      // Beans are special fruit and we need to do special things for them.
+      // Beans have extra information that is useful to us. Load the bean if it
+      // is available.
       $bean = NULL;
       $block = block_load($info['module'], $info['delta']);
       if ($info['module'] == "bean" && function_exists("bean_load_delta")) {
@@ -360,6 +411,7 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
         }
       }
 
+      // Edit and configure exist for all blocks.
       $edit = isset($bean->type) ? l(t("Edit"), 'block/' . $bean->delta . '/edit') : l(t("Configure"), "admin/structure/block/manage/" . $info['module'] . "/" . $info['delta'] . "/configure");
       $configure = isset($bean->type) ? l(t("Configure"), "admin/structure/block/manage/" . $info['module'] . "/" . $info['delta'] . "/configure") : "";
 
@@ -386,6 +438,7 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
   // Sort by title by default.
   uasort($rows, "stanford_subsites_dash_sort_blocks_title");
 
+  // Create a pager. Limit to 10 items.
   $limit = 10;
   pager_default_initialize(count($rows), $limit, 1);
   $page_get = isset($_GET['page']) ? check_plain($_GET['page']) : "0,0,0";
@@ -393,11 +446,15 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
   $page = $page_xp[1];
   $min = ($page * $limit);
   $max = ($page * $limit) + $limit;
+
+  // Pull out the portion of the whole group of rows that the pager is defining.
   $render_rows = array_slice($rows, $min, $max);
 
-  $table = array("header" => $header, "rows" => $render_rows, 'empty' => t('Sorry, no results found'),);
+  // Generate table html.
+  $table = array("header" => $header, "rows" => $render_rows, 'empty' => t('Sorry, no results found'));
   $content .= theme("table", $table);
 
+  // Generate pager html.
   $args = array('quantity' => 6, "element" => 1);
   $content .= theme('pager', $args);
 
@@ -406,28 +463,39 @@ function stanford_subsites_dashboard_blocks_block($subsite) {
 
 /**
  * Sort by block title.
- * @param  [type] $a [description]
- * @param  [type] $b [description]
- * @return [type]    [description]
+ *
+ * Array sort comparison for block titles.
  */
 function stanford_subsites_dash_sort_blocks_title($a, $b) {
- return strcmp($a['title'], $b['title']);
+  return strcmp($a['title'], $b['title']);
 }
 
+/**
+ * Sort by block data.
+ *
+ * Array sort comparison for block data.
+ */
 function stanford_subsites_dash_sort_blocks_rows_data($a, $b) {
- return strcmp($a['data'][0], $b['data'][0]);
+  return strcmp($a['data'][0], $b['data'][0]);
 }
 
 /**
  * Stanford manage content block.
- * @param  [type] $subsite [description]
- * @return [type]          [description]
+ *
+ * @param object $subsite
+ *   A loaded subsite node object.
+ *
+ * @return string
+ *   Block content html.
  */
 function stanford_subsites_dashboard_content_block($subsite) {
+
+  // Get the manage content view.
   $view = views_get_view('subsite_dashboard_manage_content');
   $content = "";
 
-  // The $exposed_filters keys must correctly correspond with the actual keys of your view's exposed filters.
+  // The $exposed_filters keys must correctly correspond with the actual keys of
+  // your view's exposed filters.
   $exposed_filters = array(
     'type' => 'All',
   );
@@ -446,16 +514,23 @@ function stanford_subsites_dashboard_content_block($subsite) {
     $view->set_display("block");
   }
 
+  // Use view's preview to generate the view.
   $content .= $view->preview();
   $view->destroy();
 
+  // Return it.
   return $content;
 }
 
 /**
- * Create new options block
- * @param  [type] $subsite [description]
- * @return [type]          [description]
+ * Create new options block. Generates links that allow for quick population of
+ * a subsite with content.
+ *
+ * @param mixed $subsite
+ *   Either the keyword all or a fully loaded subsite node object.
+ *
+ * @return string
+ *   The block html output.
  */
 function stanford_subsites_dashboard_create_new_block($subsite) {
   $content = "";
@@ -464,7 +539,7 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
   $types = node_type_get_types();
 
   if ($subsite) {
-    $term = _get_subsite_term_from_node($subsite);
+    $term = stanford_subsites_get_subsite_term_from_node($subsite);
   }
 
   // List out the available types of content that can/should go into a subsite.
@@ -491,39 +566,20 @@ function stanford_subsites_dashboard_create_new_block($subsite) {
   return $content;
 }
 
-// /**
-//  * [stanford_subsites_dashboard_working_space_quick_toggle description]
-//  * @param  [type] $subsite [description]
-//  * @return [type]          [description]
-//  */
-// function stanford_subsites_dashboard_working_space_quick_toggle($subsite) {
-//   $content = "";
-
-//   // Get and make some changes...
-//   $form = drupal_get_form('stanford_subsite_working_space_jump_select_form');
-//   unset($form['submit']);
-//   $form['subsite_workingspace']['#title'] = t("Subsite toggle");
-//   $form["#attached"]["js"][] = drupal_get_path("module", "stanford_subsites_admin_dash") . "/js/ws.quick.toggle.js";
-//   $content .= drupal_render($form);
-
-//   $css = "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle { display: inline-block; position: relative; vertical-align: bottom; }";
-//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form { padding: 0; margin: 0; }";
-//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle .form-item { padding: 0; margin: 0; }";
-//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form label { font-size: 1em; margin: 0; padding: 0; }";
-//   $css .= "#block-stanford-subsites-admin-dash-subsites-dashboard-ws-toggle form select { font-size: 1em; height: 1.5em; line-height: 1.5em; }";
-
-//   drupal_add_css($css, "inline");
-
-//   return $content;
-// }
-
 /**
- * Subsite options
- * @param  [type] $subsite [description]
- * @return [type]          [description]
+ * A collection of links for edit actions on a subsite.
+ *
+ * Provides a few links to edit items of a subsite.
+ *
+ * @param mixed $subsite
+ *   The keyword all or a fully loaded subsite node.
+ *
+ * @return string
+ *   The block's HTML
  */
 function stanford_subsites_dashboard_edit_subs_block($subsite) {
 
+  // If no subsite then just return an empty string.
   if (empty($subsite) || $subsite == "all") {
     return "";
   }
@@ -545,20 +601,30 @@ function stanford_subsites_dashboard_edit_subs_block($subsite) {
 }
 
 /**
- * Returns a list of contexts filtered by the subsite of choice.
- * @param  [type] $subsite [description]
- * @return [type]          [description]
+ * Returns a list of contexts filtered by the subsite of choice. Retuns all
+ * contexts if the keywork "all" is passed in as the subsite parameter.
+ *
+ * @param mixed $subsite
+ *   The keyword all or a fully loaded subsite node.
+ *
+ * @return string
+ *   The block's HTML
  */
 function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
+  // Load up all contexts.
   $contexts = context_load();
 
+  // If no subsite just return everything.
   if (!isset($subsite->nid) || $subsite == "all") {
     return $contexts;
   }
 
-  $nid = $subsite->nid;
+  // The subsite nid can give us the alias.
   $alias = drupal_get_path_alias("node/" . $subsite->nid);
 
+  // Loop through each of the contexts trying to match up a subsite condition
+  // to the passed in subsite variable. You can match a subsite by path or nid.
+  // This is similar to the get_active_subsites() function.
   foreach ($contexts as $context_name => $context) {
     $valid = FALSE;
 
@@ -591,6 +657,7 @@ function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
  */
 function stanford_subsites_admin_dash_context_load_alter(&$context) {
   $key = "stanford_jumpstart_admin_shortcuts";
+  // Look for the shortcuts context so we can add our block of links to it.
   if ($context->name == $key) {
     $context->reactions["block"]['blocks']['menu-subsite-dashboards'] = array(
       "module" => "menu",

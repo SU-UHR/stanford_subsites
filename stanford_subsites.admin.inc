@@ -5,7 +5,17 @@
  */
 
 /**
- * Implements hook_form().
+ * Subsite configuration form.
+ *
+ * The configuration form options for subsite tasks. Ie: menu and content types.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form_state array.
+ *
+ * @return array
+ *   A form array for the setting form.
  */
 function stanford_subsites_admin_config_form($form, &$form_state) {
 
@@ -72,6 +82,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     '#default_value' => variable_get('stanford_subsite_enabled_menus', FALSE),
   );
 
+  // Taken right from menu_block module...
   $form['sws_menu']['stanford_subsite_menu_block_level'] = array(
     '#title' => t("Menu block menu starting level"),
     '#default_value' => variable_get('stanford_subsite_menu_block_level', "1"),
@@ -90,6 +101,7 @@ function stanford_subsites_admin_config_form($form, &$form_state) {
     '#description' => t('Blocks that start with the 1st level will always be visible. Blocks that start with the 2nd level or deeper will only be visible when the trail to the active menu item passes though the block’s starting level.'),
   );
 
+  // Taken right from menu_block module...
   $form['sws_menu']['stanford_subsite_menu_block_depth'] = array(
     '#type' => 'select',
     '#title' => t('Maximum depth'),

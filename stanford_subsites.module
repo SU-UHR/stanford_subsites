@@ -46,10 +46,12 @@ module_load_include('inc', 'stanford_subsites', 'stanford_subsites');
  * Implements hook_help().
  *
  * @param string $path
- *    path to help page
+ *   path to help page
  * @param array $arg
- *    args
- * @return array
+ *   args
+ *
+ * @return html
+ *   html output
  */
 function stanford_subsites_help($path, $arg) {
   switch ($path) {
@@ -158,9 +160,16 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
 
 
 /**
- * Implements hook_preprocess()
+ * Implements hook_preprocess_page().
+ *
+ * In order to do the logo, title, and slogan switching we need to generate and
+ * change a number of page.tpl variables.
+ *
+ * @param array $vars
+ *   Already defined page template vars.
+ *
  */
-function stanford_subsites_preprocess_page(&$vars, $hook) {
+function stanford_subsites_preprocess_page(&$vars) {
 
   // Some variables need to be persistent.
   $vars['subsite_logo_html'] = FALSE; // the subsite logo full html and link
@@ -385,12 +394,12 @@ function stanford_subsites_node_insert($node) {
 
     // If menu/menublock creation is enabled do it!
     if (variable_get("stanford_subsite_enabled_menus", FALSE)) {
-      $args += _create_subsite_menu_and_menublock($node);
-      _enable_menu_for_subsite_content_types($args['menu']);
+      $args += stanford_subsites_create_subsite_menu_and_menublock($node);
+      stanford_subsites_enable_menu_for_subsite_content_types($args['menu']);
     }
 
     // Create a subsite context for this subsite.
-    _create_subsite_context($node, $args);
+    stanford_subsites_create_subsite_context($node, $args);
 
     $tid = $node->{SUBSITE_TAGS_FIELD}[$node->language][0]['tid'];
     $menu = $args['menu']['menu_name'];
@@ -403,7 +412,9 @@ function stanford_subsites_node_insert($node) {
 }
 
 /**
- * Implements hook_node_delete()
+ * Implements hook_node_delete().
+ *
+ * Remove all the extra fluff we can when we delete a subsite.
  */
 function stanford_subsites_node_delete($node) {
 
@@ -452,12 +463,21 @@ function stanford_subsites_node_delete($node) {
 }
 
 /**
- * [stanford_subsite_index_insert description]
- * @param  [type] $nid     [description]
- * @param  [type] $tid     [description]
- * @param  string $menu    [description]
- * @param  string $context [description]
- * @return [type]          [description]
+ * Index insert is a wrapper for drupal_write_record to the subsite_index schema.
+ *
+ * Inserts a new record into the subsite_index scheam
+ *
+ * @param int $nid
+ *   The subsite nid
+ * @param int $tid
+ *   The subsite's term's id.
+ * @param string $menu
+ *   The name of the menu for the subsite menu block.
+ * @param string $context
+ *   The name of the context for the whole subsite.
+ *
+ * @return boolean
+ *   True for success.
  */
 function stanford_subsite_index_insert($nid, $tid, $menu = "", $context = "") {
   $record = array(
@@ -470,12 +490,22 @@ function stanford_subsite_index_insert($nid, $tid, $menu = "", $context = "") {
 }
 
 /**
- * [stanford_subsite_index_update description]
- * @param  [type] $nid     [description]
- * @param  [type] $tid     [description]
- * @param  [type] $menu    [description]
- * @param  [type] $context [description]
- * @return [type]          [description]
+ * Update a record in the subsite_index schema.
+ *
+ * This function wraps a drupal_write_record call in order to update a subsite
+ * record when something changes.
+ *
+ * @param int $nid
+ *   The subsite nid
+ * @param int $tid
+ *   The subsite's term's id
+ * @param string $menu
+ *   The subsite's menu name
+ * @param string $context
+ *   The subsite's context name.
+ *
+ * @return bool
+ *   True for success
  */
 function stanford_subsite_index_update($nid, $tid = NULL, $menu = NULL, $context = NULL) {
   $record = array(
@@ -499,10 +529,14 @@ function stanford_subsite_index_update($nid, $tid = NULL, $menu = NULL, $context
 }
 
 /**
- * Get a subsite index recored from one of the many keys.
- * @param  string $type  [description]
- * @param  [type] $value [description]
- * @return [type]        [description]
+ * Get a subsite index record from one of the many keys.
+ * @param string $type
+ *   Key name of subsite_index table cell.
+ * @param mixed $value
+ *   The value for the subsite index get search.
+ *
+ * @return mixed
+ *   The result object or false if none.
  */
 function stanford_subsite_index_get($type = "nid", $value = NULL) {
 
@@ -575,7 +609,7 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
       return;
     }
 
-    $subsite = _get_subsite_node_by_term($term);
+    $subsite = stanford_subsites_get_subsite_node_by_term($term);
     // Not a valid subsite. Die.
     if (!$subsite) {
       return;
@@ -645,8 +679,14 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
 }
 
 /**
- * [stanford_subsites_menu_change_callback description]
- * @return [type] [description]
+ * A callback function for an ajax request regarding menus.
+ *
+ * Return a list of menu options that are limited to a subsite selection for the
+ * node edit form.
+ *
+ * @return array
+ *   The part of the node edit form that handles the menu options filtered by
+ *   the subsite that is selected.
  */
 function stanford_subsites_menu_change_callback($form, $form_state) {
 
@@ -682,11 +722,15 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
 }
 
 /**
+ * Save values correctly after move in node_edit form.
+ *
  * Form alter moves the tags field to somewhere it does not belong. We need to
  * move those values back so that they get saved.
- * @param  [type] $form        [description]
- * @param  [type] $form_values [description]
- * @return [type]              [description]
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_values
+ *   The form_values array
  */
 function stanford_subsites_form_node_submit_save_tags_field($form, &$form_values) {
 
@@ -736,10 +780,12 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
 }
 
 /**
- * Validate hook.
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
- * @return [type]             [description]
+ * Validate hook for node submit.
+ *
+ * @param array $form
+ *   The form array.
+ * @param array $form_state
+ *   The form_state array.
  */
 function stanford_subsites_form_node_form_alter_subsite_node_validate(&$form, &$form_state) {
   $values = $form_state['values'];
@@ -757,10 +803,16 @@ function stanford_subsites_form_node_form_alter_subsite_node_validate(&$form, &$
 }
 
 /**
- * Submit hook.
- * @param  [type] $form       [description]
- * @param  [type] $form_state [description]
- * @return [type]             [description]
+ * Submit hook for node submit on subsites.
+ *
+ * Change the subsite term name when the user changes the subsite tag instead of
+ * creating a whole new erm.
+ *
+ * @param array $form
+ *   The form array
+ * @param array $form_state
+ *   The form_state array
+ *
  */
 function stanford_subsites_form_node_form_alter_subsite_node_submit(&$form, &$form_state) {
   $values = $form_state['values'];

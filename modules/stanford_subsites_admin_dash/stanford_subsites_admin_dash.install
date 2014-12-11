@@ -7,7 +7,8 @@
  * Implements hook_install().
  */
 function stanford_subsites_admin_dash_install() {
-  // Exported menu: menu-admin-shortcuts.
+
+  // Create a nemu for dashboard items. Menu items are in hook_menu.
   $menu = array(
     'menu_name' => 'menu-subsite-dashboards',
     'title' => 'Manage Subsites',

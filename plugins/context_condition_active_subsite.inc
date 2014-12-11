@@ -15,6 +15,7 @@ class context_condition_active_subsite extends context_condition {
     $values = array();
     $values['any'] = "-- " . t("Any Subsite") . " --";
     $values['none'] = "-- " . t("No Active Subsite") . " --";
+
     // Get all subsite nodes.
     $query = db_select('node', 'n')
               ->fields('n', array('nid', 'title'))
