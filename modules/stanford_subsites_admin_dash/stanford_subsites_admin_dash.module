@@ -46,6 +46,11 @@ function stanford_subsites_admin_dash_permission() {
  */
 function stanford_subsites_admin_dash_menu($items = array()) {
 
+  $subsites = stanford_subsites_get_subsite_nodes();
+  if (empty($subsites)) {
+    return;
+  }
+
   $items['admin/config/subsites/dashboard'] = array(
     'title' => 'Manage Subsites',
     'page callback' => 'stanford_subsites_admin_dash_dashboard',
@@ -53,22 +58,28 @@ function stanford_subsites_admin_dash_menu($items = array()) {
     'access arguments' => array('access sws admin dash'),
     'type' => MENU_NORMAL_ITEM,
     'file' => "stanford_subsites_admin_dash.pages.inc",
-    'menu_name' => "menu-subsite-dashboards",
     'expanded' => TRUE,
+    'menu' => "menu-subsite-dashboards",
+    'weight' => 5,
   );
 
-  $items['admin/config/subsites/dashboard/all'] = array(
-    'title' => 'All subsites',
-    'page callback' => 'stanford_subsites_admin_dash_dashboard',
-    'page arguments' => array("all"),
-    'description' => 'An administration page for managing subsites and subsite content.',
-    'access arguments' => array('access sws admin dash'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => "stanford_subsites_admin_dash.pages.inc",
-    'menu_name' => "menu-subsite-dashboards",
-  );
+  // If the shortcuts module exits then change the menu path.
+  if (module_exists("stanford_jumpstart_shortcuts")) {
+    $items['admin/config/subsites/dashboard']['menu_name'] = "menu-admin-shortcuts";
+  }
 
-  $subsites = stanford_subsites_get_subsite_nodes();
+
+  // $items['admin/config/subsites/dashboard/all'] = array(
+  //   'title' => 'All subsites',
+  //   'page callback' => 'stanford_subsites_admin_dash_dashboard',
+  //   'page arguments' => array("all"),
+  //   'description' => 'An administration page for managing subsites and subsite content.',
+  //   'access arguments' => array('access sws admin dash'),
+  //   'type' => MENU_NORMAL_ITEM,
+  //   'file' => "stanford_subsites_admin_dash.pages.inc",
+  //   'menu_name' => "menu-subsite-dashboards",
+  // );
+
   foreach ($subsites as $subsite) {
     $path = drupal_get_path_alias("node/" . $subsite->nid);
     $items['admin/config/subsites/dashboard/' . $path] = array(
@@ -81,6 +92,12 @@ function stanford_subsites_admin_dash_menu($items = array()) {
       'file' => "stanford_subsites_admin_dash.pages.inc",
       'menu_name' => "menu-subsite-dashboards",
     );
+
+    // If the shortcuts module exits then change the menu path.
+    if (module_exists("stanford_jumpstart_shortcuts")) {
+      $items['admin/config/subsites/dashboard/' . $path]['menu_name'] = "menu-admin-shortcuts";
+    }
+
   }
 
   return $items;
@@ -629,7 +646,7 @@ function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
     $valid = FALSE;
 
     if (isset($context->conditions['active_subsite'])) {
-      if (in_array($nid, $context->conditions['active_subsite']['values'])) {
+      if (in_array($subsite->nid, $context->conditions['active_subsite']['values'])) {
         $valid = TRUE;
       }
     }
@@ -659,11 +676,16 @@ function stanford_subsites_admin_dash_context_load_alter(&$context) {
   $key = "stanford_jumpstart_admin_shortcuts";
   // Look for the shortcuts context so we can add our block of links to it.
   if ($context->name == $key) {
+    $subsites = stanford_subsites_get_subsite_nodes();
+    // Only continue if there are subsites.
+    if (empty($subsites)) {
+      return;
+    }
     $context->reactions["block"]['blocks']['menu-subsite-dashboards'] = array(
       "module" => "menu",
       "delta" => "menu-subsite-dashboards",
       "region" => "admin_shortcuts",
-      "weight" => -5,
+      "weight" => -10,
     );
   }
 }
