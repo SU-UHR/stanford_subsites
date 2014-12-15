@@ -330,6 +330,14 @@ function stanford_subsites_create_subsite_menu_and_menublock($node) {
   foreach (list_themes() as $key => $theme) {
     if ($theme->status) {
       $region = !empty($menu_block['regions'][$theme->name]) ? $menu_block['regions'][$theme->name] : BLOCK_REGION_NONE;
+
+      // Check to see that block does not already exist...
+      db_delete("block")
+        ->condition("theme", $theme->name)
+        ->condition("module", $menu_block['module'])
+        ->condition("delta", $delta)
+        ->execute();
+
       $query->values(array(
         'visibility' => (int) $menu_block['visibility'],
         'pages' => trim($menu_block['pages']),
@@ -461,6 +469,7 @@ function stanford_subsites_create_subsite_context($node, &$args) {
   $context->export_type = 1;
 
   context_save($context);
+  drupal_set_message("A subsite context was created for you. " . l(t("Edit it here") . " »", "admin/structure/context/list/" . $context_name . "/edit"));
 
   // ---------------------------------------------------------------------------
 
@@ -492,7 +501,6 @@ function stanford_subsites_create_subsite_context($node, &$args) {
   // ---------------------------------------------------------------------------
 
   cache_clear_all();
-  drupal_set_message("A subsite context was created for you. " . l(t("Edit it here") . " »", "admin/structure/context/list/" . $context_name . "/edit"));
   $args['context'] = $context;
   return TRUE;
 }
