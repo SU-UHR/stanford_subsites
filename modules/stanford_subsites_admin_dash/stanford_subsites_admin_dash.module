@@ -318,6 +318,7 @@ function stanford_subsites_dashboard_contexts_block($subsite) {
       $paths[] = l($alias, $alias);
     }
 
+
     // Loop through the path conditions to gather paths.
     if (isset($context->conditions['path']['values'])) {
       foreach ($context->conditions['path']['values'] as $path) {
@@ -675,7 +676,12 @@ function stanford_subsites_admin_dash_get_subsite_contexts($subsite) {
 
     if (isset($context->conditions['path'])) {
       foreach ($context->conditions['path']['values'] as $path) {
-        if (strpos($path, $alias . "/") !== FALSE) {
+
+        // Exact match.
+        if ($path == $alias) {
+          $valid = TRUE;
+        }
+        elseif (strpos($path, $alias . "/") !== FALSE) {
           $valid = TRUE;
         }
       }
