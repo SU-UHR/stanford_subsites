@@ -55,7 +55,7 @@ function stanford_subsites_get_active_subsite() {
  * @return array
  *   An array of subsite nodes
  */
-function stanford_subsites_get_subsite_nodes($published = "all") {
+function stanford_subsites_get_subsite_nodes($published = "all", $reset = FALSE) {
   $query = db_select("node", "n")
             ->fields("n", array("nid"))
             ->condition("type", SUBSITE_CONTENT_TYPE)
@@ -72,7 +72,7 @@ function stanford_subsites_get_subsite_nodes($published = "all") {
     $nids[] = $result['nid'];
   }
 
-  return node_load_multiple($nids);
+  return node_load_multiple($nids, array(), $reset);
 }
 
 /**

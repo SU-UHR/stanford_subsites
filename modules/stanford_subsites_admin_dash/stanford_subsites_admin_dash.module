@@ -46,7 +46,7 @@ function stanford_subsites_admin_dash_permission() {
  */
 function stanford_subsites_admin_dash_menu($items = array()) {
 
-  $subsites = stanford_subsites_get_subsite_nodes();
+  $subsites = stanford_subsites_get_subsite_nodes("all", TRUE);
   if (empty($subsites)) {
     return;
   }
@@ -123,6 +123,28 @@ function stanford_subsites_admin_dash_theme($existing, $type, $theme, $path) {
   );
   return $theme;
 }
+
+/**
+ * Implements hook_init().
+ */
+function stanford_subsites_admin_dash_init() {
+
+  // When a subsite is deleted we need to clear the caches.
+  $clear_cache = variable_get("stanford_subsites_admin_dash_needs_cache_clear", FALSE);
+  if ($clear_cache) {
+    drupal_flush_all_caches();
+    // $core = array('cache', 'cache_bootstrap', 'cache_filter', 'cache_page');
+    // $cache_tables = array_merge(module_invoke_all('flush_caches'), $core);
+    // $cache_tables[] = "cache_menu";
+    // $cache_tables[] = "cache_admin_menu";
+    // foreach ($cache_tables as $table) {
+    //   cache_clear_all('*', $table, TRUE);
+    // }
+    variable_set("stanford_subsites_admin_dash_needs_cache_clear", FALSE);
+  }
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // BLOCKS       ////////////////////////////////////////////////////////////////
@@ -688,4 +710,29 @@ function stanford_subsites_admin_dash_context_load_alter(&$context) {
       "weight" => -10,
     );
   }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function stanford_subsites_admin_dash_node_insert($node) {
+  if ($node->type == SUBSITE_CONTENT_TYPE) {
+    variable_set("stanford_subsites_admin_dash_needs_cache_clear", TRUE);
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function stanford_subsites_admin_dash_node_update($node) {
+  if ($node->type == SUBSITE_CONTENT_TYPE) {
+    variable_set("stanford_subsites_admin_dash_needs_cache_clear", TRUE);
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function stanford_subsites_admin_dash_node_delete($node) {
+  variable_set("stanford_subsites_admin_dash_needs_cache_clear", TRUE);
 }

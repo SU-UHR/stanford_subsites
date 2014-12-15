@@ -19,7 +19,7 @@
 function stanford_subsites_admin_dash_dashboard($subsite_path_alias = NULL) {
   $subsite = NULL;
 
-  // Set the wokring space.
+  // Set the working space.
   if (!is_null($subsite_path_alias) && $subsite_path_alias !== "all") {
     $path = drupal_lookup_path("source", $subsite_path_alias);
     $parts = explode("/", $path);
