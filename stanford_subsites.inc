@@ -461,8 +461,37 @@ function stanford_subsites_create_subsite_context($node, &$args) {
   $context->export_type = 1;
 
   context_save($context);
-  cache_clear_all();
 
+  // ---------------------------------------------------------------------------
+
+  pathauto_node_update_alias($node, 'insert');
+  $alias = drupal_get_path_alias("node/" . $node->nid);
+
+  $context_name = stanford_subsites_get_subsite_menu_name($node) . "-home";
+  $context = new stdClass();
+  $context->name = $context_name;
+  $context->description = "Subsite home page context for " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 210);
+  $context->tag = drupal_clean_css_identifier(substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 32));
+  $context->conditions = array(
+    'path' => array(
+      'values' => array(
+        $alias => $alias,
+        "node/" . $node->nid => "node/" . $node->nid,
+      ),
+    ),
+
+  );
+
+  $context->condition_mode = 0;
+  $context->table = "context";
+  $context->type = "Normal";
+  $context->export_type = 1;
+
+  context_save($context);
+
+  // ---------------------------------------------------------------------------
+
+  cache_clear_all();
   drupal_set_message("A subsite context was created for you. " . l(t("Edit it here") . " »", "admin/structure/context/list/" . $context_name . "/edit"));
   $args['context'] = $context;
   return TRUE;
