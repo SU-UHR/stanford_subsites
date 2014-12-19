@@ -44,7 +44,6 @@ Here&#39;s how to add a page to a Subsite from the Subsite Dashboard
 
 8.  Skip the menu link Weight. After you save tha page, use the drag and drop functionality in the relevant subsite menu. Links to menus can be found on the Manage Subsites dashboard.
 
-        1.  [Learn more about working with menus ](https://sites-jumpstart.stanford.edu/user-guide/menus)
 9.  Under the **URL path settings** horizontal tab, ensure that **Generate automatic URL alias** is checked.
 
 10.  Scroll to the bottom and select **Save**
