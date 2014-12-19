@@ -115,10 +115,6 @@ function stanford_subsites_permission() {
       'title' => t('Change subsite theme'),
       'description' => t('Access and change the theme selection field on subsite nodes'),
     ),
-    'change subsite body text' => array(
-      'title' => t('Change subsite body text'),
-      'description' => t('Access and change the body text on subsite nodes'),
-    ),
   );
 }
 
