@@ -26,9 +26,7 @@ Here&#39;s how to create a subsite:
 7.  Scroll to the bottom and select **Save**
 
 #Add Pages to your Subsite
-## Here&#39;s how to add a page to a Subsite
-
-### From the Subsite Dashboard
+Here&#39;s how to add a page to a Subsite from the Subsite Dashboard
 
 1.  Using the **Manage Subsites** dropdown in the grey **Site Actions** bar, select the Subsite to which you would like to add a page.
 
