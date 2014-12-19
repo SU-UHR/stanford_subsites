@@ -107,6 +107,18 @@ function stanford_subsites_permission() {
       'title' => t('Administer Subsite Selection'),
       'description' => t('Access and change the subsite selection field'),
     ),
+    'change subsite logo' => array(
+      'title' => t('Change subsite logo'),
+      'description' => t('Access and change the logo on subsite nodes'),
+    ),
+    'change subsite theme' => array(
+      'title' => t('Change subsite theme'),
+      'description' => t('Access and change the theme selection field on subsite nodes'),
+    ),
+    'change subsite body text' => array(
+      'title' => t('Change subsite body text'),
+      'description' => t('Access and change the body text on subsite nodes'),
+    ),
   );
 }
 
@@ -845,6 +857,17 @@ function stanford_subsites_field_access($op, $field, $entity_type, $entity, $acc
   if ($field['field_name'] == SUBSITE_TAGS_FIELD && $op == 'edit') {
     return user_access('administer subsite selection', $account);
   }
+  elseif ($field['field_name'] == SUBSITE_LOGO_FIELD && $op == 'edit') {
+    return user_access('change subsite logo', $account);
+  }
+  elseif ($field['field_name'] == SUBSITE_THEME_FIELD && $op == 'edit') {
+    return user_access('change subsite theme', $account);
+  }
+  elseif ($field['field_name'] == "body" && $entity_type == SUBSITE_CONTENT_TYPE && $op == 'edit') {
+    return user_access('change subsite body text', $account);
+  }
+
+
 
   return TRUE;
 }
