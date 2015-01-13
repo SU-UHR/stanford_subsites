@@ -19,6 +19,7 @@ function stanford_subsites_admin_dash_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Content';
+  $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'administer nodes';
@@ -235,6 +236,7 @@ function stanford_subsites_admin_dash_views_default_views() {
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['field'] = 'field_stanford_subsite_sub_tags_tid';
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['operator'] = 'not empty';
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['value'] = '';
+  $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['group'] = 1;
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['vocabulary'] = 'stanford_subsites_sites';
 
   /* Display: Block */
