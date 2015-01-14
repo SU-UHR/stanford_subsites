@@ -601,8 +601,8 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
   $node = (isset($context['data']['node'])) ? $context['data']['node'] : FALSE;
   $original_alias = $alias;
 
-  // A taxonomy term or a user or the subsite itself.
-  if (!$node || $node->type == SUBSITE_CONTENT_TYPE) {
+  // A taxonomy term or a user or the subsite itself or pathauto is off.
+  if (!$node || $node->type == SUBSITE_CONTENT_TYPE || !isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
     return;
   }
 

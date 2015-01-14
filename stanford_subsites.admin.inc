@@ -235,8 +235,8 @@ function stanford_subsites_admin_config_form_process_submit($form, &$form_state)
 
     // Save current action for new aliases and change it to update and
     // preserve old one.
-    $alias_action = variable_get('pathauto_update_action', 0);
-    variable_set('pathauto_update_action', 1);
+    // $alias_action = variable_get('pathauto_update_action', 0);
+    // variable_set('pathauto_update_action', 1);
 
     // Add a bulk update operation.
     pathauto_node_update_alias_multiple($nids, 'bulkupdate');
