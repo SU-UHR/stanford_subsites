@@ -607,9 +607,9 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
   }
 
   // If there is a reference to a subsite then alter the pathauto_alias.
-  if (isset($node->{SUBSITE_TAGS_FIELD}[$node->language][0]["tid"])) {
+  if (isset($node->{SUBSITE_TAGS_FIELD}[LANGUAGE_NONE][0]["tid"])) {
 
-    $tid = $node->{SUBSITE_TAGS_FIELD}[$node->language][0]["tid"];
+    $tid = $node->{SUBSITE_TAGS_FIELD}[LANGUAGE_NONE][0]["tid"];
     $term = taxonomy_term_load($tid);
 
     // Not a valid term. Die.
@@ -618,6 +618,7 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
     }
 
     $subsite = stanford_subsites_get_subsite_node_by_term($term);
+
     // Not a valid subsite. Die.
     if (!$subsite) {
       return;
@@ -647,9 +648,10 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   // ---------------------------------------------------------------------------
 
   // Move the subsite's tags field to a vertical tab if available.
-  if (!isset($form[SUBSITE_TAGS_FIELD])) {
+  if (!isset($form[SUBSITE_TAGS_FIELD]) || empty($form['menu'])) {
     return;
   }
+
 
   // Get a default value from the url.
   if (arg(1) == "add" && isset($_GET[SUBSITE_TAGS_FIELD]) && is_numeric($_GET[SUBSITE_TAGS_FIELD])) {
