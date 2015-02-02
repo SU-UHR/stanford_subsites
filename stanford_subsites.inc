@@ -253,7 +253,7 @@ function stanford_subsites_create_subsite_menu_and_menublock($node) {
 
   $menu = array(
     'menu_name' => $menu_name,
-    'title' => t('Subsite Menu') . ": " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 64),
+    'title' => t('Subsite Menu') . ": " . substr($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'], 0, 64),
     'description' => t("Menu for all of this subsites links"),
   );
 
@@ -426,8 +426,8 @@ function stanford_subsites_create_subsite_context($node, &$args) {
   $the_theme = variable_get('theme_default');
   $theme_region = FALSE;
 
-  if (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value']) && $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] !== "default") {
-    $the_theme = $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'];
+  if (isset($node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value']) && $node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'] !== "default") {
+    $the_theme = $node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'];
   }
 
   // Settings from admin/config/subsites/.
@@ -439,8 +439,8 @@ function stanford_subsites_create_subsite_context($node, &$args) {
 
   $context = new stdClass();
   $context->name = $context_name;
-  $context->description = "Subsite wide context for " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 210);
-  $context->tag = drupal_clean_css_identifier(substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 32));
+  $context->description = "Subsite wide context for " . substr($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'], 0, 210);
+  $context->tag = drupal_clean_css_identifier(substr($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'], 0, 32));
   $context->conditions = array(
     'active_subsite' => array(
       'values' => array(
@@ -479,8 +479,8 @@ function stanford_subsites_create_subsite_context($node, &$args) {
   $context_name = stanford_subsites_get_subsite_menu_name($node) . "-home";
   $context = new stdClass();
   $context->name = $context_name;
-  $context->description = "Subsite home page context for " . substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 210);
-  $context->tag = drupal_clean_css_identifier(substr($node->{SUBSITE_NAME_FIELD}[$node->language][0]['value'], 0, 32));
+  $context->description = "Subsite home page context for " . substr($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'], 0, 210);
+  $context->tag = drupal_clean_css_identifier(substr($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'], 0, 32));
   $context->conditions = array(
     'path' => array(
       'values' => array(
@@ -540,7 +540,7 @@ function stanford_subsites_get_subsite_term_from_node($node) {
     return FALSE;
   }
 
-  $lang = $node->language;
+  $lang = LANGUAGE_NONE;
   $tid = @$node->{SUBSITE_TAGS_FIELD}[$lang][0]['tid'];
 
   if (!$tid) {

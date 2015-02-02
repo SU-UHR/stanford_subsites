@@ -128,9 +128,9 @@ function stanford_subsites_custom_theme() {
 
   // Apply the field values.
   if ($subsite_node &&
-    isset($subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'])
-    && $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'] !== "default") {
-    return $subsite_node->{SUBSITE_THEME_FIELD}[$subsite_node->language][0]['value'];
+    isset($subsite_node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'])
+    && $subsite_node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'] !== "default") {
+    return $subsite_node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'];
   }
 
 }
@@ -156,7 +156,7 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
   $subsite_node = stanford_subsites_get_active_subsite();
 
   if ($subsite_node) {
-    $vars['subsite_site_name_text'] = $subsite_node->{SUBSITE_NAME_FIELD}[$subsite_node->language][0]["safe_value"];
+    $vars['subsite_site_name_text'] = $subsite_node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"];
     $vars['subsite_site_name_html'] = l($vars['subsite_site_name_text'], "<front>");
   }
   else {
@@ -243,15 +243,15 @@ function stanford_subsites_preprocess_page(&$vars) {
 function stanford_subsites_apply_subsite($node, &$vars) {
 
   // Change the site title.
-  if (isset($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])
-    && !empty($node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"])) {
-    $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[$node->language][0]["safe_value"];
+  if (isset($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"])
+    && !empty($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"])) {
+    $vars['site_name'] = $node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"];
     $vars['my_site_title'] = $vars['site_title_first_line'] = $vars['site_name'];
   }
 
-  if (isset($node->field_stanford_subsite_2nd_line[$node->language][0]["safe_value"])
-    && !empty($node->field_stanford_subsite_2nd_line[$node->language][0]["safe_value"])) {
-    $vars['site_title_second_line'] = $node->field_stanford_subsite_2nd_line[$node->language][0]["safe_value"];
+  if (isset($node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"])
+    && !empty($node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"])) {
+    $vars['site_title_second_line'] = $node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"];
   }
 
 
@@ -260,20 +260,20 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   $vars['logo_title'] = $vars['site_name'];
 
   // Change the site logo.
-  if (isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"])
-    && !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"])) {
-    $vars['logo'] = file_create_url($node->{SUBSITE_LOGO_FIELD}[$node->language][0]["uri"]);
+  if (isset($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]["uri"])
+    && !empty($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]["uri"])) {
+    $vars['logo'] = file_create_url($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]["uri"]);
 
     // Check for alt and title information on the image field.
-    if (isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt']) &&
-      !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt'])) {
-      $vars['alt'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['alt']);
+    if (isset($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]['alt']) &&
+      !empty($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]['alt'])) {
+      $vars['alt'] = t($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]['alt']);
     }
 
     // Title.
-    if (isset($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']) &&
-      !empty($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title'])) {
-      $vars['logo_title'] = t($node->{SUBSITE_LOGO_FIELD}[$node->language][0]['title']);
+    if (isset($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]['title']) &&
+      !empty($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]['title'])) {
+      $vars['logo_title'] = t($node->{SUBSITE_LOGO_FIELD}[LANGUAGE_NONE][0]['title']);
     }
   }
 
@@ -281,15 +281,15 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   // ///////////////////////////////////////////////////////////////////////////
 
   // Handle the linkage to the subsite logo and title.
-  if (isset($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"])) {
+  if (isset($node->{SUBSITE_FRONT_PAGE_FIELD}[LANGUAGE_NONE][0]["value"])) {
 
     // Set the link setting as a variable for page.tpl.php
-    $vars['subsite_front_page'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"];
-    $vars['subsite_name_logo_setting'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"];
+    $vars['subsite_front_page'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[LANGUAGE_NONE][0]["value"];
+    $vars['subsite_name_logo_setting'] = $node->{SUBSITE_FRONT_PAGE_FIELD}[LANGUAGE_NONE][0]["value"];
 
     // Support default themes
     // Change the front page variable to link to the subsite.
-    if ($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"] == "subsite") {
+    if ($node->{SUBSITE_FRONT_PAGE_FIELD}[LANGUAGE_NONE][0]["value"] == "subsite") {
       $vars['front_page'] = url('node/' . $node->nid, array('absolute' => TRUE));
     }
 
@@ -308,7 +308,7 @@ function stanford_subsites_apply_subsite($node, &$vars) {
 
 
     // What the active subsite setting is.
-    switch ($node->{SUBSITE_FRONT_PAGE_FIELD}[$node->language][0]["value"]) {
+    switch ($node->{SUBSITE_FRONT_PAGE_FIELD}[LANGUAGE_NONE][0]["value"]) {
 
       // Link the logo and the title to the subsite.
       case "subsite":
@@ -343,8 +343,8 @@ function stanford_subsites_apply_subsite($node, &$vars) {
   // SUBSITE SLOGAN
   // ///////////////////////////////////////////////////////////////////////////
 
-  if (isset($node->{SUBSITE_SLOGAN_FIELD}[$node->language][0]["value"])) {
-    $vars['site_slogan'] = t($node->{SUBSITE_SLOGAN_FIELD}[$node->language][0]["value"]);
+  if (isset($node->{SUBSITE_SLOGAN_FIELD}[LANGUAGE_NONE][0]["value"])) {
+    $vars['site_slogan'] = t($node->{SUBSITE_SLOGAN_FIELD}[LANGUAGE_NONE][0]["value"]);
   }
 
   // FRONT Variables
@@ -409,7 +409,7 @@ function stanford_subsites_node_insert($node) {
     // Create a subsite context for this subsite.
     stanford_subsites_create_subsite_context($node, $args);
 
-    $tid = $node->{SUBSITE_TAGS_FIELD}[$node->language][0]['tid'];
+    $tid = $node->{SUBSITE_TAGS_FIELD}[LANGUAGE_NONE][0]['tid'];
     $menu = $args['menu']['menu_name'];
     $context = $args['context'];
 
@@ -772,14 +772,14 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
     if (!$theme->status) {
       continue;
     }
-    $form[SUBSITE_THEME_FIELD][$node->language]['#options'][$k] = $k;
+    $form[SUBSITE_THEME_FIELD][LANGUAGE_NONE]['#options'][$k] = $k;
   }
 
   // Set the default value.
-  $form[SUBSITE_THEME_FIELD][$node->language]['#default_value'] = (isset($node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'])) ? $node->{SUBSITE_THEME_FIELD}[$node->language][0]['value'] : "default";
+  $form[SUBSITE_THEME_FIELD][LANGUAGE_NONE]['#default_value'] = (isset($node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'])) ? $node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'] : "default";
 
   // Add a link to enable more themes below the field.
-  $form[SUBSITE_THEME_FIELD][$node->language]["#description"] = l(t('Enable more themes here'), "admin/appearance");
+  $form[SUBSITE_THEME_FIELD][LANGUAGE_NONE]["#description"] = l(t('Enable more themes here'), "admin/appearance");
 
   // Add a validation hook.
   $form['#validate'][] = "stanford_subsites_form_node_form_alter_subsite_node_validate";
@@ -933,7 +933,7 @@ function stanford_subsites_tokens_tokens($type, $tokens, array $data = array(), 
           break;
 
         case 'active_subsite_site_name':
-          $replacements[$original] = t($subsite->{SUBSITE_NAME_FIELD}[$subsite->language][0]['safe_value']);
+          $replacements[$original] = t($subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['safe_value']);
           break;
 
         case 'active_subsite_url':
