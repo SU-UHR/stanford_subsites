@@ -664,7 +664,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
 
   // Add a description.
   if (empty($form['menu'][SUBSITE_TAGS_FIELD]["#description"])) {
-    $form['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]]["#description"] = t("Please select the subsite that this node belongs to by adding the appropriate tag. The menu options and url alias will be effected by your subsite choice.");
+    $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#description"] = t("Please select the subsite that this node belongs to by adding the appropriate tag. The menu options and url alias will be effected by your subsite choice.");
   }
 
   // Remove the original so we do not show duplicates.
@@ -708,7 +708,7 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   // This function is called on the initial form alter and on the ajax callback
   // so the subsite tid may be a form_state value or it will be the default_val
   // from the form array.
-  $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][$form['language']["#value"]][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][$form['language']['#value']]["#default_value"];
+  $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
   if (is_array($subsite_tid)) {
     $subsite_tid = array_pop($subsite_tid);
   }
@@ -799,7 +799,7 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
  */
 function stanford_subsites_form_node_form_alter_subsite_node_validate(&$form, &$form_state) {
   $values = $form_state['values'];
-  $lang = $form['language']["#value"];
+  $lang = LANGUAGE_NONE;
 
   // If this is a new node ...
   if (empty($values['nid'])) {
@@ -826,7 +826,7 @@ function stanford_subsites_form_node_form_alter_subsite_node_validate(&$form, &$
  */
 function stanford_subsites_form_node_form_alter_subsite_node_submit(&$form, &$form_state) {
   $values = $form_state['values'];
-  $lang = $form['language']["#value"];
+  $lang = LANGUAGE_NONE;
 
   // Don't allow the user to change the subsite term but allow them to change
   // the label. So we allow editing of the tags field but want to make sure that
