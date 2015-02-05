@@ -667,6 +667,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   // Copy field over to menu VT.
   $form['menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
   $form['menu'][SUBSITE_TAGS_FIELD]['#weight'] = -10;
+  $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#multiple"] = FALSe;
 
   // Add a description.
   if (empty($form['menu'][SUBSITE_TAGS_FIELD]["#description"])) {
@@ -674,7 +675,9 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   }
 
   // Remove the original so we do not show duplicates.
-  unset($form[SUBSITE_TAGS_FIELD]);
+  // unset($form[SUBSITE_TAGS_FIELD]);
+  $form[SUBSITE_TAGS_FIELD]["#access"] = FALSE;
+
   $form["#submit"][] = "stanford_subsites_form_node_submit_save_tags_field";
 
 
