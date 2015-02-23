@@ -22,6 +22,8 @@
 define('SUBSITE_CONTENT_TYPE', "stanford_subsite");
 // The field that changes the site title.
 define("SUBSITE_NAME_FIELD", "field_stanford_subsite_sname");
+// The field that changes the site title.
+define("SUBSITE_2NDNAME_FIELD", "field_stanford_subsite_2nd_line");
 // The field that changes the site slogan.
 define("SUBSITE_SLOGAN_FIELD", "field_stanford_subsite_slogan");
 // The field that changes the site logo.
@@ -34,6 +36,8 @@ define("SUBSITE_THEME_FIELD", "field_stanford_subsite_theme");
 define("SUBSITE_VOCAB", "stanford_subsites_sites");
 // The subsite tags field.
 define("SUBSITE_TAGS_FIELD", "field_stanford_subsite_sub_tags");
+// The subsite machine_name field.
+define("SUBSITE_MACHINE_NAME_FIELD", "field_subsite_machine_name");
 
 // Global variable for active subsite.
 global $subsite;
@@ -413,8 +417,11 @@ function stanford_subsites_node_insert($node) {
     $menu = $args['menu']['menu_name'];
     $context = $args['context'];
 
+    // Machine name
+    $machine_name = $node->{SUBSITE_MACHINE_NAME_FIELD}[LANGUAGE_NONE][0]['value'];
+
     // Log all of this info.
-    stanford_subsite_index_insert($node->nid, $tid, $menu, $context->name);
+    stanford_subsite_index_insert($node->nid, $tid, $menu, $context->name, $machine_name);
   }
 
 }
@@ -483,16 +490,19 @@ function stanford_subsites_node_delete($node) {
  *   The name of the menu for the subsite menu block.
  * @param string $context
  *   The name of the context for the whole subsite.
+ * @param string $machine_name
+ *   The unique value name
  *
  * @return boolean
  *   True for success.
  */
-function stanford_subsite_index_insert($nid, $tid, $menu = "", $context = "") {
+function stanford_subsite_index_insert($nid, $tid, $menu = "", $context = "", $machine_name = "") {
   $record = array(
     'nid' => $nid,
     'tid' => $tid,
     'menu' => $menu,
     'context' => $context,
+    'machine_name' => $machine_name
   );
   return drupal_write_record('subsite_index', $record);
 }
@@ -515,7 +525,7 @@ function stanford_subsite_index_insert($nid, $tid, $menu = "", $context = "") {
  * @return bool
  *   True for success
  */
-function stanford_subsite_index_update($nid, $tid = NULL, $menu = NULL, $context = NULL) {
+function stanford_subsite_index_update($nid, $tid = NULL, $menu = NULL, $context = NULL, $machine_name = NULL) {
   $record = array(
     'nid' => $nid,
   );
@@ -530,6 +540,10 @@ function stanford_subsite_index_update($nid, $tid = NULL, $menu = NULL, $context
 
   if (!is_null($context)) {
     $record['context'] = $context;
+  }
+
+  if (!is_null($machine_name)) {
+    $record['machine_name'] = $machine_name;
   }
 
   $keys = array('nid');
@@ -560,6 +574,7 @@ function stanford_subsite_index_get($type = "nid", $value = NULL) {
       ->execute()
       ->fetchObject();
   } catch (Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
     return FALSE;
   }
 
@@ -775,6 +790,15 @@ function stanford_subsites_form_node_submit_save_tags_field($form, &$form_values
 function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
 
+  // Change the title field to a machine_name field.
+  $form['field_subsite_machine_name'][LANGUAGE_NONE][0]['value']['#type'] = "machine_name";
+  $form['field_subsite_machine_name'][LANGUAGE_NONE][0]['value']['#description'] = t('A unique name for the subsite. It must only contain lowercase letters, numbers and hyphens.');
+  $form['field_subsite_machine_name'][LANGUAGE_NONE][0]['value']['#machine_name'] = array(
+    'exists' => 'stanford_subsites_machine_name_exits',
+    'source' => array(SUBSITE_NAME_FIELD, 'und', '0', 'value'),
+  );
+  $form['field_subsite_machine_name'][LANGUAGE_NONE][0]['value']['#disabled'] = isset($form['field_subsite_machine_name'][LANGUAGE_NONE][0]['value']['#default_value']);
+
   // Add only enabled themes to the theme drop down options...
   $themes = list_themes();
   foreach ($themes as $k => $theme) {
@@ -793,7 +817,7 @@ function stanford_subsites_form_node_form_alter_subsite_node(&$form, &$form_stat
   // Add a validation hook.
   $form['#validate'][] = "stanford_subsites_form_node_form_alter_subsite_node_validate";
 
-  // Add a submit hook
+  // Add a submit hook.
   $form['#submit'][] = "stanford_subsites_form_node_form_alter_subsite_node_submit";
 
 }
@@ -850,6 +874,28 @@ function stanford_subsites_form_node_form_alter_subsite_node_submit(&$form, &$fo
     form_set_value($form[SUBSITE_TAGS_FIELD], array(0 => (array) $term), $form_state);
   }
 
+}
+
+/**
+ * [stanford_subsites_machine_name_exits description]
+ * @param  [type] $name [description]
+ * @return [type]       [description]
+ */
+function stanford_subsites_machine_name_exits($name) {
+
+  $result = db_select('field_data_field_subsite_machine_name', 'fdfsmn')
+              ->fields('fdfsmn', array('field_subsite_machine_name_value'))
+              ->condition('field_subsite_machine_name_value', $name)
+              ->execute();
+  $count = $result->rowCount();
+
+  // We found a match!
+  if ($count > 0) {
+    return TRUE;
+  }
+
+  // Nothing by the passed in name.
+  return FALSE;
 }
 
 // Fields.

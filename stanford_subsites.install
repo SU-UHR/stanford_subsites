@@ -43,6 +43,13 @@ function stanford_subsites_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'machine_name' => array(
+        'description' => 'subsite machine name',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
     ),
     'indexes' => array(
       'ntm' => array('nid', "tid", "menu"),
@@ -53,8 +60,44 @@ function stanford_subsites_schema() {
     'unique keys' => array(
       'tid' => array('tid'),
       'menu' => array('menu'),
+      'machine_name' => array('machine_name'),
     ),
     'primary key' => array('nid'),
   );
   return $schema;
+}
+
+/**
+ * Adds machine_name field to subsite_index field.
+ */
+function stanford_subsites_update_7200(&$sandbox) {
+
+  $field = array(
+    'description' => 'subsite machine name',
+    'type' => 'varchar',
+    'length' => 64,
+    'not null' => TRUE,
+    'default' => '',
+  );
+
+  $keys = array(
+    'unique_keys' => array(
+      'machine_name' => array('machine_name'),
+    )
+  );
+
+  db_add_field('subsite_index', 'machine_name', $field, $keys);
+
+}
+
+/**
+ * Generate machine_names for those that don't already have one.
+ */
+function stanford_subsites_update_7201(&$sandbox) {
+  while ($result = stanford_subsite_index_get('machine_name', '')) {
+    $name = str_replace("--", "_", $result->menu);
+    $name = str_replace("-", "_", $name);
+    stanford_subsite_index_update($result->nid, NULL, NULL, NULL, $name);
+  }
+
 }

@@ -83,7 +83,7 @@ function stanford_subsites_admin_dash_menu($items = array()) {
   foreach ($subsites as $subsite) {
     $path = drupal_get_path_alias("node/" . $subsite->nid);
     $items['admin/config/subsites/dashboard/' . $path] = array(
-      'title' => $subsite->{SUBSITE_NAME_FIELD}[$subsite->language][0]['value'],
+      'title' => $subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'],
       'page callback' => 'stanford_subsites_admin_dash_dashboard',
       'page arguments' => array($path),
       'description' => 'An administration page for managing subsites and subsite content.',
@@ -549,7 +549,7 @@ function stanford_subsites_dashboard_content_block($subsite) {
 
   // Only if we have a subsite.
   if (isset($subsite->nid)) {
-    $tid = $subsite->{SUBSITE_TAGS_FIELD}[$subsite->language][0]['tid'];
+    $tid = $subsite->{SUBSITE_TAGS_FIELD}[LANGUAGE_NONE][0]['tid'];
     $view->set_arguments(array($tid));
     $view->set_display("block");
   }

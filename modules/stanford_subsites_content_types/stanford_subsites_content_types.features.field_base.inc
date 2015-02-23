@@ -157,7 +157,7 @@ function stanford_subsites_content_types_field_default_field_bases() {
   // Exported field_base: 'field_stanford_subsite_sub_tags'
   $field_bases['field_stanford_subsite_sub_tags'] = array(
     'active' => 1,
-    'cardinality' => 1,
+    'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_stanford_subsite_sub_tags',
@@ -209,6 +209,35 @@ function stanford_subsites_content_types_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_subsite_machine_name'
+  $field_bases['field_subsite_machine_name'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_subsite_machine_name',
+    'foreign keys' => array(
+      'format' => array(
+        'columns' => array(
+          'format' => 'format',
+        ),
+        'table' => 'filter_format',
+      ),
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'max_length' => 64,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
   );
 
   return $field_bases;
