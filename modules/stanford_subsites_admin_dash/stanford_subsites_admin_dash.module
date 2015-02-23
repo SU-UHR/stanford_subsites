@@ -81,9 +81,16 @@ function stanford_subsites_admin_dash_menu($items = array()) {
   // );
 
   foreach ($subsites as $subsite) {
+
+    $menu_link_label = $subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'];
+    if (!empty($subsite->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'])) {
+      $menu_link_label .= " " . $subsite->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'];
+    }
+
     $path = drupal_get_path_alias("node/" . $subsite->nid);
+
     $items['admin/config/subsites/dashboard/' . $path] = array(
-      'title' => $subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'],
+      'title' => $menu_link_label,
       'page callback' => 'stanford_subsites_admin_dash_dashboard',
       'page arguments' => array($path),
       'description' => 'An administration page for managing subsites and subsite content.',
@@ -261,7 +268,11 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
  */
 function stanford_subsites_dashboard_banner_block($subsite) {
   $content = "";
-  $title = isset($subsite->title) ? check_plain($subsite->title) : t("All subsites");
+  // $title = isset($subsite->title) ? check_plain($subsite->title) : t("All subsites");
+  $title = check_plain($subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value']);
+  if (!empty($subsite->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'])) {
+    $title .= " " . check_plain($subsite->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value']);
+  }
 
   $content .= "<div class=\"inner-left\">";
     $content .= "<h2 class=\"sooper-dooper-big-heading\">" . $title . "</h2>";

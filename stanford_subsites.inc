@@ -253,7 +253,7 @@ function stanford_subsites_create_subsite_menu_and_menublock($node) {
 
   $menu = array(
     'menu_name' => $menu_name,
-    'title' => t('Subsite Menu') . ": " . substr($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value'], 0, 64),
+    'title' => t('Subsite Menu') . ": " . $node->{SUBSITE_MACHINE_NAME_FIELD}[LANGUAGE_NONE][0]['value'],
     'description' => t("Menu for all of this subsites links"),
   );
 
@@ -517,7 +517,7 @@ function stanford_subsites_create_subsite_context($node, &$args) {
 function stanford_subsites_get_subsite_menu_name($node) {
   $filter = array(' ' => '-', '/' => '-', '[' => '-', ']' => '-');
   $term = stanford_subsites_get_subsite_term_from_node($node);
-  $menu_name = strtolower(drupal_clean_css_identifier($term->name, $filter));
+  $menu_name = strtolower(check_plain(drupal_clean_css_identifier($term->name, $filter)));
 
   // Max length of menu name is 32 chars.
   $menu_name = substr($menu_name, 0, 32);

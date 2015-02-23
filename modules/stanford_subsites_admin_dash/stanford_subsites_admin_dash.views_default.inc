@@ -33,25 +33,50 @@ function stanford_subsites_admin_dash_views_default_views() {
   $handler->display->display_options['pager']['options']['quantity'] = '9';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
-    'title' => 'title',
-    'field_s_pub_type' => 'field_s_pub_type',
+    'nid' => 'nid',
+    'title' => 'field_stanford_subsite_sname',
+    'field_stanford_subsite_sname' => 'field_stanford_subsite_sname',
+    'field_stanford_subsite_2nd_line' => 'field_stanford_subsite_sname',
+    'type' => 'type',
     'changed' => 'changed',
     'name' => 'name',
     'status' => 'status',
-    'delete_node' => 'view_node',
+    'field_s_content_status' => 'field_s_content_status',
     'edit_node' => 'view_node',
     'view_node' => 'view_node',
+    'delete_node' => 'view_node',
   );
   $handler->display->display_options['style_options']['default'] = 'changed';
   $handler->display->display_options['style_options']['info'] = array(
-    'title' => array(
-      'sortable' => 1,
+    'nid' => array(
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'field_s_pub_type' => array(
+    'title' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => ' ',
+      'empty_column' => 0,
+    ),
+    'field_stanford_subsite_sname' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => ' ',
+      'empty_column' => 0,
+    ),
+    'field_stanford_subsite_2nd_line' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'type' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
@@ -79,7 +104,7 @@ function stanford_subsites_admin_dash_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'delete_node' => array(
+    'field_s_content_status' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -94,6 +119,11 @@ function stanford_subsites_admin_dash_views_default_views() {
       'separator' => ' | ',
       'empty_column' => 0,
     ),
+    'delete_node' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
   );
   /* No results behavior: Global: Unfiltered text */
   $handler->display->display_options['empty']['area_text_custom']['id'] = 'area_text_custom';
@@ -106,12 +136,37 @@ function stanford_subsites_admin_dash_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  /* Field: Content: Nid */
+  $handler->display->display_options['fields']['nid']['id'] = 'nid';
+  $handler->display->display_options['fields']['nid']['table'] = 'node';
+  $handler->display->display_options['fields']['nid']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid']['label'] = '';
+  $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Site Name */
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['id'] = 'field_stanford_subsite_sname';
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['table'] = 'field_data_field_stanford_subsite_sname';
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['field'] = 'field_stanford_subsite_sname';
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['label'] = 'Title';
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['alter']['path'] = 'node/[nid]';
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_stanford_subsite_sname']['empty'] = '[title]';
+  /* Field: Content: Site Name Second Line */
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['id'] = 'field_stanford_subsite_2nd_line';
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['table'] = 'field_data_field_stanford_subsite_2nd_line';
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['field'] = 'field_stanford_subsite_2nd_line';
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['label'] = '';
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['alter']['path'] = 'node/[nid]';
+  $handler->display->display_options['fields']['field_stanford_subsite_2nd_line']['element_label_colon'] = FALSE;
   /* Field: Content: Type */
   $handler->display->display_options['fields']['type']['id'] = 'type';
   $handler->display->display_options['fields']['type']['table'] = 'node';
@@ -127,11 +182,19 @@ function stanford_subsites_admin_dash_views_default_views() {
   $handler->display->display_options['fields']['name']['table'] = 'users';
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name']['label'] = 'Author';
   /* Field: Content: Published */
   $handler->display->display_options['fields']['status']['id'] = 'status';
   $handler->display->display_options['fields']['status']['table'] = 'node';
   $handler->display->display_options['fields']['status']['field'] = 'status';
+  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
   $handler->display->display_options['fields']['status']['not'] = 0;
+  /* Field: Content: Content Status */
+  $handler->display->display_options['fields']['field_s_content_status']['id'] = 'field_s_content_status';
+  $handler->display->display_options['fields']['field_s_content_status']['table'] = 'field_data_field_s_content_status';
+  $handler->display->display_options['fields']['field_s_content_status']['field'] = 'field_s_content_status';
+  $handler->display->display_options['fields']['field_s_content_status']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_s_content_status']['delta_offset'] = '0';
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
@@ -156,7 +219,7 @@ function stanford_subsites_admin_dash_views_default_views() {
   $handler->display->display_options['sorts']['changed']['id'] = 'changed';
   $handler->display->display_options['sorts']['changed']['table'] = 'node';
   $handler->display->display_options['sorts']['changed']['field'] = 'changed';
-  /* Contextual filter: Content: Subsite Tags (field_stanford_subsite_sub_tags) */
+  /* Contextual filter: Field: Subsite Tags (field_stanford_subsite_sub_tags) */
   $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['id'] = 'field_stanford_subsite_sub_tags_tid';
   $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['table'] = 'field_data_field_stanford_subsite_sub_tags';
   $handler->display->display_options['arguments']['field_stanford_subsite_sub_tags_tid']['field'] = 'field_stanford_subsite_sub_tags_tid';
@@ -195,7 +258,7 @@ function stanford_subsites_admin_dash_views_default_views() {
   $handler->display->display_options['filters']['uid']['group'] = 1;
   $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
   $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
-  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Name';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Author';
   $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
   $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
   $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
@@ -230,7 +293,28 @@ function stanford_subsites_admin_dash_views_default_views() {
     13 => 0,
     15 => 0,
   );
-  /* Filter criterion: Content: Subsite Tags (field_stanford_subsite_sub_tags) */
+  /* Filter criterion: Content: Content Status (field_s_content_status) */
+  $handler->display->display_options['filters']['field_s_content_status_value']['id'] = 'field_s_content_status_value';
+  $handler->display->display_options['filters']['field_s_content_status_value']['table'] = 'field_data_field_s_content_status';
+  $handler->display->display_options['filters']['field_s_content_status_value']['field'] = 'field_s_content_status_value';
+  $handler->display->display_options['filters']['field_s_content_status_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_s_content_status_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_s_content_status_value']['expose']['operator_id'] = 'field_s_content_status_value_op';
+  $handler->display->display_options['filters']['field_s_content_status_value']['expose']['label'] = 'Content Status';
+  $handler->display->display_options['filters']['field_s_content_status_value']['expose']['operator'] = 'field_s_content_status_value_op';
+  $handler->display->display_options['filters']['field_s_content_status_value']['expose']['identifier'] = 'field_s_content_status_value';
+  $handler->display->display_options['filters']['field_s_content_status_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    11 => 0,
+    9 => 0,
+    7 => 0,
+    5 => 0,
+    17 => 0,
+    13 => 0,
+    15 => 0,
+  );
+  /* Filter criterion: Field: Subsite Tags (field_stanford_subsite_sub_tags) */
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['id'] = 'field_stanford_subsite_sub_tags_tid';
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['table'] = 'field_data_field_stanford_subsite_sub_tags';
   $handler->display->display_options['filters']['field_stanford_subsite_sub_tags_tid']['field'] = 'field_stanford_subsite_sub_tags_tid';
@@ -241,6 +325,40 @@ function stanford_subsites_admin_dash_views_default_views() {
 
   /* Display: Block */
   $handler = $view->new_display('block', 'Block', 'block');
+  $translatables['subsite_dashboard_manage_content'] = array(
+    t('Master'),
+    t('Content'),
+    t('more'),
+    t('Apply'),
+    t('Reset'),
+    t('Sort by'),
+    t('Asc'),
+    t('Desc'),
+    t('Items per page'),
+    t('- All -'),
+    t('Offset'),
+    t('« first'),
+    t('‹ previous'),
+    t('next ›'),
+    t('last »'),
+    t('Sorry'),
+    t('<p>Sorry, but there is no content associated with the active subsite choice.</p>'),
+    t('author'),
+    t('Title'),
+    t('[title]'),
+    t('Type'),
+    t('Updated date'),
+    t('Author'),
+    t('Published'),
+    t('Content Status'),
+    t('Edit'),
+    t('Actions'),
+    t('View'),
+    t('Delete'),
+    t('All'),
+    t('Block'),
+  );
+
 
   $export['subsite_dashboard_manage_content'] = $view;
   return $export;

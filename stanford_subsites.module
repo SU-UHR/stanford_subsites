@@ -617,7 +617,15 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
   $original_alias = $alias;
 
   // A taxonomy term or a user or the subsite itself or pathauto is off.
-  if (!$node || $node->type == SUBSITE_CONTENT_TYPE || !isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+  if (!$node || !isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+    return;
+  }
+
+  // Alter the subsite pathauto alias to include the second line name.
+  if ($node->type == SUBSITE_CONTENT_TYPE) {
+    if (!empty($node->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'])) {
+      $alias .= "-" . check_plain(drupal_clean_css_identifier($node->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value']));
+    }
     return;
   }
 
