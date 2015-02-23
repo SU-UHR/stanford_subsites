@@ -99,5 +99,4 @@ function stanford_subsites_update_7201(&$sandbox) {
     $name = str_replace("-", "_", $name);
     stanford_subsite_index_update($result->nid, NULL, NULL, NULL, $name);
   }
-
 }
