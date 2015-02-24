@@ -94,6 +94,7 @@ function stanford_subsites_update_7200(&$sandbox) {
  * Generate machine_names for those that don't already have one.
  */
 function stanford_subsites_update_7201(&$sandbox) {
+  drupal_flush_all_caches();
   while ($result = stanford_subsite_index_get('machine_name', '')) {
     $name = str_replace("--", "_", $result->menu);
     $name = str_replace("-", "_", $name);
