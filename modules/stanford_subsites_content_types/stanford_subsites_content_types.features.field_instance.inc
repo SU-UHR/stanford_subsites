@@ -50,7 +50,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 1,
+      'weight' => 6,
     ),
   );
 
@@ -155,7 +155,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 8,
+      'weight' => 9,
     ),
   );
 
@@ -214,7 +214,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -253,7 +253,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 7,
+      'weight' => 8,
     ),
   );
 
@@ -262,7 +262,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
     'bundle' => 'stanford_subsite',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'The name of this subsite.',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -282,6 +282,32 @@ function stanford_subsites_content_types_field_default_field_instances() {
     'label' => 'Site Name',
     'required' => 1,
     'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'content_editor_text_format' => 'content_editor_text_format',
+          'filtered_html' => 'filtered_html',
+          'full_html' => 'full_html',
+          'plain_text' => 'plain_text',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'content_editor_text_format' => array(
+              'weight' => -10,
+            ),
+            'filtered_html' => array(
+              'weight' => 0,
+            ),
+            'full_html' => array(
+              'weight' => 1,
+            ),
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+          ),
+        ),
+      ),
       'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
@@ -292,7 +318,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 2,
+      'weight' => 1,
     ),
   );
 
@@ -371,7 +397,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 9,
+      'weight' => 10,
     ),
   );
 
@@ -436,7 +462,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
         'size' => 64,
       ),
       'type' => 'text_textfield',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
@@ -453,6 +479,7 @@ function stanford_subsites_content_types_field_default_field_instances() {
   t('Subsite Slogan');
   t('Subsite Tag');
   t('Subsite machine name');
+  t('The name of this subsite.');
   t('The second line of the site title. Stanford Framework only.');
   t('The tag name for relating all content to this subsite. Please choose a unique name.');
 
