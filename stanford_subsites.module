@@ -677,10 +677,69 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   // ---------------------------------------------------------------------------
 
   // Move the subsite's tags field to a vertical tab if available.
-  if (!isset($form[SUBSITE_TAGS_FIELD]) || empty($form['menu'])) {
-    return;
+  if (isset($form[SUBSITE_TAGS_FIELD]) && !empty($form['menu'])) {
+    stanford_subsites_form_node_form_alter_menu_vt($form, $form_state, $form_id);
   }
 
+  // Multiple node form handles things differently...
+  if (isset($form[SUBSITE_TAGS_FIELD]) && module_exists('multiple_node_menu')) {
+    stanford_subsites_form_node_form_alter_menu_vt_mnm($form, $form_state, $form_id);
+  }
+
+}
+
+/**
+ * [stanford_subsites_form_node_form_alter_menu_vt_mnm description]
+ * @param  [type] $form       [description]
+ * @param  [type] $form_state [description]
+ * @param  [type] $form_id    [description]
+ * @return [type]             [description]
+ */
+function stanford_subsites_form_node_form_alter_menu_vt_mnm(&$form, &$form_state, $form_id) {
+
+  // Get a default value from the url.
+  if (arg(1) == "add" && isset($_GET[SUBSITE_TAGS_FIELD]) && is_numeric($_GET[SUBSITE_TAGS_FIELD])) {
+    $form[SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"] = check_plain($_GET[SUBSITE_TAGS_FIELD]);
+  }
+
+  // Add a description.
+  if (empty($form[SUBSITE_TAGS_FIELD]["#description"])) {
+    $form[SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#description"] = t("Please select the subsite that this node belongs to by adding the appropriate tag. The menu options and url alias will be effected by your subsite choice.");
+  }
+
+  // Copy field over to menu VT.
+  $form['multiple_node_menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
+  $form['multiple_node_menu'][SUBSITE_TAGS_FIELD]['#weight'] = 0;
+  $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#multiple"] = FALSE;
+
+  // Hide dupe tags field and add submit handler.
+  $form[SUBSITE_TAGS_FIELD]["#access"] = FALSE;
+  $form["#submit"][] = "stanford_subsites_form_node_submit_save_tags_field";
+
+  // Add ajax handling to the tags field that is not just the select.
+  $form['multiple_node_menu']['link']['add_link']['parent']['#prefix'] = "<div id=\"parent-ajaxy-replacy-div\" >";
+  $form['multiple_node_menu']['link']['add_link']['parent']['#suffix'] = "</div>";
+
+  $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]['#ajax'] = array(
+    'callback' => 'stanford_subsites_menu_change_callback',
+    'event' => "change",
+    'wrapper' => "parent-ajaxy-replacy-div",
+  );
+
+  // Alter menu link field values to only show the main menu and the subsite
+  // that this node belongs to.
+  $form['multiple_node_menu']['link']['add_link']['parent'] = stanford_subsites_menu_change_callback($form, $form_state);
+
+}
+
+/**
+ * [stanford_subsites_form_node_form_alter_menu_vt description]
+ * @param  [type] &$form       [description]
+ * @param  [type] &$form_state [description]
+ * @param  [type] $form_id     [description]
+ * @return [type]              [description]
+ */
+function stanford_subsites_form_node_form_alter_menu_vt(&$form, &$form_state, $form_id) {
 
   // Get a default value from the url.
   if (arg(1) == "add" && isset($_GET[SUBSITE_TAGS_FIELD]) && is_numeric($_GET[SUBSITE_TAGS_FIELD])) {
@@ -690,7 +749,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   // Copy field over to menu VT.
   $form['menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
   $form['menu'][SUBSITE_TAGS_FIELD]['#weight'] = -10;
-  $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#multiple"] = FALSe;
+  $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#multiple"] = FALSE;
 
   // Add a description.
   if (empty($form['menu'][SUBSITE_TAGS_FIELD]["#description"])) {
@@ -717,7 +776,6 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   // Alter menu link field values to only show the main menu and the subsite
   // that this node belongs to.
   $form['menu']['link']['parent'] = stanford_subsites_menu_change_callback($form, $form_state);
-
 }
 
 /**
@@ -740,7 +798,13 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   // This function is called on the initial form alter and on the ajax callback
   // so the subsite tid may be a form_state value or it will be the default_val
   // from the form array.
-  $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
+  if (module_exists('multiple_node_menu')) {
+    $subsite_tid = !empty($form_state['values']['multiple_node_menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'] : $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
+  }
+  else {
+    $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
+  }
+
   if (is_array($subsite_tid)) {
     $subsite_tid = array_pop($subsite_tid);
   }
@@ -759,8 +823,15 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   // a link already (menu_node_prepare() sets mlid default to 0).
   $options = menu_parent_options($menus, $item, $type);
 
-  $form['menu']['link']['parent']['#options'] = $options;
-  return $form['menu']['link']['parent'];
+  if (module_exists("multiple_node_menu")) {
+    $form['multiple_node_menu']['link']['add_link']['parent']['#options'] = $options;
+    return $form['multiple_node_menu']['link']['add_link']['parent'];
+  }
+  else {
+    $form['menu']['link']['parent']['#options'] = $options;
+    return $form['menu']['link']['parent'];
+  }
+
 }
 
 /**
@@ -780,6 +851,11 @@ function stanford_subsites_form_node_submit_save_tags_field($form, &$form_values
   if (isset($form_values['values']["menu"][SUBSITE_TAGS_FIELD])) {
     $form_values['values'][SUBSITE_TAGS_FIELD] = $form_values['values']["menu"][SUBSITE_TAGS_FIELD];
     unset($form_values['values']["menu"][SUBSITE_TAGS_FIELD]);
+  }
+  // Multiple node menu module is enabled.
+  if (isset($form_values['values']["multiple_node_menu"][SUBSITE_TAGS_FIELD])) {
+    $form_values['values'][SUBSITE_TAGS_FIELD] = $form_values['values']["multiple_node_menu"][SUBSITE_TAGS_FIELD];
+    unset($form_values['values']["multiple_node_menu"][SUBSITE_TAGS_FIELD]);
   }
 
 }
