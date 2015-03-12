@@ -682,7 +682,7 @@ function stanford_subsites_form_node_form_alter(&$form, &$form_state, $form_id) 
   }
 
   // Multiple node form handles things differently...
-  if (isset($form[SUBSITE_TAGS_FIELD]) && module_exists('multiple_node_menu')) {
+  if (isset($form[SUBSITE_TAGS_FIELD]) && module_exists('multiple_node_menu') && !empty($form['multiple_node_menu'])) {
     stanford_subsites_form_node_form_alter_menu_vt_mnm($form, $form_state, $form_id);
   }
 
@@ -711,6 +711,7 @@ function stanford_subsites_form_node_form_alter_menu_vt_mnm(&$form, &$form_state
   $form['multiple_node_menu'][SUBSITE_TAGS_FIELD] = $form[SUBSITE_TAGS_FIELD];
   $form['multiple_node_menu'][SUBSITE_TAGS_FIELD]['#weight'] = 0;
   $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#multiple"] = FALSE;
+  $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#type"] = "select";
 
   // Hide dupe tags field and add submit handler.
   $form[SUBSITE_TAGS_FIELD]["#access"] = FALSE;
@@ -808,6 +809,7 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   if (is_array($subsite_tid)) {
     $subsite_tid = array_pop($subsite_tid);
   }
+
   $record = stanford_subsite_index_get("tid", $subsite_tid);
 
   if (isset($record->menu)) {
