@@ -56,23 +56,37 @@ function stanford_subsites_get_active_subsite() {
  *   An array of subsite nodes
  */
 function stanford_subsites_get_subsite_nodes($published = "all", $reset = FALSE) {
+
+  // Static caching!
+  $stored_nodes[$published] = &drupal_static(__FUNCTION__);
+  if (is_array($stored_nodes[$published]) && count($stored_nodes[$published]) && !$reset) {
+    return $stored_nodes[$published];
+  }
+
+  // Must find nodes.
   $query = db_select("node", "n")
             ->fields("n", array("nid"))
             ->condition("type", SUBSITE_CONTENT_TYPE)
             ->orderBy('title');
 
+  // What nodes do I want...
   if ($published !== "all") {
     $query->condition("status", $published);
   }
 
+  // Execute query.
   $results = $query->execute();
 
+  // Load up the nids.
   $nids = array();
   while ($result = $results->fetchAssoc()) {
     $nids[] = $result['nid'];
   }
 
-  return node_load_multiple($nids, array(), $reset);
+  // Load all the nodes and store to static cache.
+  $stored_nodes[$published] = node_load_multiple($nids, array(), $reset);
+
+  return $stored_nodes[$published];
 }
 
 /**

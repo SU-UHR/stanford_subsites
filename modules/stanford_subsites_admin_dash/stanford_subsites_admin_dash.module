@@ -716,10 +716,12 @@ function stanford_subsites_admin_dash_context_load_alter(&$context) {
   // Look for the shortcuts context so we can add our block of links to it.
   if ($context->name == $key) {
     $subsites = stanford_subsites_get_subsite_nodes();
+
     // Only continue if there are subsites.
     if (empty($subsites)) {
       return;
     }
+
     $context->reactions["block"]['blocks']['menu-subsite-dashboards'] = array(
       "module" => "menu",
       "delta" => "menu-subsite-dashboards",
