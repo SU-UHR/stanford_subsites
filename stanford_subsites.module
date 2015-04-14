@@ -800,12 +800,21 @@ function stanford_subsites_menu_change_callback($form, $form_state) {
   $item = 0; // or bundle type name
   $type = ''; // bundle type name
   $default = "";
+  $subsite_tid = NULL;
 
   // This function is called on the initial form alter and on the ajax callback
   // so the subsite tid may be a form_state value or it will be the default_val
   // from the form array.
   if (module_exists('multiple_node_menu')) {
-    $subsite_tid = !empty($form_state['values']['multiple_node_menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'] : $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
+    if (!empty($form_state['values']['multiple_node_menu'][SUBSITE_TAGS_FIELD])) {
+      $subsite_tid = $form_state['values']['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'];
+    }
+    else if (isset($form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE])) {
+      $subsite_tid = $form['multiple_node_menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
+    }
+    else {
+      return;
+    }
   }
   else {
     $subsite_tid = !empty($form_state['values']['menu'][SUBSITE_TAGS_FIELD]) ? $form_state['values']['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE][0]['tid'] : $form['menu'][SUBSITE_TAGS_FIELD][LANGUAGE_NONE]["#default_value"];
