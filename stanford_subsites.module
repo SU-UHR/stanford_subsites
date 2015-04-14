@@ -127,6 +127,11 @@ function stanford_subsites_permission() {
  */
 function stanford_subsites_custom_theme() {
 
+  // No fancy pants stuff on admin pages.
+  if (path_is_admin(current_path())) {
+    return;
+  }
+
   // Check to see if this page is a node. If so apply subtheme by node reference.
   $subsite_node = stanford_subsites_get_active_subsite();
 
