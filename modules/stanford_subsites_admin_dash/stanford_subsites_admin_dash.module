@@ -268,8 +268,14 @@ function stanford_subsites_admin_dash_block_view($delta = '') {
  */
 function stanford_subsites_dashboard_banner_block($subsite) {
   $content = "";
-  // $title = isset($subsite->title) ? check_plain($subsite->title) : t("All subsites");
-  $title = check_plain($subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value']);
+
+  if (!is_object($subsite)) {
+    $title = t("All Subsites");
+  }
+  else {
+    $title = check_plain($subsite->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]['value']);
+  }
+
   if (!empty($subsite->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'])) {
     $title .= " " . check_plain($subsite->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value']);
   }
