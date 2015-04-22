@@ -30,9 +30,13 @@ function stanford_subsites_get_active_subsite() {
 
   if ($a0 == "node" && is_numeric($a1)) {
     $node = node_load($a1);
-    if (is_object($node)) {
+    $enabled_types = variable_get('stanford_subsite_content_types', array());
+
+    // Only check the node if it is "enabled"
+    if (is_object($node) && in_array($node->type, $enabled_types)) {
       $subsite_node = _lookup_subsite_reference_by_node($node);
     }
+
   }
 
   // If the page being viewed is not a node then check the path.
