@@ -658,8 +658,16 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
       return;
     }
 
+    $subsite_alias = drupal_get_path_alias("node/" . $subsite->nid);
+
+    // Check to see if the original alias already contains the subsite alias.
+    // If the subsite alias already exists then do nothing.
+    if (strpos($original_alias, $subsite_alias) !== FALSE) {
+      return;
+    }
+
     // Wrap the subsite's alias into this node's alias.
-    $alias = drupal_get_path_alias("node/" . $subsite->nid) . "/" . $original_alias;
+    $alias = $subsite_alias . "/" . $original_alias;
   }
 
 }
