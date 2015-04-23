@@ -141,6 +141,11 @@ function _lookup_subsite_reference_by_path($path) {
   // First get all of the subsite paths.
   $subsite_paths = _get_subsite_paths();
 
+  // Check to see if we need to add a trailing slash.
+  if (!preg_match('~^https?://[^/]+$~', $path)) {
+    $path .= "/";
+  }
+
   // Check raw string for path... :( needs optimization.
   foreach ($subsite_paths as $nid => $site_path) {
     if (stripos($path, $site_path . "/") !== FALSE) {
