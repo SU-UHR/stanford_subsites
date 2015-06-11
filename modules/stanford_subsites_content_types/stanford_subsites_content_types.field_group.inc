@@ -21,7 +21,7 @@ function stanford_subsites_content_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Subsite Branding options',
-    'weight' => '7',
+    'weight' => '1',
     'children' => array(
       0 => 'field_stanford_subsite_front',
       1 => 'field_stanford_subsite_logo',
@@ -30,13 +30,12 @@ function stanford_subsites_content_types_field_group_info() {
     ),
     'format_type' => 'tab',
     'format_settings' => array(
-      'label' => 'Subsite Branding options',
+      'formatter' => 'closed',
       'instance_settings' => array(
-        'required_fields' => 1,
-        'classes' => 'group-display-options field-group-fieldset',
         'description' => '',
+        'classes' => 'group-display-options field-group-tab',
+        'required_fields' => 1,
       ),
-      'formatter' => 'open',
     ),
   );
   $export['group_display_options|node|stanford_subsite|form'] = $field_group;
@@ -63,12 +62,13 @@ function stanford_subsites_content_types_field_group_info() {
     ),
     'format_type' => 'tab',
     'format_settings' => array(
-      'formatter' => 'closed',
+      'label' => 'Subsite information',
       'instance_settings' => array(
-        'description' => '',
-        'classes' => 'group-subsite-info field-group-tab',
         'required_fields' => 1,
+        'classes' => 'group-subsite-info field-group-tab',
+        'description' => '',
       ),
+      'formatter' => 'open',
     ),
   );
   $export['group_subsite_info|node|stanford_subsite|form'] = $field_group;

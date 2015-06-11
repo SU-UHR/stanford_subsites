@@ -124,7 +124,7 @@ function stanford_subsites_content_types_field_default_field_bases() {
   // Exported field_base: 'field_stanford_subsite_sub_tags'
   $field_bases['field_stanford_subsite_sub_tags'] = array(
     'active' => 1,
-    'cardinality' => -1,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_stanford_subsite_sub_tags',
