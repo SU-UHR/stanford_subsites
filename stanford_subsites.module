@@ -168,6 +168,7 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
     $vars['subsite_site_name_text'] = $subsite_node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"];
     $vars['subsite_site_name_html'] = l($vars['subsite_site_name_text'], "<front>");
     $vars["classes_array"][] = "subsite-is-active";
+    $vars['classes_array'][] = "subsite-" . $subsite_node->nid;
 
     // Add the subsite to the css classes array.
     $full_name = "subsite-";
