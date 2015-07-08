@@ -167,6 +167,21 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
   if ($subsite_node) {
     $vars['subsite_site_name_text'] = $subsite_node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"];
     $vars['subsite_site_name_html'] = l($vars['subsite_site_name_text'], "<front>");
+    $vars["classes_array"][] = "subsite-is-active";
+
+    // Add the subsite to the css classes array.
+    $full_name = "subsite-";
+    if (isset($subsite_node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"])) {
+      $full_name .= $subsite_node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"];
+    }
+    if (isset($subsite_node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"])) {
+      $full_name .= " " . $subsite_node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"];
+    }
+
+    $full_name = strtolower(html_entity_decode($full_name));
+    $clean_css_class = drupal_clean_css_identifier($full_name);
+    $vars["classes_array"][] = $clean_css_class;
+
   }
   else {
     $vars['subsite_site_name_html'] = l($vars['site_name'], "<front>");
@@ -251,6 +266,7 @@ function stanford_subsites_preprocess_page(&$vars) {
  */
 function stanford_subsites_apply_subsite($node, &$vars) {
 
+
   // Change the site title.
   if (isset($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"])
     && !empty($node->{SUBSITE_NAME_FIELD}[LANGUAGE_NONE][0]["safe_value"])) {
@@ -262,7 +278,6 @@ function stanford_subsites_apply_subsite($node, &$vars) {
     && !empty($node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"])) {
     $vars['site_title_second_line'] = $node->field_stanford_subsite_2nd_line[LANGUAGE_NONE][0]["safe_value"];
   }
-
 
   // Create new $logo_title and $alt variables for use in the page.tpl.php
   $vars['alt'] = $vars['site_name'];
