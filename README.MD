@@ -1,7 +1,8 @@
 #[Stanford Subsites](https://github.com/SU-SWS/stanford_subsites)
-##### Version 7.x-2.x
+##### Version 7.x-2.0
 
-Maintainers: [Caryl Westerberg](https://github.com/cjwest), [Shea McKinney](https://github.com/sherakama)    
+Maintainers: [Caryl Westerberg](https://github.com/cjwest), [Shea McKinney](https://github.com/sherakama)
+
 [Changelog.txt](CHANGELOG.txt)
 
 This module provides the ability to create a site in a site, sort of. This module is unline other implementations of subsite like functionality. This subsite module allows content authors to create subsite nodes in which automatically have their own context and menu associated with it. Content editors can select a new logo, title, slogan, and/or theme to go with the subsite node and all other pages within a subsite. Other content types can be added to a subsite by placing them within the menu structure of the subsite or by tagging them with the subsite specific term. This module does not provide any sort of editorial permission strucutre. You may add your own using a contrib module such as Taxonomy Access Control, or Content Access Control.
