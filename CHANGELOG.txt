@@ -1,6 +1,10 @@
 Stanford Subsites x.x-x.x xxxx-xx-xx
 ------------------------------------
 
+Stanford Subsites 7.x-2.0-caw 2015-09-16
+------------------------------------------
+* CAW specific branch starting point.
+
 Stanford Subsites 7.x-2.0 2015-09-14
 ------------------------------------------
 * Created all new dashboard with many new and useful blocks
