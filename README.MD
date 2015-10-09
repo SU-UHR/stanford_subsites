@@ -38,7 +38,7 @@ If you are experiencing issues with this module try reverting the feature first.
 ####Menus
 
 1. **Where is my subsite's menu?** Subsite does not place menus out of the box, you need to configure the module to create a menu block and place it in your region of choice on the Subsite Settings page.
-2. **Why is the main menu still appearing on Subsites?** If context or Drupal's native blocks configuration is being used to place the Main Menu throughout the website, that will need to be updated to exclude subsites using the "Active Subsite" Condition and "No Active Subsite" option. Be sure to require all Conditions.
+2. **Why is the main menu still appearing on Subsites?** If context or Drupal's native blocks configuration is being used to place the Main Menu throughout the website, that will need to be updated to exclude subsites, with Context you can use the "Active Subsite" Condition and "No Active Subsite" option. Be sure to require all Conditions.
 
 Contribution / Collaboration
 ---
