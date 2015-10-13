@@ -477,7 +477,8 @@ function stanford_subsites_node_delete($node) {
           $form_state['values']['delta'] = $delta;
           $form_state['values']['block_title'] =  _menu_block_format_title(menu_block_get_config($delta));
 
-          menu_block_delete_submit($form, $form_state);
+          // Work in menu_block 2.7
+          menu_block_delete_form_submit($form, $form_state);
 
         }
       }
