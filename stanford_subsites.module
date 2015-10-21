@@ -639,8 +639,22 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
   $original_alias = $alias;
 
   // A taxonomy term or a user or the subsite itself or pathauto is off.
-  if (!$node || !isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+  if (!$node) {
     return;
+  }
+
+  // If workbench moderation is not available and pathauto is disabled for this node just end.
+  if (!module_exists("workbench_moderation")) {
+    if (!isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+      return;
+    }
+  }
+
+  // If workbench is enabled and working on the live revision check the pathauto settings.
+  if (module_exists("workbench_moderation") && isset($node->workbench_moderation['updating_live_revision'])) {
+    if (!isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+      return;
+    }
   }
 
   // Alter the subsite pathauto alias to include the second line name.
