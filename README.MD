@@ -43,7 +43,7 @@ Run the following Drush command: % drush en stanford_subsites -y
 
 One of the strengths of Subsites is the ability to create a single view with a contextual filter for the given subsite and place it on all subsite nodes. This feature can be used to create mini-calendars, news blocks, or carousels for all Subsite homepages. 
 
-More details on how to do this forthcoming...
+Configure the contextual filter where content has taxonomy term ID based on the Subsites vocabulary.  Provide a default value of taxonomy term ID from URL.
 
 Troubleshooting
 ---
