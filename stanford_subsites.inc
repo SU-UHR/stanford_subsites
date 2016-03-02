@@ -54,56 +54,56 @@ function stanford_subsite_get_subsite_node_from_node() {
     return FALSE;
   }
 
-    $enabled_types = variable_get('stanford_subsite_content_types', array());
-    $node = new stdClass();
-    $q = new EntityFieldQuery();
-    $q->entityCondition('entity_type', 'node')
-      ->entityCondition('entity_id', $a1);
+  $enabled_types = variable_get('stanford_subsite_content_types', array());
+  $node = new stdClass();
+  $q = new EntityFieldQuery();
+  $q->entityCondition('entity_type', 'node')
+    ->entityCondition('entity_id', $a1);
 
-    $r1 = $q->execute();
+  $r1 = $q->execute();
 
-    // Check to see that we got something. We should. But do it anyhow.
-    if (!isset($r1['node'][$a1])) {
-      return FALSE;
-    }
+  // Check to see that we got something. We should. But do it anyhow.
+  if (!isset($r1['node'][$a1])) {
+    return FALSE;
+  }
 
-    // Patch together some fun.
-    $node->type = $r1['node'][$a1]->type;
-    $node->vid = $r1['node'][$a1]->vid;
-    $node->nid = $a1;
+  // Patch together some fun.
+  $node->type = $r1['node'][$a1]->type;
+  $node->vid = $r1['node'][$a1]->vid;
+  $node->nid = $a1;
 
-    // If THIS node is the subsite node itself. Then set it.
-    if ($node->type == SUBSITE_CONTENT_TYPE) {
-      return stanford_subsite_subsite_load_node_efq($a1);
-    }
+  // If THIS node is the subsite node itself. Then set it.
+  if ($node->type == SUBSITE_CONTENT_TYPE) {
+    return stanford_subsite_subsite_load_node_efq($a1);
+  }
 
-    // Only check the node if it is "enabled"
-    if (!is_object($node) || !in_array($node->type, $enabled_types)) {
-      return FALSE;
-    }
+  // Only check the node if it is "enabled"
+  if (!is_object($node) || !in_array($node->type, $enabled_types)) {
+    return FALSE;
+  }
 
-    // At this point we are looking at a node that is not a subsite content type
-    // and it is in the 'enabled' list of content types that can be used in
-    // subsite. Time to look for the tag field itself.
+  // At this point we are looking at a node that is not a subsite content type
+  // and it is in the 'enabled' list of content types that can be used in
+  // subsite. Time to look for the tag field itself.
 
-    // Now look for field_stanford_subsite_sub_tags.
-      $q = db_select('field_revision_field_stanford_subsite_sub_tags', 'fr');
-      $q->condition('fr.entity_id', $a1, '=');
-      $q->condition('fr.revision_id', $node->vid, '=');
-      $q->addField('fr', 'field_stanford_subsite_sub_tags_tid');
+  // Now look for field_stanford_subsite_sub_tags.
+  $q = db_select('field_revision_field_stanford_subsite_sub_tags', 'fr');
+  $q->condition('fr.entity_id', $a1, '=');
+  $q->condition('fr.revision_id', $node->vid, '=');
+  $q->addField('fr', 'field_stanford_subsite_sub_tags_tid');
 
-      $r2 = $q->execute()->fetchObject();
+  $r2 = $q->execute()->fetchObject();
 
-      // If we don't find a term id then we have no subsite relation.
-      if (empty($r2->field_stanford_subsite_sub_tags_tid)) {
-        return FALSE;
-      }
+  // If we don't find a term id then we have no subsite relation.
+  if (empty($r2->field_stanford_subsite_sub_tags_tid)) {
+    return FALSE;
+  }
 
-      // At this point the node we are viewing has a relation to a subsite node.
-      // Time to gather that information.
-      $term = new stdClass();
-      $term->tid = $r2->field_stanford_subsite_sub_tags_tid;
-      $subsite_node = stanford_subsites_get_subsite_node_by_term($term);
+  // At this point the node we are viewing has a relation to a subsite node.
+  // Time to gather that information.
+  $term = new stdClass();
+  $term->tid = $r2->field_stanford_subsite_sub_tags_tid;
+  $subsite_node = stanford_subsites_get_subsite_node_by_term($term);
 
   return $subsite_node;
 }
@@ -706,7 +706,7 @@ function stanford_subsite_subsite_load_node_efq($nid) {
 
   $r = $q->execute()->fetchObject();
 
-  if(!empty($r->vid)) {
+  if (!empty($r->vid)) {
     $node->vid = $r->vid;
   }
 
@@ -719,8 +719,17 @@ function stanford_subsite_subsite_load_node_efq($nid) {
   }
 
   if (!empty($r->field_stanford_subsite_logo_fid)) {
-    $file = file_load($r->field_stanford_subsite_logo_fid);
-    $node->field_stanford_subsite_logo[LANGUAGE_NONE][0]["uri"] = $file->uri;
+    // $file = file_load($r->field_stanford_subsite_logo_fid);
+    // No xyz_load as theme borks.
+    $file_uri = db_select("file_managed", "fm")
+               ->fields("fm", array(
+                 'uri',
+               ))
+               ->condition("fid", $r->field_stanford_subsite_logo_fid)
+               ->execute()
+               ->fetchField();
+
+    $node->field_stanford_subsite_logo[LANGUAGE_NONE][0]["uri"] = $file_uri;
   }
 
   if (!empty($r->field_stanford_subsite_logo_alt)) {
