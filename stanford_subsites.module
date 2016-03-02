@@ -139,7 +139,6 @@ function stanford_subsites_custom_theme() {
   if ($subsite_node &&
     isset($subsite_node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'])
     && $subsite_node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'] !== "default") {
-    dpm($subsite_node);
     return $subsite_node->{SUBSITE_THEME_FIELD}[LANGUAGE_NONE][0]['value'];
   }
 
@@ -188,12 +187,6 @@ function stanford_subsites_preprocess_html(&$vars, $hook) {
   else {
     $vars['subsite_site_name_html'] = l($vars['site_name'], "<front>");
   }
-  
-  // Remove after testing
-  //global $theme_key;
-  //$themes = list_themes();
-  //$theme_object = $themes[$theme_key];
-  //dpm($theme_object);
 
 }
 
@@ -232,7 +225,6 @@ function stanford_subsites_preprocess_page(&$vars) {
   $subsite_node = stanford_subsites_get_active_subsite();
 
   if ($subsite_node->nid) {
-    dpm($subsite_node);
     stanford_subsites_apply_subsite($subsite_node, $vars);
   }
   else {
