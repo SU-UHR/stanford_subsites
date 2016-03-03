@@ -29,7 +29,7 @@
           <?php if ($site_name || $site_slogan): ?>
           <div id="name-and-slogan"  class="<?php if (isset($logo)) { print ('with-logo'); } ?><?php if ($site_title_second_line || $site_slogan) { print (' two-lines'); } ?>">
 
-            <?php if (($site_name) && !($site_title_first_line)): ?>
+            <?php if ($site_name && empty($site_title_first_line)): ?>
               <?php if ($subsite_name_logo_setting == "split") : ?>
               <div id="site-name" class="site-name"><a href="<?php print $subsite_front_page; ?>" title="<?php print t($subsite_site_name_text); ?>" rel="<?php print check_plain($subsite_site_name_text); ?>"><?php print $site_name; ?></a></div>
               <?php else: ?>

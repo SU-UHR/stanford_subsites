@@ -21,3 +21,4 @@ dependencies[] = strongarm
 dependencies[] = context
 dependencies[] = stanford_subsites_content_types
 dependencies[] = stanford_subsites_vocabularies_and_terms
+dependencies[] = menu_block
