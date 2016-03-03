@@ -224,7 +224,7 @@ function stanford_subsites_preprocess_page(&$vars) {
   // Apply the subsite.
   $subsite_node = stanford_subsites_get_active_subsite();
 
-  if ($subsite_node->nid) {
+  if (isset($subsite_node->nid)) {
     stanford_subsites_apply_subsite($subsite_node, $vars);
   }
   else {
