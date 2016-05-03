@@ -52,6 +52,7 @@ function stanford_subsites_schema() {
     ),
     'indexes' => array(
       'ntm' => array('nid', "tid", "menu"),
+      'nt' => array('nid', "tid"),
       'nm' => array('nid', "menu"),
       'tm' => array("tid", "menu"),
     ),
