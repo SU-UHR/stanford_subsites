@@ -624,7 +624,7 @@ function stanford_subsites_get_subsite_term_from_node($node) {
   }
 
   $lang = LANGUAGE_NONE;
-  $tid = @$node->{SUBSITE_TAGS_FIELD}[$lang][0]['tid'];
+  $tid = $node->{SUBSITE_TAGS_FIELD}[$lang][0]['tid'];
 
   if (!$tid) {
     return FALSE;
@@ -633,14 +633,14 @@ function stanford_subsites_get_subsite_term_from_node($node) {
   // old way that ends up calling entity_load
   //return taxonomy_term_load($tid);
 
-  // Using entity field query
-  $query = new EntityFieldQuery();
-  $result = $query
-  ->entityCondition('entity_type', 'taxonomy_term')
-  ->propertyCondition('vid', (int) $node->vid, '=')
-  ->execute();
-  return $result['taxonomy_term'];
+  $query = db_select("taxonomy_term_data", "ttd")
+            ->fields("ttd")
+            ->condition("tid", $tid)
+            ->execute();
 
+  $term = $query->fetchObject();
+
+  return $term;
 }
 
 /**
