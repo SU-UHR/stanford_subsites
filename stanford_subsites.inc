@@ -224,7 +224,14 @@ function _lookup_subsite_reference_by_path($path) {
  */
 function _get_subsite_paths() {
 
-  $paths = cache_get('stanford_subsites_subsite_paths');
+  // Try to fetch from static cache first.
+  $paths = &drupal_static(__FUNCTION__, NULL);
+
+  // Then DB cache if not available.
+  if (is_null($paths)) {
+    $paths = cache_get('stanford_subsites_subsite_paths');
+  }
+
   // If cache isnt set then we need to generate it.
   if (!$paths) {
     $paths = array();
@@ -236,6 +243,8 @@ function _get_subsite_paths() {
     while ($path_string = $query->fetchAssoc()) {
       $paths[$path_string['nid']] = drupal_get_path_alias("node/" . $path_string['nid']);
     }
+
+    // Save the cache if we can.
     cache_set('stanford_subsites_subsite_paths', $paths);
     return $paths;
   }
