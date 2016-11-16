@@ -225,11 +225,17 @@ function _lookup_subsite_reference_by_path($path) {
 function _get_subsite_paths() {
 
   // Try to fetch from static cache first.
-  $paths = &drupal_static(__FUNCTION__, NULL);
+  $paths = NULL;
+  $data = &drupal_static(__FUNCTION__, NULL);
 
   // Then DB cache if not available.
-  if (is_null($paths)) {
+  if (is_null($data)) {
     $paths = cache_get('stanford_subsites_subsite_paths');
+    $data = $paths->data;
+  }
+  else {
+    $paths = new stdClass();
+    $paths->data = $data;
   }
 
   // If cache isnt set then we need to generate it.
