@@ -231,7 +231,9 @@ function _get_subsite_paths() {
   // Then DB cache if not available.
   if (is_null($data)) {
     $paths = cache_get('stanford_subsites_subsite_paths');
-    $data = $paths->data;
+    if (isset($paths->data)) {
+      $data = $paths->data;
+    }
   }
   else {
     $paths = new stdClass();
