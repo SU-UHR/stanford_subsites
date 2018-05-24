@@ -302,7 +302,7 @@ $stanford_links = array(
     'terms' => l('Terms of Use', variable_get('stanford_framework_links_terms', 'https://www.stanford.edu/site/terms/'), array('attributes' => array('title' => t('Terms of use for sites')))),
     'privacy_policy' => l('Privacy', variable_get('stanford_framework_links_privacy_policy', 'https://www.stanford.edu/site/privacy'), array('attributes' => array('title' => t('Privacy and cookie policy')))),
     'copyright' => l('Copyright', variable_get('stanford_framework_links_copyright', 'https://uit.stanford.edu/security/copyright-infringement'), array('attributes' => array('title' => t('Report alleged copyright infringement')))),
-    'trademark' => l('Trademark', variable_get('stanford_framework_links_trademark', 'https://adminguide.stanford.edu/chapter-1/subchapter-5/policy-1-5-4'), array('attributes' => array('title' => t('Report alleged copyright infringement')))),
+    'trademark' => l('Trademarks', variable_get('stanford_framework_links_trademark', 'https://adminguide.stanford.edu/chapter-1/subchapter-5/policy-1-5-4'), array('attributes' => array('title' => t('Report alleged copyright infringement')))),
     'non_discrimination' => l('Non-Discrimination', variable_get('stanford_framework_links_non_discrimination', 'http://exploredegrees.stanford.edu/nonacademicregulations/nondiscrimination/'), array('attributes' => array('title' => t('Report alleged copyright infringement')))),
     'accessibility' => l('Accessibility', variable_get('stanford_framework_links_accessibility', 'https://www.stanford.edu/site/accessibility/'), array('attributes' => array('title' => t('Report alleged copyright infringement')))),
   ),
