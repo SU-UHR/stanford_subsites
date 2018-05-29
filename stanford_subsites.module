@@ -477,7 +477,8 @@ function stanford_subsites_node_delete($node) {
           $form_state['values']['delta'] = $delta;
           $form_state['values']['block_title'] =  _menu_block_format_title(menu_block_get_config($delta));
 
-          menu_block_delete_submit($form, $form_state);
+          // Work in menu_block 2.7
+          menu_block_delete_form_submit($form, $form_state);
 
         }
       }
@@ -638,13 +639,30 @@ function stanford_subsites_pathauto_alias_alter(&$alias, $context) {
   $original_alias = $alias;
 
   // A taxonomy term or a user or the subsite itself or pathauto is off.
-  if (!$node || !isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+  if (!$node) {
     return;
+  }
+
+  $node_type = $node->type;
+  $workbench_var = "workbench_access_node_type_" . $node_type;
+
+  // If workbench moderation is not available and pathauto is disabled for this node just end.
+  if (!module_exists("workbench_moderation")) {
+    if (!isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+      return;
+    }
+  }
+
+  // If workbench is enabled and working on the live revision check the pathauto settings.
+  if (module_exists("workbench_moderation") && variable_get($workbench_var, FALSE) && isset($node->workbench_moderation['updating_live_revision'])) {
+    if (!isset($node->path['pathauto']) || $node->path['pathauto'] === 0) {
+      return;
+    }
   }
 
   // Alter the subsite pathauto alias to include the second line name.
   if ($node->type == SUBSITE_CONTENT_TYPE) {
-    if (!empty($node->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'])) {
+    if (!empty($node->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value']) && preg_match("/field_stanford_subsite_sname/", $context["pattern"])) {
       $alias .= "-" . check_plain(drupal_clean_css_identifier(strtolower($node->{SUBSITE_2NDNAME_FIELD}[LANGUAGE_NONE][0]['value'])));
     }
     return;
