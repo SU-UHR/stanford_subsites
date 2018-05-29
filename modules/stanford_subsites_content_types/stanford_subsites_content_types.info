@@ -45,7 +45,3 @@ features_exclude[variable][menu_options_stanford_subsite] = menu_options_stanfor
 features_exclude[variable][menu_parent_stanford_subsite] = menu_parent_stanford_subsite
 features_exclude[variable][node_options_stanford_subsite] = node_options_stanford_subsite
 features_exclude[variable][node_preview_stanford_subsite] = node_preview_stanford_subsite
-<<<<<<< HEAD
-=======
-
->>>>>>> 2de08e640792dd38f095919fc3fc65c7ca276d03
