@@ -1,6 +1,10 @@
 Stanford Subsites x.x-x.x xxxx-xx-xx
 ------------------------------------
 
+Stanford Subsites 7.x-2.1-caw 2015-09-16
+------------------------------------------
+* Merge in upstream changes to stanford_subsites-7.x-2.x (Global footer)
+
 Stanford Subsites 7.x-2.0-caw 2015-09-16
 ------------------------------------------
 * CAW specific branch starting point.
