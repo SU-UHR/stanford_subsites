@@ -1,7 +1,7 @@
 name = Stanford Subsites Administration Dashboard
 description = Creates a dashboard block at admin/config/subsites/dashboard.
 package = Stanford
-version = 7.x-2.1-caw
+version = 7.x-3.1-caw
 core = 7.x
 
 files[] = "stanford_subsites_admin_dash.pages.inc"

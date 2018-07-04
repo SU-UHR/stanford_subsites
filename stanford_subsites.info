@@ -1,7 +1,7 @@
 name = Stanford Subsites
 description = Creates the ability for content authors to create branded "Subsites" within one Drupal installation. Originally developed for use at Stanford University.
 package = Stanford
-version = 7.x-2.1-caw
+version = 7.x-3.1-caw
 core = 7.x
 project status url = https://github.com/SU-UHR/stanford_subsites
 
@@ -22,3 +22,4 @@ dependencies[] = strongarm
 dependencies[] = context
 dependencies[] = stanford_subsites_content_types
 dependencies[] = stanford_subsites_vocabularies_and_terms
+dependencies[] = menu_block

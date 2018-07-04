@@ -1,5 +1,5 @@
 #[Stanford Subsites](https://github.com/SU-SWS/stanford_subsites)
-##### Version 7.x-2.0-caw
+##### Version 7.x-3.1-caw
 
 Maintainers: [Caryl Westerberg](https://github.com/cjwest), [Shea McKinney](https://github.com/sherakama)
 
